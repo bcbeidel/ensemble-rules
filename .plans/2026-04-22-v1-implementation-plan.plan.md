@@ -2,7 +2,7 @@
 name: v1-implementation-plan
 description: Ship the ensemble-rules v1 CLI — elicit six LLMs in parallel, persist raw responses, produce synthesis and both deterministic and LLM-judged coverage artifacts.
 type: plan
-status: executing
+status: completed
 branch: v1-implementation
 created: 2026-04-22
 ---

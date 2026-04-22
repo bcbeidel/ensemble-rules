@@ -10,9 +10,9 @@ PANEL: list[str] = [
     "openai/gpt-5",
     "openai/gpt-4o-mini",
     "anthropic/claude-opus-4-7",
-    "anthropic/claude-haiku-3-5",
+    "anthropic/claude-haiku-4-5",
     "vertex_ai/gemini-2.5-pro",
-    "xai/grok-4",
+    "xai/grok-3-mini",
 ]
 
 SYNTHESIZER: str = "anthropic/claude-opus-4-7"

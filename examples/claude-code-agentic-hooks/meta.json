@@ -1,0 +1,65 @@
+{
+  "topic": "Claude Code Agentic Hooks",
+  "started_at": "2026-04-22T20:32:42.515665+00:00",
+  "finished_at": "2026-04-22T20:36:30.734419+00:00",
+  "elapsed_seconds": 228.218754,
+  "panel": [
+    "openai/gpt-5",
+    "openai/gpt-4o-mini",
+    "anthropic/claude-opus-4-7",
+    "anthropic/claude-haiku-4-5",
+    "vertex_ai/gemini-2.5-pro",
+    "xai/grok-3-mini"
+  ],
+  "synthesizer": "anthropic/claude-opus-4-7",
+  "usage_by_model": {
+    "openai/gpt-5": {
+      "prompt_tokens": 338,
+      "completion_tokens": 5460,
+      "total_tokens": 5798,
+      "cost_usd": 0.0550225
+    },
+    "openai/gpt-4o-mini": {
+      "prompt_tokens": 339,
+      "completion_tokens": 847,
+      "total_tokens": 1186,
+      "cost_usd": 0.00055905
+    },
+    "anthropic/claude-opus-4-7": {
+      "prompt_tokens": 566,
+      "completion_tokens": 3844,
+      "total_tokens": 4410,
+      "cost_usd": 0.09893
+    },
+    "anthropic/claude-haiku-4-5": {
+      "prompt_tokens": 389,
+      "completion_tokens": 3213,
+      "total_tokens": 3602,
+      "cost_usd": 0.016454000000000003
+    },
+    "vertex_ai/gemini-2.5-pro": {
+      "prompt_tokens": 353,
+      "completion_tokens": 4412,
+      "total_tokens": 4765,
+      "cost_usd": 0.044561250000000004
+    },
+    "xai/grok-3-mini": {
+      "prompt_tokens": 336,
+      "completion_tokens": 1472,
+      "total_tokens": 2506,
+      "cost_usd": 0.001184675
+    }
+  },
+  "synthesis_usage": {
+    "prompt_tokens": 21060,
+    "completion_tokens": 8145,
+    "total_tokens": 29205,
+    "cost_usd": 0.308925
+  },
+  "coverage_llm_usage": {
+    "prompt_tokens": 21095,
+    "completion_tokens": 4393,
+    "total_tokens": 25488,
+    "cost_usd": 0.21530000000000002
+  }
+}

@@ -8,6 +8,7 @@ def test_load_elicitation_template_has_markers():
     assert "{{topic}}" in text
     assert "{{topic_description}}" in text
     assert "## Section 2" in text
+    assert "## Section 3" in text
 
 
 def test_load_synthesis_template_has_markers():

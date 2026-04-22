@@ -32,7 +32,8 @@ def build_model_blocks(responses: list[ModelResponse]) -> str:
         if r.error is not None:
             continue
         blocks.append(
-            f"===MODEL: {r.model}===\n\n{r.reasoning}\n\n{r.rules_file}"
+            f"===MODEL: {r.model}===\n\n"
+            f"{r.reasoning}\n\n{r.rules_file}\n\n{r.deterministic_checks}"
         )
     return "\n\n".join(blocks)
 

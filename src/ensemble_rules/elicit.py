@@ -5,6 +5,7 @@ import time
 
 import litellm
 
+from ensemble_rules._litellm import extract_usage
 from ensemble_rules.errors import MalformedResponseError
 from ensemble_rules.parse import split_sections
 from ensemble_rules.schema import ModelResponse, Usage
@@ -38,7 +39,7 @@ async def elicit_one(model: str, prompt: str) -> ModelResponse:
             reasoning=content.strip(),
             rules_file="",
             error=f"MalformedResponseError: {exc}",
-            usage=_extract_usage(response),
+            usage=extract_usage(response),
             elapsed_seconds=elapsed,
         )
 
@@ -47,7 +48,7 @@ async def elicit_one(model: str, prompt: str) -> ModelResponse:
         reasoning=reasoning,
         rules_file=rules_file,
         error=None,
-        usage=_extract_usage(response),
+        usage=extract_usage(response),
         elapsed_seconds=elapsed,
     )
 
@@ -75,50 +76,3 @@ def _errored(model: str, started: float, message: str, elapsed: float | None = N
         usage=Usage(),
         elapsed_seconds=elapsed if elapsed is not None else time.monotonic() - started,
     )
-
-
-def _extract_usage(response: object) -> Usage:
-    usage_obj = getattr(response, "usage", None)
-    prompt_tokens = _get(usage_obj, "prompt_tokens")
-    completion_tokens = _get(usage_obj, "completion_tokens")
-    total_tokens = _get(usage_obj, "total_tokens")
-    cost = _extract_cost(response)
-    return Usage(
-        prompt_tokens=_coerce_int(prompt_tokens),
-        completion_tokens=_coerce_int(completion_tokens),
-        total_tokens=_coerce_int(total_tokens),
-        cost_usd=_coerce_float(cost),
-    )
-
-
-def _extract_cost(response: object) -> object:
-    hidden = getattr(response, "_hidden_params", None)
-    if isinstance(hidden, dict):
-        return hidden.get("response_cost")
-    return None
-
-
-def _get(obj: object, key: str) -> object:
-    if obj is None:
-        return None
-    if isinstance(obj, dict):
-        return obj.get(key)
-    return getattr(obj, key, None)
-
-
-def _coerce_int(value: object) -> int | None:
-    if value is None:
-        return None
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return None
-
-
-def _coerce_float(value: object) -> float | None:
-    if value is None:
-        return None
-    try:
-        return float(value)
-    except (TypeError, ValueError):
-        return None

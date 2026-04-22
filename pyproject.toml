@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ensemble-rules"
+version = "0.1.0"
+description = "Poll N LLMs with the same prompt and synthesize consensus, minority, and divergent best-practice rules."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "litellm>=1.50",
+    "rapidfuzz>=3.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+ensemble-rules = "ensemble_rules.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ensemble_rules"]

@@ -69,16 +69,16 @@ Modified:
 
 ## Tasks
 
-- [ ] Task 1: `pyproject.toml` with `src/` layout, `console_scripts` entry point, runtime deps (`litellm`, `rapidfuzz`), dev dep (`pytest`), Python 3.11+ requirement. Also update `.gitignore` for `runs/`, `.venv/`, egg-info, pycache.
-- [ ] Task 2: `src/ensemble_rules/__init__.py` (version), `src/ensemble_rules/errors.py` (`MalformedResponseError`, `PanelError`), `src/ensemble_rules/parse.py` (`split_sections` raising on missing marker), and `tests/test_parse.py` covering both valid split and the malformed-input raise case.
-- [ ] Task 3: `src/ensemble_rules/schema.py` (dataclasses: `Usage`, `ModelResponse`, `CollectedRun`, `RunMeta`; `dump`/`validate_raw` helpers), plus `tests/test_schema.py` round-trip and malformed-payload cases.
-- [ ] Task 4: `src/ensemble_rules/coverage.py` (`extract_rules`, `build_matrix`, `render_markdown`) with `rapidfuzz`-based clustering; `tests/fixtures/` static fake responses; `tests/test_coverage.py` exercising extraction, clustering, and rendering.
-- [ ] Task 5: `prompts/templates/elicitation.md`, `prompts/templates/synthesis.md`, `prompts/templates/coverage_llm.md` (the three templates with `{{var}}` placeholders as specified in the kickoff and Design appendix), plus `src/ensemble_rules/prompts.py` loader with strict `{{name}}` substitution.
-- [ ] Task 6: `src/ensemble_rules/config.py` with `PANEL` (six models) and `SYNTHESIZER` (`anthropic/claude-opus-4-7`) constants.
-- [ ] Task 7: `src/ensemble_rules/elicit.py` (`elicit_one`, `elicit_all` using `litellm.acompletion` + `asyncio.gather(..., return_exceptions=True)`; per-call timing; usage/cost capture; catches `MalformedResponseError` and LiteLLM errors into errored `ModelResponse`).
-- [ ] Task 8: `src/ensemble_rules/synthesize.py` (`synthesize_async`) and `src/ensemble_rules/coverage_llm.py` (`build_async`) — both single `litellm.acompletion` calls against `SYNTHESIZER`.
-- [ ] Task 9: `src/ensemble_rules/artifacts.py` (`ensure_run_dir`, `slugify`, `write_raw`, `write_synthesis`, `write_coverage`, `write_coverage_llm`, `write_meta`) and `src/ensemble_rules/pipeline.py` (`run(topic, description)` orchestrating the full pipeline; gathers synthesis + llm-coverage in parallel; implements the total-failure exit-2 policy).
-- [ ] Task 10: `src/ensemble_rules/cli.py` (argparse with `run` subcommand, dispatches to `pipeline.run`) + `README.md` update (prerequisites, install, example invocation).
+- [x] Task 1: `pyproject.toml` with `src/` layout, `console_scripts` entry point, runtime deps (`litellm`, `rapidfuzz`), dev dep (`pytest`), Python 3.11+ requirement. Also update `.gitignore` for `runs/`, `.venv/`, egg-info, pycache. <!-- sha:a1943d0 -->
+- [x] Task 2: `src/ensemble_rules/__init__.py` (version), `src/ensemble_rules/errors.py` (`MalformedResponseError`, `PanelError`), `src/ensemble_rules/parse.py` (`split_sections` raising on missing marker), and `tests/test_parse.py` covering both valid split and the malformed-input raise case. <!-- sha:0bdb01d -->
+- [x] Task 3: `src/ensemble_rules/schema.py` (dataclasses: `Usage`, `ModelResponse`, `CollectedRun`, `RunMeta`; `dump`/`validate_raw` helpers), plus `tests/test_schema.py` round-trip and malformed-payload cases. <!-- sha:ebfac4e -->
+- [x] Task 4: `src/ensemble_rules/coverage.py` (`extract_rules`, `build_matrix`, `render_markdown`) with `rapidfuzz`-based clustering; `tests/fixtures/` static fake responses; `tests/test_coverage.py` exercising extraction, clustering, and rendering. <!-- sha:e1faaa5 -->
+- [x] Task 5: `prompts/templates/elicitation.md`, `prompts/templates/synthesis.md`, `prompts/templates/coverage_llm.md` (the three templates with `{{var}}` placeholders as specified in the kickoff and Design appendix), plus `src/ensemble_rules/prompts.py` loader with strict `{{name}}` substitution. <!-- sha:3478758 -->
+- [x] Task 6: `src/ensemble_rules/config.py` with `PANEL` (six models) and `SYNTHESIZER` (`anthropic/claude-opus-4-7`) constants. <!-- sha:547f127 -->
+- [x] Task 7: `src/ensemble_rules/elicit.py` (`elicit_one`, `elicit_all` using `litellm.acompletion` + `asyncio.gather(..., return_exceptions=True)`; per-call timing; usage/cost capture; catches `MalformedResponseError` and LiteLLM errors into errored `ModelResponse`). <!-- sha:80c4706 -->
+- [x] Task 8: `src/ensemble_rules/synthesize.py` (`synthesize_async`) and `src/ensemble_rules/coverage_llm.py` (`build_async`) — both single `litellm.acompletion` calls against `SYNTHESIZER`. <!-- sha:2dc5dd1 -->
+- [x] Task 9: `src/ensemble_rules/artifacts.py` (`ensure_run_dir`, `slugify`, `write_raw`, `write_synthesis`, `write_coverage`, `write_coverage_llm`, `write_meta`) and `src/ensemble_rules/pipeline.py` (`run(topic, description)` orchestrating the full pipeline; gathers synthesis + llm-coverage in parallel; implements the total-failure exit-2 policy). <!-- sha:09f9be4 -->
+- [x] Task 10: `src/ensemble_rules/cli.py` (argparse with `run` subcommand, dispatches to `pipeline.run`) + `README.md` update (prerequisites, install, example invocation). <!-- sha:4f0462a -->
 
 ## Validation
 

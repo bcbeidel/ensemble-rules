@@ -1,0 +1,65 @@
+{
+  "topic": "CLAUDE.md Project Memory Files",
+  "started_at": "2026-04-22T20:40:50.271514+00:00",
+  "finished_at": "2026-04-22T20:43:41.594936+00:00",
+  "elapsed_seconds": 171.323422,
+  "panel": [
+    "openai/gpt-5",
+    "openai/gpt-4o-mini",
+    "anthropic/claude-opus-4-7",
+    "anthropic/claude-haiku-4-5",
+    "vertex_ai/gemini-2.5-pro",
+    "xai/grok-3-mini"
+  ],
+  "synthesizer": "anthropic/claude-opus-4-7",
+  "usage_by_model": {
+    "openai/gpt-5": {
+      "prompt_tokens": 338,
+      "completion_tokens": 4942,
+      "total_tokens": 5280,
+      "cost_usd": 0.049842500000000005
+    },
+    "openai/gpt-4o-mini": {
+      "prompt_tokens": 339,
+      "completion_tokens": 908,
+      "total_tokens": 1247,
+      "cost_usd": 0.00059565
+    },
+    "anthropic/claude-opus-4-7": {
+      "prompt_tokens": 556,
+      "completion_tokens": 3191,
+      "total_tokens": 3747,
+      "cost_usd": 0.082555
+    },
+    "anthropic/claude-haiku-4-5": {
+      "prompt_tokens": 379,
+      "completion_tokens": 3721,
+      "total_tokens": 4100,
+      "cost_usd": 0.018984
+    },
+    "vertex_ai/gemini-2.5-pro": {
+      "prompt_tokens": 359,
+      "completion_tokens": 4645,
+      "total_tokens": 5004,
+      "cost_usd": 0.04689875
+    },
+    "xai/grok-3-mini": {
+      "prompt_tokens": 331,
+      "completion_tokens": 1372,
+      "total_tokens": 2457,
+      "cost_usd": 0.001155775
+    }
+  },
+  "synthesis_usage": {
+    "prompt_tokens": 20812,
+    "completion_tokens": 5585,
+    "total_tokens": 26397,
+    "cost_usd": 0.243685
+  },
+  "coverage_llm_usage": {
+    "prompt_tokens": 20845,
+    "completion_tokens": 3746,
+    "total_tokens": 24591,
+    "cost_usd": 0.19787500000000002
+  }
+}

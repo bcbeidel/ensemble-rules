@@ -1,0 +1,65 @@
+{
+  "topic": "Agent Rule Files",
+  "started_at": "2026-04-22T23:46:16.815497+00:00",
+  "finished_at": "2026-04-22T23:51:19.992736+00:00",
+  "elapsed_seconds": 303.177239,
+  "panel": [
+    "openai/gpt-5",
+    "openai/gpt-4o-mini",
+    "anthropic/claude-opus-4-7",
+    "anthropic/claude-haiku-4-5",
+    "vertex_ai/gemini-2.5-pro",
+    "xai/grok-3-mini"
+  ],
+  "synthesizer": "anthropic/claude-opus-4-7",
+  "usage_by_model": {
+    "openai/gpt-5": {
+      "prompt_tokens": 735,
+      "completion_tokens": 9855,
+      "total_tokens": 10590,
+      "cost_usd": 0.09946875000000001
+    },
+    "openai/gpt-4o-mini": {
+      "prompt_tokens": 736,
+      "completion_tokens": 1145,
+      "total_tokens": 1881,
+      "cost_usd": 0.0007974
+    },
+    "anthropic/claude-opus-4-7": {
+      "prompt_tokens": 1124,
+      "completion_tokens": 5779,
+      "total_tokens": 6903,
+      "cost_usd": 0.15009500000000003
+    },
+    "anthropic/claude-haiku-4-5": {
+      "prompt_tokens": 816,
+      "completion_tokens": 5056,
+      "total_tokens": 5872,
+      "cost_usd": 0.026096
+    },
+    "vertex_ai/gemini-2.5-pro": {
+      "prompt_tokens": 768,
+      "completion_tokens": 4955,
+      "total_tokens": 5723,
+      "cost_usd": 0.050510000000000006
+    },
+    "xai/grok-3-mini": {
+      "prompt_tokens": 721,
+      "completion_tokens": 2000,
+      "total_tokens": 3645,
+      "cost_usd": 0.0016774
+    }
+  },
+  "synthesis_usage": {
+    "prompt_tokens": 30482,
+    "completion_tokens": 8170,
+    "total_tokens": 38652,
+    "cost_usd": 0.35666000000000003
+  },
+  "coverage_llm_usage": {
+    "prompt_tokens": 30018,
+    "completion_tokens": 4255,
+    "total_tokens": 34273,
+    "cost_usd": 0.256465
+  }
+}

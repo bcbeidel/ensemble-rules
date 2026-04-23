@@ -1,0 +1,65 @@
+{
+  "topic": "dbt SQL Models",
+  "started_at": "2026-04-23T03:01:37.092001+00:00",
+  "finished_at": "2026-04-23T03:06:37.329918+00:00",
+  "elapsed_seconds": 300.237917,
+  "panel": [
+    "openai/gpt-5",
+    "openai/gpt-4o-mini",
+    "anthropic/claude-opus-4-7",
+    "anthropic/claude-haiku-4-5",
+    "vertex_ai/gemini-2.5-pro",
+    "xai/grok-3-mini"
+  ],
+  "synthesizer": "anthropic/claude-opus-4-7",
+  "usage_by_model": {
+    "openai/gpt-5": {
+      "prompt_tokens": 718,
+      "completion_tokens": 9074,
+      "total_tokens": 9792,
+      "cost_usd": 0.09163750000000001
+    },
+    "openai/gpt-4o-mini": {
+      "prompt_tokens": 719,
+      "completion_tokens": 1643,
+      "total_tokens": 2362,
+      "cost_usd": 0.00109365
+    },
+    "anthropic/claude-opus-4-7": {
+      "prompt_tokens": 1099,
+      "completion_tokens": 9161,
+      "total_tokens": 10260,
+      "cost_usd": 0.23452
+    },
+    "anthropic/claude-haiku-4-5": {
+      "prompt_tokens": 796,
+      "completion_tokens": 9151,
+      "total_tokens": 9947,
+      "cost_usd": 0.046551
+    },
+    "vertex_ai/gemini-2.5-pro": {
+      "prompt_tokens": 749,
+      "completion_tokens": 6410,
+      "total_tokens": 7159,
+      "cost_usd": 0.06503625
+    },
+    "xai/grok-3-mini": {
+      "prompt_tokens": 706,
+      "completion_tokens": 2494,
+      "total_tokens": 3955,
+      "cost_usd": 0.0018353999999999998
+    }
+  },
+  "synthesis_usage": {
+    "prompt_tokens": 43970,
+    "completion_tokens": 10028,
+    "total_tokens": 53998,
+    "cost_usd": 0.47055
+  },
+  "coverage_llm_usage": {
+    "prompt_tokens": 43506,
+    "completion_tokens": 5366,
+    "total_tokens": 48872,
+    "cost_usd": 0.35168000000000005
+  }
+}

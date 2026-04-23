@@ -1,0 +1,65 @@
+{
+  "topic": "pre-commit Hooks",
+  "started_at": "2026-04-23T01:16:05.916564+00:00",
+  "finished_at": "2026-04-23T01:21:33.379604+00:00",
+  "elapsed_seconds": 327.46304,
+  "panel": [
+    "openai/gpt-5",
+    "openai/gpt-4o-mini",
+    "anthropic/claude-opus-4-7",
+    "anthropic/claude-haiku-4-5",
+    "vertex_ai/gemini-2.5-pro",
+    "xai/grok-3-mini"
+  ],
+  "synthesizer": "anthropic/claude-opus-4-7",
+  "usage_by_model": {
+    "openai/gpt-5": {
+      "prompt_tokens": 724,
+      "completion_tokens": 10085,
+      "total_tokens": 10809,
+      "cost_usd": 0.10175500000000001
+    },
+    "openai/gpt-4o-mini": {
+      "prompt_tokens": 725,
+      "completion_tokens": 1483,
+      "total_tokens": 2208,
+      "cost_usd": 0.00099855
+    },
+    "anthropic/claude-opus-4-7": {
+      "prompt_tokens": 1104,
+      "completion_tokens": 6723,
+      "total_tokens": 7827,
+      "cost_usd": 0.173595
+    },
+    "anthropic/claude-haiku-4-5": {
+      "prompt_tokens": 804,
+      "completion_tokens": 4951,
+      "total_tokens": 5755,
+      "cost_usd": 0.025559000000000002
+    },
+    "vertex_ai/gemini-2.5-pro": {
+      "prompt_tokens": 757,
+      "completion_tokens": 5206,
+      "total_tokens": 5963,
+      "cost_usd": 0.053006250000000005
+    },
+    "xai/grok-3-mini": {
+      "prompt_tokens": 708,
+      "completion_tokens": 2166,
+      "total_tokens": 3692,
+      "cost_usd": 0.0017034999999999997
+    }
+  },
+  "synthesis_usage": {
+    "prompt_tokens": 31743,
+    "completion_tokens": 9296,
+    "total_tokens": 41039,
+    "cost_usd": 0.39111500000000005
+  },
+  "coverage_llm_usage": {
+    "prompt_tokens": 31278,
+    "completion_tokens": 3916,
+    "total_tokens": 35194,
+    "cost_usd": 0.25429
+  }
+}

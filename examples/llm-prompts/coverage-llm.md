@@ -6,65 +6,66 @@
 > the two.
 
 | Rule | Theme | openai/gpt-5 | openai/gpt-4o-mini | anthropic/claude-opus-4-7 | anthropic/claude-haiku-4-5 | vertex_ai/gemini-2.5-pro | xai/grok-3-mini | Count |
-|------|-------|---|---|---|---|---|---|---|
-| Specify an explicit, machine-parseable output format or schema. | Output | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Organize prompts into explicit, named sections (goal, constraints, context, output, examples). | Structure | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Treat user/retrieved input as untrusted and delimit it to prevent prompt injection. | Safety | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Version-control prompts and treat them as code artifacts. | Maintainability | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Use named placeholders/templating for dynamic variables instead of string concatenation. | Maintainability | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Define explicit failure/refusal/error output behavior. | Error Handling | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Avoid contradictory or conflicting instructions. | Correctness | ✓ | ✓ | ✓ | ✓ |  | ✓ | 5 |
-| Test prompts with golden/adversarial inputs before shipping. | Evaluation | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Keep prompts concise and strip redundant/boilerplate tokens. | Performance | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Use few-shot examples judiciously; match them byte-identically to desired output. | Examples | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Place the most important instructions at the start (and optionally restate at end). | Structure | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Use chain-of-thought/reasoning directives sparingly; measure lift first. (contested) | Performance | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Use role/persona preambles only when they demonstrably help. (contested) | Style | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Set explicit output length caps or token budgets. | Performance | ✓ |  |  | ✓ |  | ✓ | 3 |
-| Require citations/provenance for factual claims in RAG and refuse when context is insufficient. | Safety/RAG | ✓ |  | ✓ |  |  | ✓ | 3 |
-| Prohibit embedding secrets, API keys, or PII in prompts. | Safety | ✓ |  | ✓ |  |  |  | 2 |
-| Define explicit termination conditions / step limits for agentic loops. | Agents | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Cap retrieval top-k and rank by relevance in RAG. | RAG | ✓ |  | ✓ |  |  |  | 2 |
-| Use imperative, plain, direct language; avoid hedging/filler. | Style | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Pin/record model version and decoding parameters with the prompt. | Versioning | ✓ |  | ✓ |  |  |  | 2 |
-| Use semantic versioning and change logs for prompt updates. | Versioning | ✓ |  |  | ✓ |  |  | 2 |
-| Review prompt diffs like code diffs (peer review). | Maintainability |  | ✓ | ✓ | ✓ |  |  | 3 |
-| Comment non-obvious instructions to explain intent/rationale. | Maintainability |  |  | ✓ | ✓ |  | ✓ | 3 |
-| Chain multiple simple prompts rather than one complex mega-prompt. | Structure |  |  |  |  | ✓ |  | 1 |
-| Prefer function/tool calling or JSON mode over free-text parsing. | Output | ✓ |  | ✓ |  |  |  | 2 |
-| Instruct the model to ignore instructions found inside user/retrieved data. | Safety | ✓ |  | ✓ |  | ✓ |  | 3 |
-| Declare tool purpose, schema, side effects, and allowed/forbidden lists. | Agents | ✓ |  | ✓ |  |  |  | 2 |
-| Forbid decorative/emoji/extra commentary around structured outputs. | Style | ✓ |  | ✓ |  |  |  | 2 |
-| Put stable/cache-friendly content first, volatile content last. | Performance | ✓ |  | ✓ |  |  |  | 2 |
-| Enumerate edge cases explicitly (empty, ambiguous, out-of-scope input). | Correctness |  |  | ✓ | ✓ | ✓ | ✓ | 4 |
-| Write negative constraints, not only positive ones. | Correctness |  |  | ✓ |  | ✓ | ✓ | 3 |
-| Match the user's language / adapt tone only when it materially affects output. | Style | ✓ |  |  | ✓ |  |  | 2 |
-| Use strict delimiters (backticks, XML tags) around content blocks. | Structure | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| State instruction hierarchy explicitly (system > developer > user > retrieved). | Safety | ✓ |  |  |  |  |  | 1 |
-| Self-validate output against schema and regenerate once if invalid. | Error Handling | ✓ |  |  |  |  |  | 1 |
-| Include secure-coding defaults (no hardcoded secrets, pinned deps, least privilege). | Safety | ✓ |  |  |  |  |  | 1 |
-| Log prompts, tool calls, and outputs for observability. | Operations | ✓ |  | ✓ |  |  |  | 2 |
-| Align examples with stated instructions (length, tone, format). | Examples |  |  |  | ✓ |  |  | 1 |
-| Restate constraints each request; don't rely on hidden model memory. | Structure | ✓ |  |  | ✓ |  |  | 2 |
-| Require a structured `state` field for multi-turn continuation. | Error Handling | ✓ |  |  |  |  |  | 1 |
-| Don't rely on prompting alone for security; enforce in code. | Safety |  |  | ✓ |  |  |  | 1 |
-| Prefer smaller models with tighter prompts over larger models with loose ones. | Performance |  |  | ✓ |  |  |  | 1 |
-| Encourage peer collaboration/review on prompt authoring. | Maintainability |  | ✓ | ✓ | ✓ |  |  | 3 |
-| Default temperature/decoding to 0 for deterministic tasks. (contested) | Performance | ✓ |  |  |  |  |  | 1 |
-| Ask at most one clarifying question when inputs are insufficient. | Error Handling | ✓ |  |  |  |  |  | 1 |
-| Prefer positive examples over negative ones. (contested) | Examples |  |  |  | ✓ |  |  | 1 |
-| Avoid stacking many conditional edge-case rules; use examples instead. | Instructions |  |  |  | ✓ |  |  | 1 |
-| Don't use prompts to fix problems that belong in application code. | Anti-patterns |  |  | ✓ |  |  |  | 1 |
+|---|---|---|---|---|---|---|---|---|
+| Specify output format explicitly with a schema or concrete example. | Output Format | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
+| Include explicit safety constraints, refusal triggers, or content policy guardrails. | Safety | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
+| Isolate/delimit untrusted input and retrieved context; treat them as data, not instructions. | Safety | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
+| Keep prompts concise / set explicit length budgets. | Performance | ✓ | ✓ | ✓ |  |  | ✓ | 4 |
+| Version-control prompt files with semantic versioning and/or a changelog. | Tooling/Maintenance | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
+| Organize prompt with a consistent section structure (Goal, Constraints, Output Format, etc.). | Structure | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
+| State the goal/task explicitly and up front. | Structure | ✓ |  |  | ✓ | ✓ | ✓ | 4 |
+| Use short, imperative, direct instructions (no filler/politeness). | Style | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
+| Use explicit, typed template variables / delimited placeholders for interpolation. | Structure | ✓ |  | ✓ |  | ✓ |  | 3 |
+| Define an explicit error/refusal shape and failure path. | Error Handling | ✓ | ✓ |  | ✓ |  |  | 3 |
+| Maintain a test/eval set and run it on prompt changes. | Evaluation/Testing | ✓ |  | ✓ | ✓ |  |  | 3 |
+| Use YAML/structured frontmatter declaring metadata (id, owner, model, purpose, etc.). | Structure | ✓ |  | ✓ | ✓ |  |  | 3 |
+| Use few-shot examples sparingly / only when justified (contested). | Examples | ✓ |  | ✓ | ✓ |  |  | 3 |
+| Use consistent terminology and style throughout the prompt. | Style |  | ✓ |  | ✓ | ✓ |  | 3 |
+| Do not request/leak chain-of-thought in user-visible output; isolate reasoning. | Reasoning | ✓ |  | ✓ |  |  |  | 2 |
+| Forbid embedding secrets, credentials, or PII in prompt templates. | Safety |  |  | ✓ | ✓ |  |  | 2 |
+| Instruct abstention when evidence/context is insufficient (RAG fallback). | RAG/Error Handling | ✓ |  |  | ✓ |  |  | 2 |
+| Use provider structured-output / tool-calling features for structured outputs. | Output Format |  |  | ✓ | ✓ |  |  | 2 |
+| Declare tools/allowed actions with explicit schemas and bounded tool-call limits. | Agentic/Tool Use | ✓ |  |  | ✓ |  |  | 2 |
+| Define explicit termination/state conditions for multi-turn or agentic loops. | Agentic/Tool Use | ✓ |  |  | ✓ |  |  | 2 |
+| Prefer positive instructions over negative ones. | Style |  |  | ✓ |  | ✓ |  | 2 |
+| Assign a clear role/persona and goal to prime the model. | Content |  |  |  |  | ✓ | ✓ | 2 |
+| Place static content first and variable content last (for caching / attention). | Performance | ✓ |  | ✓ |  |  |  | 2 |
+| Set explicit generation parameters (temperature, max_tokens) appropriate to the task. | Performance |  |  | ✓ |  |  |  | 1 |
+| State explicit Non-Goals to prevent scope creep. | Structure | ✓ |  |  |  |  |  | 1 |
+| Require citations with stable source identifiers for sourced claims. | RAG | ✓ |  |  |  |  |  | 1 |
+| Keep one responsibility per prompt (single-responsibility). | Structure | ✓ |  |  |  |  |  | 1 |
+| Log full prompt, parameters, and output on every invocation. | Observability |  |  |  | ✓ |  |  | 1 |
+| Do not assume the LLM will correctly infer unstated user intent. | Error Handling |  | ✓ |  |  |  |  | 1 |
+| State explicit assumptions / required background knowledge. | Content |  |  |  | ✓ |  |  | 1 |
+| Document expected token count and latency characteristics. | Performance |  |  |  | ✓ |  |  | 1 |
+| Use RFC 2119 keywords (MUST/SHOULD/MAY) for normative constraints (contested). | Style | ✓ |  |  |  |  |  | 1 |
+| Keep sentences short (under ~20 words) (contested). | Style | ✓ |  |  | ✓ |  |  | 2 |
+| Wrap final output in explicit begin/end markers. | Output Format | ✓ |  |  |  |  |  | 1 |
+| Prohibit markdown formatting inside JSON values unless allowed. | Output Format | ✓ |  |  |  |  |  | 1 |
+| Pin model name and version when recording results. | Evaluation | | | ✓ | | | | 1 |
+| Use comments for human-readable notes ignored by the LLM. | Structure |  |  |  |  | ✓ |  | 1 |
+| Adopt consistent file naming convention (e.g., `.prompt.md` suffix). | Tooling/Maintenance |  |  |  |  | ✓ |  | 1 |
+| Sanitize untrusted input in application code before injecting into prompt. | Safety |  |  |  |  | ✓ |  | 1 |
+| Instruct the model to return raw output only (no conversational filler / code fences). | Output Format |  |  |  |  | ✓ |  | 1 |
+| State the instruction before large blocks of context/data. | Content |  |  |  |  | ✓ |  | 1 |
+| Pin a single output format — do not offer the model a choice. | Output Format |  |  | ✓ |  |  |  | 1 |
+| Use chain-of-thought for complex reasoning tasks (contested). | Reasoning |  |  |  |  | ✓ |  | 1 |
+| Prefer the system prompt for enduring instructions/persona (contested). | Structure |  |  |  |  | ✓ |  | 1 |
+| Test prompts for performance and response time. | Performance |  | ✓ |  |  |  |  | 1 |
+| Ask at most N clarifying questions if inputs are insufficient (contested). | Error Handling | ✓ |  |  |  |  |  | 1 |
 
 ## Notes on clustering decisions
 
-- **"Explicit output format" cluster**: Merged rules ranging from "specify JSON schema" (gpt-5, opus, gemini) to "define output formats" (4o-mini, grok) to "use concrete example, not English" (haiku). All share the substance of specifying parseable output, though they differ on mechanism (schema vs. example vs. JSON mode). A stricter matcher might split schema-based from example-based specification.
-- **"Treat input as untrusted / delimit it" cluster**: I merged "delimit untrusted input" (opus, gemini), "assume user input may contain injection" (haiku, grok), and "instruction hierarchy" adjacent rules (gpt-5). Kept the separate "tell model to ignore embedded instructions" as its own row since several models called this out as a distinct second defense.
-- **"Version control prompts" vs "semantic versioning with changelog"**: Kept as separate rows because the second is a narrower operational practice only called out by gpt-5 and haiku.
-- **Persona/role-play rules**: These conflict across models — gemini endorses them, opus/haiku/gpt-5 discourage generic ones. I clustered them all as "use role preambles only when demonstrably useful" since even the endorsers and skeptics are answering the same question. A less charitable clustering would split pro- and anti-persona into separate rows.
-- **"Keep prompts concise" cluster**: Merged gpt-5's "minimize boilerplate", 4o-mini's "concise yet informative", opus's "strip boilerplate", haiku's "eliminate redundancy", gemini's "concise language", grok's "under 500 tokens / no redundant details". Grok's hard token cap is more specific but the underlying rule is the same.
-- **"Explicit sections" vs "delimiters"**: I kept these as separate rows because several models (opus, haiku, gemini) called them out distinctly — sections are about logical grouping, delimiters are about parse-safe boundaries around embedded content.
-- **"Few-shot examples" rules**: Multiple models gave divergent advice — haiku recommends ≥1 example always, opus says use only when evals fail, gpt-5 says minimal/surgical, gemini says provide one for complex tasks. I clustered them as one row about using few-shot judiciously; a stricter clustering would split "always include an example" (haiku) from "use sparingly" (opus/gpt-5).
-- **"Error/failure output specification"**: Merged gpt-5's error schema, 4o-mini's (implicit via output format), opus's "refuse when insufficient", haiku's explicit "failure output", gemini's "predictable refusal format", grok's "structured fallback". All share the substance of defining what the model emits on failure.
-- **"Encourage peer review"** is present in 4o-mini (collaboration), opus ("review prompt diffs"), and haiku ("don't modify in production without review"). Clustered together though opus's framing is more code-review-specific.
-- **"Enumerate edge cases"**: Opus, haiku, gemini, and grok all touch this; I counted grok's "mandate handling of edge cases" here. A stricter matcher would likely not link grok's to opus's "empty/ambiguous/out-of-scope" list.
+- **"Specify output format explicitly"** is a broad cluster: gpt-5, opus, haiku, and gemini all call for JSON Schema or concrete example, while 4o-mini and grok call for "specify output format" more generically. I grouped them because the substance (declare an explicit format) matches, even though rigor differs.
+- **"Include explicit safety constraints"** aggregates several distinct-looking rules: gpt-5's "Safety section enumerating disallowed content," 4o-mini's "incorporate safety measures," opus's "enforce authorization externally," haiku's "document content policy," gemini's "forbid harmful content," and grok's "refusal mechanism." These could plausibly split into (a) have a safety section, (b) refusal policy, (c) external enforcement — I kept them together since each model raised at least one piece of a shared concern.
+- **"Isolate/delimit untrusted input"** merges prompt-injection defense rules from gpt-5 (treat retrieved context as data), opus (delimit untrusted inputs), haiku (isolate user input in marked sections), gemini (XML tags around untrusted input), and grok (checks on tool access). Grok's is the weakest match; borderline include.
+- **"Use short, imperative, direct instructions"** combines opus's "delete filler like please/kindly," haiku's "imperative mood" + "avoid narrative preamble," gpt-5's "directive voice without hedging," and grok's "active voice." Could have been split into "imperative voice" vs "no filler," but they travel together in the source material.
+- **"Keep sentences short"** — I kept as a separate cluster from "short imperative" because gpt-5 and haiku explicitly quantify sentence length, whereas other "concise" rules target prompt-level length.
+- **"Version-control with semver/changelog"** merges opus's "stable ID + semver + changelog," haiku's "semver tag releases + post-mortem," gemini's "version-control prompt files," and gpt-5's "version bump + CHANGELOG." 4o-mini mentions "version control principles" only in reasoning, not rules, so excluded.
+- **"Organize prompt with consistent section structure"** — models disagree on the exact sections (gpt-5: Goal/Non-Goals/Inputs/...; opus: Role/Context/Task/...; haiku: Task/Context/Constraints/...; gemini: XML-tagged sections). Clustered as one rule because the substance is "use a canonical section structure," not the specific sections.
+- **"Frontmatter with metadata"** is separate from "section structure" because frontmatter is machine-readable metadata (id, version, owner) rather than prompt body organization.
+- **"Few-shot sparingly"** — all three (gpt-5, opus, haiku) flag this as contested and agree on "use when justified, keep small." Gemini's separate rule recommending few-shot for complex tasks is *not* included in this cluster because it pushes the opposite direction; I left it as a single-model rule under Content instead, though one could argue for merging into a contested cluster.
+- **Gemini's "use chain-of-thought for complex reasoning"** and **opus's "do not add 'think step by step' to reasoning-tuned models"** are listed separately rather than as a contested cluster because they address different model classes — opus carves out reasoning-tuned models specifically while gemini speaks generally.
+- **"State the goal up front"** (gpt-5, haiku, gemini, grok) vs **"Assign a role/persona"** (gemini, grok) — kept separate since role-assignment is a distinct prompt technique from stating a task goal, though they often co-locate at the top of a prompt.
+- **"Error/refusal shape"** merges gpt-5's "Cannot comply path with fixed error object," 4o-mini's "explicit instructions for handling errors," and haiku's "fallback behavior if context missing." Borderline — 4o-mini's version is vaguer.
+- **4o-mini's rules** are quite generic ("do use consistent tone," "don't overlook biases"); I mapped them to the nearest substantive cluster but several are thin matches.

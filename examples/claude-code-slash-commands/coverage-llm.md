@@ -7,80 +7,95 @@
 
 | Rule | Theme | openai/gpt-5 | openai/gpt-4o-mini | anthropic/claude-opus-4-7 | anthropic/claude-haiku-4-5 | vertex_ai/gemini-2.5-pro | xai/grok-3-mini | Count |
 |---|---|---|---|---|---|---|---|---|
-| Require explicit confirmation or opt-in flag for destructive operations. | Safety | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Validate arguments up front and fail fast with actionable error messages. | Correctness | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Include a clear description/summary at the top of each command. | Structure | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Document every argument with name, type, and expected behavior. | Arguments | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Never interpolate unescaped/unvalidated input into shell or other execution contexts. | Safety | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Keep each command focused on a single purpose; prefer composition over monoliths. | Structure | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Use consistent (kebab-case) file/command naming conventions. | Structure | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Make commands idempotent so repeated runs are safe. | Correctness | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Include at least one concrete usage example. | Structure | ✓ |  |  | ✓ | ✓ | ✓ | 4 |
-| Declare/document side effects explicitly in the command. | Safety | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
-| Use frontmatter/metadata (description, args, version, owners) for each command. | Structure | ✓ |  | ✓ |  | ✓ | ✓ | 4 |
-| Never embed secrets, tokens, or sensitive data in commands; mask them in logs. | Safety | ✓ | ✓ | ✓ |  |  |  | 3 |
-| Document environment prerequisites (tools, versions, auth, env vars). | Structure | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Keep command files short/focused (under ~50–100 lines). | Structure |  |  | ✓ | ✓ |  |  | 2 |
-| Limit `allowed-tools` / script permissions to the minimum required (least privilege). | Safety | ✓ |  | ✓ |  | ✓ |  | 3 |
-| Prefer positional/named argument slots over a single raw `$ARGUMENTS` blob. | Arguments |  |  | ✓ | ✓ |  |  | 2 |
-| Write instructions in active voice / imperative mood. | Style |  |  | ✓ | ✓ |  | ✓ | 3 |
-| State explicit success criteria / expected output format in the prompt. | Style / Prompting |  |  | ✓ |  | ✓ |  | 2 |
-| Review/test commands like code (PR review, CI, manual test). | Maintenance | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Version commands alongside the codebase (commit to repo, changelog). | Maintenance | ✓ |  |  | ✓ |  |  | 2 |
-| Deprecate commands with clear warnings/migration paths instead of silent deletion. | Maintenance | ✓ |  |  | ✓ |  |  | 2 |
-| Parallelize independent work for performance. | Performance | ✓ |  |  | ✓ |  |  | 2 |
-| Cache expensive results with clear invalidation. | Performance | ✓ |  |  |  |  | ✓ | 2 |
-| Show progress / feedback for long-running commands. | Performance / UX | ✓ |  |  | ✓ |  |  | 2 |
-| Apply timeouts and bounded retries to network/long-running calls. | Performance | ✓ |  |  |  |  |  | 1 |
-| Provide a `--dry-run` mode that previews effects before applying changes. | Safety | ✓ |  | ✓ |  |  |  | 2 |
-| Provide `--verbose` / adjustable output verbosity. | Logging & UX | ✓ |  |  |  |  |  | 1 |
-| Set strict shell mode (`set -euo pipefail`, safe `IFS`). | Execution & Shell | ✓ |  |  |  |  |  | 1 |
-| Detect OS/tool variants and branch explicitly for portability. | Portability | ✓ |  |  | ✓ |  |  | 2 |
-| Check required tools/versions with actionable install hints. | Execution & Shell | ✓ |  |  | ✓ |  |  | 2 |
-| Default to the smallest safe scope (e.g., changed files, current file). | Arguments / Safety | ✓ |  |  | ✓ |  |  | 2 |
-| Refuse to run with a dirty working tree unless declared safe. | Safety | ✓ |  |  |  |  |  | 1 |
-| Do not pipe untrusted network content to a shell (no `curl \| sh`). | Safety | ✓ |  | ✓ |  |  |  | 2 |
-| Prefer letting the model open files on demand rather than front-loading context. | Model & Performance |  |  | ✓ |  |  |  | 1 |
-| Do not `@`-include large generated files or lockfiles. | Model & Performance |  |  | ✓ |  |  |  | 1 |
-| Inherit the default model unless a command truly needs a different tier. | Model & Performance |  |  | ✓ |  |  |  | 1 |
-| Keep LLM prompts specific with goals, constraints, and acceptance criteria. | LLM Usage | ✓ |  |  |  | ✓ |  | 2 |
-| Use XML tags / structured delimiters around interpolated context in prompts. | LLM Usage |  |  |  |  | ✓ |  | 1 |
-| Provide few-shot examples of desired output in the prompt. | LLM Usage |  |  |  |  | ✓ |  | 1 |
-| Set temperature to 0 for deterministic edits; higher only for ideation. | LLM Usage | ✓ |  |  |  |  |  | 1 |
-| Require human review / show diffs before applying LLM-generated edits. | LLM Usage | ✓ |  |  |  |  |  | 1 |
-| Redact secrets from prompts and model inputs. | LLM Usage | ✓ |  |  |  |  |  | 1 |
-| Prefer prompt-based logic over scripting; use scripts only for what the model can't do. | Scripting / LLM | ✓ (contested) |  | ✓ |  | ✓ (contested) |  | 3 |
-| Keep side-effect scripts short, idempotent, and inspectable. | Scripting | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Prefer bash (with strict mode) for complex shell steps. | Execution & Shell | ✓ (contested) |  |  |  |  |  | 1 |
-| Use a shebang line to specify script interpreter. | Scripting |  |  |  |  | ✓ |  | 1 |
-| Pass script args as flags/stdin and emit primary output on stdout. | Scripting |  |  |  |  | ✓ |  | 1 |
-| Log script/side-effect execution for transparency/auditing. | Safety / Logging |  |  |  | ✓ |  | ✓ | 2 |
-| Place instructions before context/examples in prompts. | LLM Usage |  |  |  |  | ✓ |  | 1 |
-| Normalize paths to the repo root and verify existence. | Arguments | ✓ |  |  |  |  |  | 1 |
-| Use locale-independent settings for reproducibility. | Correctness | ✓ |  |  |  |  |  | 1 |
-| Auto-disable ANSI colors when output is non-TTY. | Logging & UX | ✓ |  |  |  |  |  | 1 |
-| Assign CODEOWNERS for shared command directories. | Maintenance | ✓ |  |  |  |  |  | 1 |
-| Separate personal vs. shared commands (`~/.claude/` vs `.claude/`). | Structure |  |  | ✓ |  |  |  | 1 |
-| Avoid unnecessary complexity / over-parameterization. | Style |  | ✓ (contested) |  | ✓ |  |  | 2 |
-| Avoid globally mutable state in commands. | Performance / Correctness |  | ✓ |  |  |  |  | 1 |
-| Limit frequency of external API calls. | Performance |  | ✓ |  |  |  |  | 1 |
-| Provide a README/help index listing all commands. | Maintenance | ✓ |  |  | ✓ |  |  | 2 |
-| Structure the prompt body as Purpose → Inputs → Context → Steps → Success Criteria. | Style |  |  | ✓ |  |  |  | 1 |
-| Use numbered lists / bullets for procedural steps. | Style |  |  | ✓ | ✓ |  | ✓ | 3 |
-| Review commands periodically (e.g., quarterly) and remove unused ones. | Maintenance |  |  | ✓ | ✓ |  |  | 2 |
-| Gather repo state deterministically (e.g., `!git status`) at the top of commands. | Arguments / Context |  |  | ✓ |  |  |  | 1 |
-| Use explicit, unambiguous argument names (e.g., `{currentFile}` not `{file}`). | Arguments |  |  | ✓ | ✓ |  |  | 2 |
+| Include YAML frontmatter with required metadata keys. | Structure | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
+| Never hardcode secrets, credentials, or sensitive values in commands. | Safety | ✓ | ✓ | ✓ |  | ✓ | ✓ | 5 |
+| Validate argument inputs before use. | Arguments | ✓ | ✓ |  | ✓ | ✓ | ✓ | 5 |
+| Keep each command focused on a single primary purpose. | Structure | ✓ | ✓ | ✓ | ✓ |  | ✓ | 5 |
+| Quote interpolated variables in shell to prevent injection/word-splitting. | Safety | ✓ |  | ✓ |  | ✓ | ✓ | 4 |
+| Require confirmation (or dry-run gating) before destructive/mutating actions. | Safety | ✓ | ✓ |  | ✓ | ✓ |  | 4 |
+| Start bash blocks with `set -euo pipefail` (or equivalent strict mode). | Actions & Shell | ✓ |  |  | ✓ | ✓ | ✓ | 4 |
+| Use kebab-case filenames matching the command name. | Naming | ✓ |  | ✓ |  | ✓ |  | 3 |
+| Include a Usage section with concrete invocation example. | Structure | ✓ |  |  |  |  | ✓ | 2 |
+| Include at least one end-to-end example of desired output. | Style & Readability | ✓ |  | ✓ | ✓ |  |  | 3 |
+| Keep command bodies/scripts short; extract long logic to external scripts. | Structure/Scripting | ✓ |  | ✓ |  | ✓ |  | 3 |
+| Keep the description to a single short sentence. | Structure | ✓ |  | ✓ | ✓ |  |  | 3 |
+| Declare each argument with name, type, and description in frontmatter. | Arguments | ✓ |  |  | ✓ |  | ✓ | 3 |
+| Bound/scope file operations; avoid unscoped repo-wide scans. | Performance | ✓ |  | ✓ | ✓ |  |  | 3 |
+| Write prompts in imperative mood addressing Claude directly. | Style | ✓ |  | ✓ | ✓ |  |  | 3 |
+| Provide clear, actionable error messages on failure. | Error Handling |  | ✓ |  | ✓ |  | ✓ | 3 |
+| Keep lines under a fixed character limit (80–120). | Style | ✓ |  |  |  |  | ✓ | 2 |
+| Reference only declared arguments; no undeclared placeholders. | Arguments | ✓ |  |  |  |  |  | 1 |
+| Use enums/choice types for constrained argument values. | Arguments | ✓ |  |  | ✓ |  |  | 2 |
+| Declare `allowed-tools` / restrict tool scope for commands with side effects. | Safety |  |  | ✓ |  |  | ✓ | 2 |
+| Never interpolate raw arguments directly into shell preludes. | Safety |  |  | ✓ |  |  | ✓ | 2 |
+| Do not fetch remote content (curl/wget) inside preludes. | Safety |  |  | ✓ |  |  |  | 1 |
+| Limit the number of shell preludes per command. | Performance |  |  | ✓ |  |  |  | 1 |
+| Put `.claude/commands/` under CODEOWNERS / treat as reviewed source. | Ownership |  |  | ✓ |  |  |  | 1 |
+| Avoid persona preambles in prompts. | Style |  |  | ✓ |  |  |  | 1 |
+| Include semantic version in frontmatter. | Lifecycle | ✓ |  |  |  |  |  | 1 |
+| Include an owner field in frontmatter. | Lifecycle | ✓ |  |  |  |  |  | 1 |
+| Include `last_reviewed` date and re-review periodically. | Lifecycle | ✓ |  |  |  |  |  | 1 |
+| Declare environment/tool requirements in frontmatter. | Portability | ✓ |  |  | ✓ |  |  | 2 |
+| Use `bash` or `sh` language identifiers on shell code fences. | Portability | ✓ |  |  |  |  |  | 1 |
+| Prefer POSIX-compatible shell features where practical. | Portability | ✓ |  |  |  |  |  | 1 |
+| Preflight-check for required external tools before use. | Error Handling | ✓ |  |  |  |  |  | 1 |
+| Make actions idempotent where practical. | Error Handling | ✓ |  |  |  |  |  | 1 |
+| Don't use `sudo` inside command blocks. | Safety | ✓ |  |  |  |  |  | 1 |
+| Don't use `~` in paths; use repo-relative or absolute paths. | Safety | ✓ |  |  |  |  |  | 1 |
+| Prefer named arguments over positional in usage examples. | Arguments | ✓ |  |  |  |  |  | 1 |
+| Use domain prefixes to namespace related commands. | Naming | ✓ |  |  |  |  |  | 1 |
+| State success criteria/expected outputs in the prompt. | Prompt Content | ✓ |  |  | ✓ |  |  | 2 |
+| Redact secrets from logs/outputs. | Safety | ✓ |  |  |  |  |  | 1 |
+| Limit command structure nesting depth. | Structure |  | ✓ |  |  |  | ✓ | 2 |
+| Use consistent markdown formatting across command files. | Style |  | ✓ |  |  |  | ✓ | 2 |
+| Don't mix programming paradigms in a single command. | Style |  | ✓ |  |  |  |  | 1 |
+| Limit external API calls within commands. | Performance |  | ✓ |  |  |  |  | 1 |
+| Don't include unnecessary computation in command execution. | Performance |  | ✓ |  |  |  | ✓ | 2 |
+| Provide clear documentation within each command file. | Structure |  | ✓ |  |  |  |  | 1 |
+| Prefer positional `$1`/`$2` over `$ARGUMENTS` when arity is fixed. | Arguments |  |  | ✓ |  |  |  | 1 |
+| Put the task statement/ask in the first few lines of the prompt body. | Style |  |  | ✓ |  |  |  | 1 |
+| Use fenced code blocks for literal strings Claude must emit. | Style |  |  | ✓ |  |  |  | 1 |
+| Don't duplicate guidance already in CLAUDE.md. | Structure |  |  | ✓ |  |  |  | 1 |
+| Include an H1 title that equals the command name. | Structure | ✓ |  |  |  |  |  | 1 |
+| Prefer git plumbing over porcelain in preludes. | Shell Preludes |  |  | ✓ |  |  |  | 1 |
+| Fail loudly in preludes with a clear message. | Shell Preludes |  |  | ✓ |  |  |  | 1 |
+| Don't use preludes for data Claude can retrieve on demand. | Shell Preludes |  |  | ✓ |  |  |  | 1 |
+| Commit shared commands to the repo; keep personal ones per-user. | Repo Hygiene |  |  | ✓ |  |  |  | 1 |
+| Remove stale/unused commands periodically. | Repo Hygiene |  |  | ✓ |  |  |  | 1 |
+| Include full file/scope context when the command modifies code. | Prompt Content |  |  |  | ✓ |  |  | 1 |
+| Don't rely on Claude to infer style/convention; state it explicitly. | Prompt Content |  |  |  | ✓ |  |  | 1 |
+| Avoid asking Claude to do multiple distinct tasks in one command. | Prompt Content |  |  |  | ✓ |  |  | 1 |
+| Warn users upfront about slow-running commands. | Performance |  |  |  | ✓ |  |  | 1 |
+| Prefer a single batched Claude request over many sequential calls. | Performance |  |  |  | ✓ |  |  | 1 |
+| Cache expensive computations across invocations. | Performance |  |  |  | ✓ |  | ✓ | 2 |
+| Maintain a changelog / version notes for behavior changes. | Maintenance |  |  |  | ✓ |  |  | 1 |
+| Don't leave hardcoded paths/URLs in commands. | Maintenance |  |  |  | ✓ |  |  | 1 |
+| Document external dependencies used by the command. | Maintenance |  |  |  | ✓ |  |  | 1 |
+| Provide a dry-run/test mode with no side effects. | Safety |  |  |  | ✓ |  |  | 1 |
+| Don't auto-commit/push/merge command output. | Safety |  |  |  | ✓ |  |  | 1 |
+| Show diff or summary of changes before finalizing. | Safety |  |  |  | ✓ |  |  | 1 |
+| Restrict commands to the project scope (no writes to system dirs). | Safety |  |  |  | ✓ |  |  | 1 |
+| Don't silently mutate global state (env, cwd); restore if changed. | Safety |  |  |  | ✓ |  |  | 1 |
+| Use safeguards around glob expansion to bound match sets. | Safety |  |  |  | ✓ |  |  | 1 |
+| Include few-shot examples to guide output format. | Prompt Content |  |  |  |  | ✓ |  | 1 |
+| Use descriptive snake_case argument names. | Arguments |  |  |  |  | ✓ |  | 1 |
+| Validate all shell scripts with `shellcheck`. | Safety |  |  |  |  | ✓ |  | 1 |
+| Avoid unrecoverable operations (`rm -rf`, `git reset --hard`). | Safety |  |  |  |  | ✓ |  | 1 |
+| Use descriptive, meaningful command names. | Naming |  | ✓ |  |  |  |  | 1 |
+| Prefix argument names with the command name to avoid conflicts. | Style |  |  |  |  |  | ✓ | 1 |
+| Default scripted side effects to read-only; require opt-in for writes. | Safety |  |  |  |  |  | ✓ | 1 |
+| Validate paths/arguments of any external commands invoked. | Safety |  |  |  |  |  | ✓ | 1 |
 
 ## Notes on clustering decisions
 
-- **"Validate arguments and fail fast"** bundles together several overlapping rules: gpt-5's "validate before side effects," 4o-mini's "do not ignore edge cases," Opus's "validate in first step and abort," Haiku's "fail fast and with actionable messages," Gemini's "mark non-obvious arguments as required," and Grok's "validate all required arguments." Error-message specificity (Haiku, 4o-mini) was folded in rather than split out.
-- **"Require confirmation for destructive operations"** includes Opus's "gate behind `--yes` flag," Haiku's `--confirm`, gpt-5's `--force` default, Gemini's "confirmation within workflow," Grok's "confirmation prompts," and 4o-mini's "prompts for data-modifying actions." These could arguably split into "preview/dry-run" vs "confirmation flag" — I kept dry-run as a separate row since gpt-5 and Opus call it out distinctly.
-- **"Keep each command focused on a single purpose"** merges gpt-5's "one thing well," Opus's "single stated purpose," Haiku's "granular is better," Gemini's "favor specific commands," and Grok's "limit to single primary action." 4o-mini doesn't clearly state this, though its "avoid unnecessary complexity" is adjacent.
-- **"Never interpolate unescaped input"** bundles shell-quoting (gpt-5), sanitization (Grok, Haiku), no-`eval` (Gemini, gpt-5), and XML-tagging for prompt injection (Gemini). One could split shell-injection from prompt-injection; I clustered them as a single "don't trust raw interpolation" rule.
-- **"Prefer prompt logic over scripts"** is marked contested by gpt-5 (implicitly — they advocate the opposite via hermetic toolchains) and explicitly contested by Gemini. Opus's "move judgment to prompt, deterministic logic to scripts" is a nuanced variant I counted as agreement.
-- **"Frontmatter/metadata"** clusters gpt-5's YAML frontmatter, Opus's `description:`/`argument-hint:`/`allowed-tools:`, Gemini's frontmatter args, and Grok's YAML frontmatter. Haiku describes a "description block" but doesn't mandate frontmatter specifically — I still counted it since the intent overlaps.
-- **"Document every argument"** is distinct from "use frontmatter" — Haiku and Gemini emphasize per-argument docs without necessarily requiring frontmatter; gpt-5 and Grok require both.
-- **"Use consistent naming conventions"** — all six models mention this in some form (kebab-case, lowercase, verb-object). Grok marks the exact format contested.
-- **"Keep side-effect scripts short and idempotent"** merges gpt-5's idempotence rule, Opus's "deterministic logic in scripts," Haiku's "under 20 lines and idempotent," and Gemini's idempotence rule. I treated idempotence-of-commands (a broader rule) as separate from idempotence-of-scripts, though they overlap.
-- **"Avoid unnecessary complexity"** (4o-mini, Haiku) is close to "single-purpose commands" but I kept them separate since 4o-mini explicitly flags complexity-vs-functionality as contested whereas the single-purpose rule is about scope, not cleverness.
-- A regex matcher would likely miss: Opus's "argument-hint" ↔ gpt-5's "document parameters"; Gemini's "XML tags around interpolation" ↔ gpt-5's "quote interpolated values"; Haiku's "{currentFile} not {file}" ↔ Opus's "state argument semantics explicitly."
+- **"Confirmation before destructive actions" vs. "dry_run default"**: I merged gpt-5's `dry_run` default + confirmation rules with haiku's "require explicit confirmation for destructive ops" and 4o-mini's "confirmation prompts." These are different mechanisms (a declarative flag vs. an interactive prompt) but address the same intent. A stricter matcher would split them.
+- **"Never embed secrets"**: merged across models even though phrasings vary from "don't hardcode credentials" to "never embed secrets." Grok's "don't leave hardcoded paths/URLs" is listed separately since it's about maintainability/config, not secrets — but a lenient matcher might merge them.
+- **"One command, one purpose"**: merged gpt-5's "Keep one primary purpose," 4o-mini's "Don't exceed three layers," opus's "One command does one thing," haiku's "don't do multiple tasks in one command" (partially — I also kept that one as a separate prompt-content rule), and grok's "limit to a single primary workflow." 4o-mini's is arguably about nesting depth rather than single-purpose; I put it in the separate "limit nesting" cluster too.
+- **"Include example(s)"**: I conflated gpt-5's "Examples section," opus's "concrete example of desired output," and haiku's "at least one worked example." Gemini's "few-shot examples in prompts" is listed separately because it's about prompt engineering inside the body, not a user-facing Examples section — though a loose matcher would merge them.
+- **"Bound file operations / avoid repo-wide scans"**: merged gpt-5's "scope file operations," opus's "don't recurse filesystem scans" and "bound prelude output," and haiku's "glob safeguards." These are related but not identical (output bounding vs. scope limiting vs. glob guards). A strict matcher would split into 2–3 rules.
+- **"Validate arguments"**: merged a broad cluster — gpt-5's "validate argument values," 4o-mini's "validate user input thoroughly," haiku's "validate arguments before passing to Claude/shell," gemini's "validate paths/enums," and grok's "explicit error checks for arguments." All are argument validation in substance.
+- **"Imperative prompt style"**: gpt-5 has "active voice and imperative mood" (style), opus has "write prompt in imperative addressed to Claude," haiku has "write prompts in imperative mood." Merged despite gpt-5's framing being about descriptions broadly.
+- **Haiku's "don't ask Claude to do multiple distinct tasks"** vs. the general "one command, one purpose" cluster: I kept these separate because haiku's is specifically about prompt construction within a command, while the other is about command file scope. A lenient matcher would merge.
+- **Opus's `allowed-tools` rules**: opus has three distinct rules (declare it, scope Bash allowlists narrowly, don't interpolate args into preludes). I kept them as separate rows; grok's "validate paths of external commands" partially overlaps with the Bash-scoping rule and I mapped it to a distinct row.
+- **"Cache expensive computations"**: grok and haiku both mention caching; merged despite haiku marking it contested and grok not.
+- **4o-mini's "consistent markdown formatting"** and grok's "consistent markdown headings + indent code blocks" were merged; they overlap in substance even if specifics differ.

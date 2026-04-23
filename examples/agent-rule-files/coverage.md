@@ -4,139 +4,110 @@ Rules are extracted by regex from each model's `rules_file` section (lines start
 
 | Rule | Theme | openai/gpt-5 | openai/gpt-4o-mini | anthropic/claude-opus-4-7 | anthropic/claude-haiku-4-5 | vertex_ai/gemini-2.5-pro | xai/grok-3-mini | Count |
 |---|---|---|---|---|---|---|---|---|
-| (contested) Favor positive commands ("Use named exports") over negative ones ("Don't use default exports") | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| Add a changelog entry in the PR description linking affected paths | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Always handle errors explicitly in code samples | Error Handling |  | ✓ |  |  |  |  | 1 |
-| Append at most one line of rationale per rule | Content |  |  | ✓ |  |  |  | 1 |
-| Audience: Engineers and AI assistants editing or generating code in this repository | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Avoid custom frontmatter fields unless you control the loader end-to-end | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Avoid jargon unless necessary, and define it if used | Style |  | ✓ |  |  |  |  | 1 |
-| Avoid vague, subjective, or un-verifiable rules | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| Begin each file with YAML frontmatter containing only: paths, owners, tags, version, and review_by | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Bump a version field on substantive edits and summarize changes in the PR | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Check for rule file size and line-count caps in CI | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Co-locate overrides in a separate -override.md file with narrower paths | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Co-locate rule files with the code they govern when the tool supports it | Structure |  |  | ✓ |  |  |  | 1 |
-| Date or version the file in frontmatter if conventions are in flux | Maintenance |  |  | ✓ |  |  |  | 1 |
-| Declare paths as repo-root-anchored POSIX-style globs (e.g., /services/payments/**/*.py) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Define a `paths:` frontmatter in every rule file | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
-| Define directory-level boundaries (e.g., “Don’t import across bounded contexts”) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Delete or merge obsolete files when directory structures change | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Delete rules that have been violated in merged code more than twice | Maintenance |  |  | ✓ |  |  |  | 1 |
-| Do not add rules that weaken security, logging, or validation | Safety & Correctness |  |  |  |  | ✓ |  | 1 |
-| Do not execute shell commands; propose them in a fenced block or as bullet steps instead | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Do not fetch remote code or data during generation; link to sources instead | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Do not override rules in prompts; update the rule file instead | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Document the expected behavior for each rule | Error Handling |  | ✓ |  |  |  |  | 1 |
-| Don't duplicate rules across files | Maintenance |  |  | ✓ |  |  |  | 1 |
-| Don't explain language or framework basics | Style |  |  | ✓ |  |  |  | 1 |
-| Don't hedge | Style |  |  | ✓ |  |  |  | 1 |
-| Don't restate what a formatter or linter already enforces | Style |  |  | ✓ |  |  |  | 1 |
-| Don't use `paths: "**/*"` in a path-scoped file | Scoping |  |  | ✓ |  |  |  | 1 |
-| Encode concrete, checkable constraints (versions, flags, paths, regexes) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Encode only conventions the codebase actually follows today | Content |  |  | ✓ |  |  |  | 1 |
-| Encourage profiling code to identify bottlenecks before optimization | Performance |  | ✓ |  |  |  |  | 1 |
-| Enforce security checks as part of the development process | Safety |  | ✓ |  |  |  |  | 1 |
-| Ensure globs do not unintentionally overlap; split files or narrow patterns if they do | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Enumerate allowed dependency scopes and pin levels (e.g., runtime pins exact, dev allows caret) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Explicitly forbid destructive commands the agent must never run unprompted: `rm -rf`, `git push --force`, `DROP`, `TRUNCATE`, production deploys | Safety |  |  | ✓ |  |  |  | 1 |
-| Follow each rule with a single-line rationale starting with `Rationale:` | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| For dependency updates, change the smallest set needed to satisfy constraints | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| For language standards, state the minimum standard (e.g., Python 3.11, TS target ES2022) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| For migrations and schema changes, generate idempotent, backward-compatible steps with rollbacks | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Give each file a single responsibility (one subsystem, one concern) | Structure |  |  | ✓ |  |  |  | 1 |
-| Group related rules together to avoid fragmentation | Structure |  | ✓ |  |  |  |  | 1 |
-| Group rules under `##` headings matching common concerns (Structure, API, Errors, Testing, Safety) | Structure |  |  | ✓ |  |  |  | 1 |
-| If any directive here is ambiguous or collides with real configs, stop, cite the conflict, and ask owners for a decision | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| If rules conflict or are impossible to satisfy, stop and ask for clarification from owners | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Include a minimal code example only when the rule's shape is non-obvious from prose | Content |  |  | ✓ |  |  |  | 1 |
-| Include a short “Context” paragraph before rules when needed; keep it under five sentences | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Include a “When in doubt” fallback rule at the end | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Include guidelines for handling sensitive data | Safety |  | ✓ |  |  |  |  | 1 |
-| Include owners in frontmatter and require owner review for rule changes | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Instruct assistants to reuse existing helpers/utilities before writing new ones | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Keep each file under 120 lines or 4 KB, whichever comes first | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Keep each file under 200 lines | Structure |  |  | ✓ |  |  |  | 1 |
-| Keep each rule file single-purpose for one language/domain within its paths | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Keep examples in separate, linkable files under .claude/examples/ | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Keep rules concise and de-duplicated; factor shared policies into a small base file and narrow overrides | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Limit each rule to a single actionable directive | Style |  | ✓ |  |  |  |  | 1 |
-| Link to canonical docs instead of pasting long excerpts | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Lint for banned words (“should”, “maybe”, “try”) and enforce imperative mood | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Make every rule falsifiable against a diff | Content |  |  | ✓ |  |  |  | 1 |
-| Mandate the inclusion of tests for each convention-defined rule | Testing |  | ✓ |  |  |  |  | 1 |
-| Mirror CI and linter configs exactly; if they disagree, update the rules or the configs immediately | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Name files to reflect their scope and purpose (e.g., `react-component-props.md`) | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
-| Name the exact library, function, or module | Content |  |  | ✓ |  |  |  | 1 |
-| Never create, reveal, or commit secrets, tokens, or private keys; use placeholders like <REDACTED> | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Never paste untrusted content (issue bodies, external docs, user input) into a rule file | Safety |  |  | ✓ |  |  |  | 1 |
-| Only recommend optimizations when necessary and justified | Performance |  | ✓ |  |  |  |  | 1 |
-| Open with a one-line scope statement naming the code it governs | Structure |  |  | ✓ |  |  |  | 1 |
-| Periodically review and remove outdated or irrelevant rules | Maintenance |  |  |  |  | ✓ |  | 1 |
-| Place files under .claude/rules/ with descriptive names (e.g., python-payments.md) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Prefer additive includes over negated exclusion globs | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Prefer links to large specs over embedding them | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Prefer many small, specific rule files over few large, general ones | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
-| Prefer negative rules ("Don't catch `Exception`") for behaviors the base model defaults to | Content |  |  | ✓ |  |  |  | 1 |
-| Prefer no change over unsafe change when safety and correctness are unclear | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Prefer refactors that increase conformance to existing rules over stylistic churn | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Propose diffs with minimal scope and clear commit messages referencing rule IDs | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Provide short, non-executable code examples for complex rules | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| Put invariants first, preferences second, and nice-to-haves last | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Put universally-applicable rules in top-level project memory (e.g | Scoping |  |  | ✓ |  |  |  | 1 |
-| Rationale: A concrete example is often clearer than an abstract description | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| Rationale: Agent rules must act as guardrails that enforce best practices, not as bypasses | Safety & Correctness |  |  |  |  | ✓ |  | 1 |
-| Rationale: Clear naming aids discoverability and makes the system's structure self-documenting | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
-| Rationale: Enhances readability and semantic structure for both humans and AIs | Style & Formatting |  |  |  |  | ✓ |  | 1 |
-| Rationale: Ensures rules are correct, clear, and have team consensus before being applied | Maintenance |  |  |  |  | ✓ |  | 1 |
-| Rationale: Explains the "why" to human maintainers without bloating the AI's prompt | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| Rationale: Grounds rules in a single source of truth and aids human verification | Safety & Correctness |  |  |  |  | ✓ |  | 1 |
-| Rationale: Guides the AI towards the correct action, not just away from an incorrect one | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| Rationale: Improves scannability for humans and simplifies parsing for machines | Style & Formatting |  |  |  |  | ✓ |  | 1 |
-| Rationale: Prevents "rule rot" and ensures the files remain a trusted, useful resource | Maintenance |  |  |  |  | ✓ |  | 1 |
-| Rationale: The AI cannot act on instructions like "make the code more elegant." | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| Rationale: This is the core mechanism that enables conditional loading | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
-| Rationale: This provides clear, unambiguous, and actionable instructions for the AI | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
-| Rationale: This simplifies maintenance and ensures the AI only loads hyper-relevant context | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
-| Rationale: Tightly-scoped rules improve AI relevance, reduce token usage, and lower costs | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
-| Reference canonical documentation or internal standards when available | Safety & Correctness |  |  |  |  | ✓ |  | 1 |
-| Reference exact tool names and versions (e.g., black 23.11, mypy strict) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Refuse to apply changes that contradict signed-off security policies; escalate to owners | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Require human confirmation for schema migrations, data backfills, and package publishes | Safety |  |  | ✓ |  |  |  | 1 |
-| Require tests for generated code and state the test framework and invocation | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Resolve conflicts by “most-specific path wins; on tie, lexicographic filename order; on tie, latest version.” (contested) Rationale: Deterministic precedence prevents arbitrary assistant choices | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Review every rule file when its governed code undergoes major change | Maintenance |  |  | ✓ |  |  |  | 1 |
-| Sanitize or synthesize PII in examples and fixtures | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Scope `paths:` as narrowly as possible | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
-| Scope: Path-scoped markdown instruction files that guide AI coding assistants for specific repo areas | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Set a review_by date ≤ 6 months out and fail CI when expired | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Specify codegen limits (e.g., “Keep functions under 100 lines; split modules >400 lines”) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Specify file templates (e.g., headers, module docstrings) with links to source snippets | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Specify the types of tests to be used, such as unit or integration tests | Testing |  | ✓ |  |  |  |  | 1 |
-| Start code changes by restating the applicable rules you’re following | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Start every file with YAML frontmatter containing `description` and `paths` | Structure |  |  | ✓ |  |  |  | 1 |
-| State each rule on its own line as a list item | Style & Formatting |  |  |  |  | ✓ |  | 1 |
-| State secret-handling rules explicitly: which files may contain secrets, which env vars are safe to log, what must never be committed | Safety |  |  | ✓ |  |  |  | 1 |
-| Surface an index of rules by path in generated docs | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Test new rule files by having the agent perform a representative task in-scope and reviewing whether the rules fired | Maintenance |  |  | ✓ |  |  |  | 1 |
-| Test that referenced tools/versions exist in the dev environment | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Treat rule files as code, subject to the same code review process | Maintenance |  |  |  |  | ✓ |  | 1 |
-| Use a clear and consistent naming convention for files and folders | Structure |  | ✓ |  |  |  |  | 1 |
-| Use a consistent markdown style across all rule files | Style |  | ✓ |  |  |  |  | 1 |
-| Use fenced code blocks with language tags for all code | Style |  |  | ✓ |  |  |  | 1 |
-| Use imperative mood ("Return early on error") not second-person ("You should return early") | Style |  |  | ✓ |  |  |  | 1 |
-| Use markdown for structure (headings, lists, bolding) | Style & Formatting |  |  |  |  | ✓ |  | 1 |
-| Use only approved licenses and include license headers on new files where required | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Use “Do/Don’t/Must/Mustn’t” language; avoid “should/might/prefer.” Rationale: Non-hedged wording reduces ambiguity | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Validate frontmatter and glob coverage in CI; fail if a rule file matches zero files | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| When a task risks data loss, propose a plan with checkpoints and backouts instead of performing it | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| When adding a new area of the repo, create an initial rule file before generating code there | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| When two rule files could match the same path, state precedence explicitly in the more specific file | Scoping |  |  | ✓ |  |  |  | 1 |
-| When uncertain about a tool or version, read the project config files and defer to them | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Write `paths` globs as narrowly as the rule applies, and no narrower | Scoping |  |  | ✓ |  |  |  | 1 |
-| Write each rule as a single imperative sentence followed by a one-line rationale | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Write every rule as a single imperative sentence | Content |  |  | ✓ |  |  |  | 1 |
-| Write rules as direct, imperative commands (e.g., "Do X," "Use Y," "Add Z") | Content & Phrasing |  |  |  |  | ✓ |  | 1 |
+| (contested) Avoid including large code blocks as examples | Content & Style |  |  |  |  | ✓ |  | 1 |
+| (contested) Do enforce a maximum line length of 80 characters | Common Areas of Disagreement |  | ✓ |  |  |  |  | 1 |
+| **Begin every rule file with YAML frontmatter containing `paths:` and `description:`.** Without `paths:`, the file either never loads or always loads — both are bugs | Structure |  |  | ✓ |  |  |  | 1 |
+| **Date or version rules tied to migrations or deprecations (e.g., `// until 2025-Q2`).** Time-boxed rules must announce their own expiry | Maintenance |  |  | ✓ |  |  |  | 1 |
+| **Delete rules when the underlying convention changes; do not add a contradicting rule.** Stale rules poison every future edit under their path | Maintenance |  |  | ✓ |  |  |  | 1 |
+| **Do not create a rule file that loads for every file in the repo unless its rules are genuinely universal.** Universal-looking files accrete subsystem-specific rules and become unreadable | Scoping |  |  | ✓ |  |  |  | 1 |
+| **Do not duplicate a rule across multiple files; extract shared rules to a single file with appropriate `paths:`.** Duplication guarantees drift | Performance |  |  | ✓ |  |  |  | 1 |
+| **Do not use RFC 2119 keywords (MUST, SHOULD, MAY).** (contested) Plain imperatives are equally binding to an LLM and cheaper to read | Content |  |  | ✓ |  |  |  | 1 |
+| **Do not wrap rule files in prose introductions longer than two lines.** Preambles are skimmed; the rules are what matter | Style |  |  | ✓ |  |  |  | 1 |
+| **Follow each rule with exactly one line of rationale.** More than one line is an essay; zero lines leaves the model guessing intent | Structure |  |  | ✓ |  |  |  | 1 |
+| **Forbid specific anti-patterns by name when they have bitten this codebase.** Named prohibitions are more effective than positive framing | Content |  |  | ✓ |  |  |  | 1 |
+| **Include a code example only when the rule is non-obvious from prose, and keep it under 10 lines.** Examples are expensive; use them surgically | Content |  |  | ✓ |  |  |  | 1 |
+| **Keep each rule file under 200 lines.** Beyond this, split by subsystem; long files get truncated or ignored in context | Structure |  |  | ✓ |  |  |  | 1 |
+| **Keep rationales falsifiable.** "Because it's cleaner" is not a rationale; "because `FooClient` is not thread-safe" is | Maintenance |  |  | ✓ |  |  |  | 1 |
+| **Never let two rule files whose `paths:` overlap state contradictory rules.** The model's resolution is undefined; you will not notice until it matters | Scoping |  |  | ✓ |  |  |  | 1 |
+| **Never put secrets, tokens, or real hostnames in rule files.** Rule files are checked in and indexed; treat them as public | Safety |  |  | ✓ |  |  |  | 1 |
+| **Omit rules that describe universal programming hygiene.** "Handle errors" wastes the budget; "wrap `db.Exec` calls in `withRetry`" earns it | Content |  |  | ✓ |  |  |  | 1 |
+| **Place the most load-bearing rules first within each section.** Context windows truncate from the end when budget is tight | Structure |  |  | ✓ |  |  |  | 1 |
+| **Put one rule per bullet, phrased as a single imperative sentence.** Multi-clause rules hide violations and are harder to cite | Structure |  |  | ✓ |  |  |  | 1 |
+| **Put repo-wide conventions in the top-level memory file (e.g., `CLAUDE.md`), not in a rule file with `paths: "**/*"`.** The top-level file has a defined role; a catch-all rule file duplicates it | Scoping |  |  | ✓ |  |  |  | 1 |
+| **Reference project-specific names, modules, and APIs by exact identifier.** Generic advice is already in the base model; specificity is what you're paying tokens for | Content |  |  | ✓ |  |  |  | 1 |
+| **Review rule files whenever their `paths:` glob's code undergoes major refactor.** Rules survive refactors they shouldn't; audits catch this | Maintenance |  |  | ✓ |  |  |  | 1 |
+| **Spell out destructive-operation prohibitions explicitly (force-push, drop table, rm -rf, prod credentials).** Destructive defaults are the one place redundancy is worth the tokens | Safety |  |  | ✓ |  |  |  | 1 |
+| **State required pre-conditions for risky commands (dry-run, staging-first, confirmation flag).** Conditions buried in prose get skipped; list them | Safety |  |  | ✓ |  |  |  | 1 |
+| **State rules as prohibitions or commands, never as suggestions.** "Consider X" and "prefer Y" read as optional; LLMs mirror the hedging | Content |  |  | ✓ |  |  |  | 1 |
+| **Target under 2,000 tokens per rule file.** Beyond this, loading cost exceeds benefit for most edits | Performance |  |  | ✓ |  |  |  | 1 |
+| **Use at most two heading levels (`##` and `###`).** Deeper nesting confuses parsers and adds no information | Structure |  |  | ✓ |  |  |  | 1 |
+| **Use fenced code blocks with language tags for all code snippets.** Untagged fences defeat syntax-aware tooling and occasionally get reflowed | Style |  |  | ✓ |  |  |  | 1 |
+| **Write `paths:` globs as narrowly as the rule's domain.** Overbroad globs pollute unrelated edits with irrelevant instructions | Scoping |  |  | ✓ |  |  |  | 1 |
+| **Write in second-person imperative or bare imperative; avoid first-person plural ("we").** "We prefer" is weaker than "Use" | Style |  |  | ✓ |  |  |  | 1 |
+| Audience: Engineers authoring/reviewing rule files and maintainers of assistant runtimes | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Avoid first-person, apologies, or pleasantries | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Break ties after priority by choosing the rule whose matching glob has the longest fixed prefix | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Declare capabilities in frontmatter: allow_tools (string[]), deny_tools (string[]), and network: off\|allowlist\|on | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Define a `paths` glob in the YAML frontmatter | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
+| Define scoping with a required paths (include) array and optional exclude_paths array of repo-relative globs that do not start with '/' | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Do adopt a consistent naming convention | Style |  | ✓ |  |  |  |  | 1 |
+| Do avoid using deprecated APIs | Safety |  | ✓ |  |  |  |  | 1 |
+| Do explicitly document error handling behavior for all functions | Error Handling |  | ✓ |  |  |  |  | 1 |
+| Do explicitly forbid rules that could cause data loss, like file deletions | Safety |  |  |  |  |  | ✓ | 1 |
+| Do include a 'paths' frontmatter at the top of the file to define the scope | Structure |  |  |  |  |  | ✓ | 1 |
+| Do include a safety disclaimer in the preamble for high-risk rules | Safety |  |  |  |  |  | ✓ | 1 |
+| Do include descriptive comments for complex code sections | Style |  | ✓ |  |  |  |  | 1 |
+| Do keep the file size under 10KB | Performance |  |  |  |  |  | ✓ | 1 |
+| Do limit line lengths to 80 characters | Style |  |  |  |  |  | ✓ | 1 |
+| Do minimize the use of global variables | Performance |  | ✓ |  |  |  |  | 1 |
+| Do not include real secrets, tokens, keys, or endpoints; use obvious placeholders like '<TOKEN>' or '<ORG_URL>' | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Do not instruct network or shell execution unless allowed by frontmatter | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Do not suggest raw, destructive shell commands (e.g., `rm -rf`, `dd`) | Correctness & Safety |  |  |  |  | ✓ |  | 1 |
+| Do not use overscoped globs like '**/*' or '*' alone | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Do organize content into clear, thematic headings (e.g., Structure, Safety) | Structure |  |  |  |  |  | ✓ | 1 |
+| Do prioritize essential rules over optional ones | Performance |  |  |  |  |  | ✓ | 1 |
+| Do use clear and consistent headings | Structure |  | ✓ |  |  |  |  | 1 |
+| Do use consistent markdown formatting, such as bullet points for rules | Style |  |  |  |  |  | ✓ | 1 |
+| Do use precise, unambiguous language in rules | Content |  |  |  |  |  | ✓ | 1 |
+| Do write each rule as a single imperative sentence followed by a one-line rationale | Content |  |  |  |  |  | ✓ | 1 |
+| Don't allow wildcard paths in frontmatter; specify exact patterns | Safety |  |  |  |  |  | ✓ | 1 |
+| Don't exceed 500 lines per file (contested) | Structure |  |  |  |  |  | ✓ | 1 |
+| Don't include examples longer than one line in the main body | Content |  |  |  |  |  | ✓ | 1 |
+| Don't include redundant or duplicate rules across files | Performance |  |  |  |  |  | ✓ | 1 |
+| Don't mix tabs and spaces for indentation; use spaces exclusively | Style |  |  |  |  |  | ✓ | 1 |
+| Don't reference external documentation without a direct link | Content |  |  |  |  |  | ✓ | 1 |
+| Don't use bold or italics excessively (contested) | Style |  |  |  |  |  | ✓ | 1 |
+| Don't use nested frontmatter structures; keep them flat and simple | Structure |  |  |  |  |  | ✓ | 1 |
+| Don’t hard-code sensitive information directly in the code | Safety |  | ✓ |  |  |  |  | 1 |
+| Don’t ignore error returns in functions | Error Handling |  | ✓ |  |  |  |  | 1 |
+| Don’t nest rules more than three levels deep | Structure |  | ✓ |  |  |  |  | 1 |
+| Don’t perform unnecessary calculations in loops | Performance |  | ✓ |  |  |  |  | 1 |
+| Don’t use excessive abbreviations in identifiers | Style |  | ✓ |  |  |  |  | 1 |
+| Ensure at least one include glob matches a file in the repository at authoring time | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Fence all code with language-tagged triple backticks | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Follow each rule with a short rationale | Content & Style |  |  |  |  | ✓ |  | 1 |
+| Group rules under H2 theme headings (Structure, Scoping & Precedence, Content Style, Safety, Performance, Correctness & Testing, Maintenance & Governance, Error Handling & Conflicts) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| If an example is necessary, keep it minimal and targeted to the specific point | Content & Style |  |  |  |  | ✓ |  | 1 |
+| Increment version (semver) on behavior changes and update the ISO 8601 updated date | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Keep all lines to 100 characters or fewer | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Keep each code block to at most 50 lines and use no more than 3 code blocks per file | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Keep each rule file under 16 KB and 300 lines | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Keep one focused concern per file and split unrelated topics | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Keep rule files concise and under 2kb | Performance |  |  |  |  | ✓ |  | 1 |
+| Limit the combined length of paths and exclude_paths to 20 entries | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Place only one core concept in each rule file | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
+| Place rule files under .claude/rules/ using kebab-case filenames ending in .md | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Prefer guiding code generation over describing abstract principles | Correctness & Safety |  |  |  |  | ✓ |  | 1 |
+| Prefer specific include globs over many excludes | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Prefix destructive shell examples with 'echo ' or a preceding '# DANGEROUS: example only' comment | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Provide a resolvable owner (email or team slug) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Provide frontmatter keys: title, paths, owner, version, updated, priority, status | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Reference an external source of truth when possible | Correctness & Safety |  |  |  |  | ✓ |  | 1 |
+| Remove redundant or obvious instructions | Performance |  |  |  |  | ✓ |  | 1 |
+| Scope: Rules for writing and maintaining Agent Rule Files (path-scoped markdown in .claude/rules/*.md) consumed by AI coding assistants | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Set priority as an integer 1–5 where higher wins conflicts | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Set status to one of: draft, active, deprecated; archive deprecated files instead of deleting | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Start rules with strong verbs and avoid “should”, “try”, “maybe”, or “consider” | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Start the file with valid YAML frontmatter bounded by '---' lines | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| State a fallback behavior for conflicts or missing context (e.g., “ask the user” or “defer to higher-priority file”) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Structure the file with markdown headers for logical grouping | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
+| Use UTF-8 encoding and LF line endings | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Use a descriptive, kebab-case filename for the rule file | Structure & Scoping |  |  |  |  | ✓ |  | 1 |
+| Use lists for rules instead of long prose | Content & Style |  |  |  |  | ✓ |  | 1 |
+| Use repository-specific examples only when they clarify behavior and keep them minimal | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Validate frontmatter and globs in CI before merge | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Write each rule as a single bullet with an imperative sentence ending in a period, then ' — ' and a one-line rationale | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Write rules as imperative commands (e.g., "Use...", "Do not...", "Always...") | Content & Style |  |  |  |  | ✓ |  | 1 |
 
 ## Wording variance
 

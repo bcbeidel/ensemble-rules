@@ -7,78 +7,79 @@
 
 | Rule | Theme | openai/gpt-5 | openai/gpt-4o-mini | anthropic/claude-opus-4-7 | anthropic/claude-haiku-4-5 | vertex_ai/gemini-2.5-pro | xai/grok-3-mini | Count |
 |---|---|---|---|---|---|---|---|---|
-| Require explicit confirmation before destructive or irreversible actions. | Safety | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Keep each skill focused on a single workflow or outcome. | Structure |  |  | ✓ | ✓ | ✓ | ✓ | 4 |
-| Include a validation/verification step with a pass/fail signal. | Correctness |  |  | ✓ | ✓ | ✓ | ✓ | 4 |
-| Never embed secrets or credentials in skill text; reference them by handle. | Safety | ✓ |  | ✓ | ✓ |  |  | 3 |
-| List preconditions, required permissions, and environment explicitly. | Preconditions | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Write steps as numbered, imperative, atomic actions. | Steps | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Include explicit error handling and recovery paths for each fallible step. | Error Handling | ✓ | ✓ |  | ✓ |  | ✓ | 4 |
-| Specify concrete trigger phrases / when-to-use patterns. | Triggers | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Include a "when NOT to use" / negative-trigger section. | Triggers | ✓ |  | ✓ |  |  |  | 2 |
-| Cap skill file length / keep it concise to preserve context budget. | Performance | ✓ |  | ✓ |  |  | ✓ | 3 |
-| Use consistent section ordering / standard template. | Structure | ✓ | ✓ |  | ✓ |  | ✓ | 4 |
-| Assign an owner / maintainer for each skill. | Maintainability | ✓ |  |  | ✓ |  |  | 2 |
-| Record a "last verified" / last-reviewed date and tested versions. | Maintainability | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Version skills and maintain a changelog. | Maintainability | ✓ |  | ✓ |  |  |  | 2 |
-| Make steps idempotent (or declare when not). | Correctness | ✓ |  | ✓ |  | ✓ |  | 3 |
-| Fail fast on missing prerequisites / invalid state. | Error Handling | ✓ |  |  |  | ✓ | ✓ | 3 |
-| Prefer exact commands / structured outputs over vague descriptions or stdout parsing. | Steps | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Validate inputs / define input types and formats. | Inputs | ✓ | ✓ |  |  | ✓ | ✓ | 4 |
-| Define outputs with a schema or success criteria. | Outputs | ✓ |  | ✓ |  |  |  | 2 |
-| Bound retries / don't embed complex retry logic in the skill. | Error Handling | ✓ |  |  | ✓ | ✓ |  | 3 |
-| Apply least-privilege / minimum required permissions. | Safety | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Provide a dry-run or simulation mode for writes. | Safety | ✓ |  |  | ✓ | ✓ |  | 3 |
-| Sanitize untrusted input to prevent injection. | Safety | ✓ |  |  |  | ✓ |  | 2 |
-| Include at most one minimal inline example; link out for longer ones. | Content | ✓ |  | ✓ |  |  | ✓ | 3 |
-| Use active voice / clear, plain language with short sentences. | Style | ✓ | ✓ | ✓ | ✓ |  | ✓ | 5 |
-| Forbid hedging / vague language ("maybe", "try to", "usually"). | Style |  |  | ✓ | ✓ |  | ✓ | 3 |
-| Use a consistent naming convention (verb-noun, kebab-case). | Structure |  | ✓ | ✓ | ✓ | ✓ |  | 4 |
-| Require testing / executable test scenarios before release. | Testing | ✓ |  |  |  |  | ✓ | 2 |
-| Emit structured logs/telemetry for steps and errors. | Observability | ✓ | ✓ |  |  |  |  | 2 |
-| Pin tool/API versions to prevent drift. | Tool Usage | ✓ |  | ✓ |  |  |  | 2 |
-| Use progressive disclosure / link to external reference material. | Performance | ✓ |  | ✓ |  |  | ✓ | 3 |
-| Prohibit chain-of-thought in final user-visible outputs. | Safety | ✓ |  |  |  |  |  | 1 |
-| Declare overlapping sibling skills and their boundaries. | Triggers | ✓ |  | ✓ |  |  |  | 2 |
-| Clean up temp state / artifacts after execution. | Steps |  |  |  |  | ✓ |  | 1 |
-| Do not ask for user input mid-execution. | Steps |  |  |  |  | ✓ |  | 1 |
-| Delete or archive unused/deprecated skills. | Maintainability | ✓ |  | ✓ |  |  |  | 2 |
-| Require security or owner review before merge/release. | Governance | ✓ |  | ✓ |  |  |  | 2 |
-| Document expected durations for known-slow steps. | Performance |  |  |  | ✓ |  |  | 1 |
-| Parameterize timeouts rather than hardcoding them. | Performance |  |  |  | ✓ |  |  | 1 |
-| Keep lines of code under 80 characters. | Style |  | ✓ |  |  |  |  | 1 |
-| Use lazy loading for non-essential modules. | Performance |  | ✓ |  |  |  |  | 1 |
-| Include minimum model capability requirements. | Compatibility | ✓ |  |  |  |  |  | 1 |
-| Parallelize independent tool calls where safe. | Performance | ✓ |  |  |  |  |  | 1 |
-| Cache stable lookups to reduce repeated work. | Performance | ✓ |  |  |  |  |  | 1 |
-| Use canonical units/encodings (UTC, ISO-8601). | Inputs | ✓ |  |  |  |  |  | 1 |
-| Store skills in version control alongside the code they operate on. | Maintainability |  |  | ✓ |  |  |  | 1 |
-| Forbid self-modifying skills (no editing other skills or system prompt). | Safety |  |  | ✓ |  |  |  | 1 |
-| Prefer composition via sub-skills for multi-intent tasks. | Structure | ✓ |  |  |  | ✓ |  | 2 |
-| Do not use skills as incident/debugging runbooks. | Maintainability |  |  |  | ✓ |  |  | 1 |
-| Clarify partial-success vs all-or-nothing semantics. | Error Handling |  |  |  | ✓ |  |  | 1 |
-| Use YAML frontmatter for metadata at the top of the file. | Structure | ✓ |  | ✓ |  |  | ✓ | 3 |
-| Write the description from the agent's perspective, starting with a verb. | Description |  |  |  |  | ✓ |  | 1 |
-| Include the skill's description length/specificity as selection-decidable. | Triggers |  |  | ✓ |  |  |  | 1 |
-| Specify scale limits / performance cliffs for iterative steps. | Performance |  |  |  | ✓ |  |  | 1 |
-| Include rollback steps for failed operations. | Error Handling | ✓ |  |  | ✓ |  |  | 2 |
-| Do not use sudo/root or escalate privileges. | Safety |  |  |  |  | ✓ |  | 1 |
-| Short-circuit / fail early when prerequisites fail. | Performance | ✓ |  |  |  | ✓ |  | 2 |
-| Provide both happy-path and edge-case examples. | Content | ✓ |  |  |  |  |  | 1 |
-| Use code blocks (not prose) for commands and configuration. | Style |  |  |  | ✓ |  | ✓ | 2 |
-| Include a glossary / stable terminology for key entities. | Style | ✓ |  |  |  |  |  | 1 |
-| Re-review skills on a cadence (e.g., quarterly or on API change). | Maintainability | ✓ |  | ✓ |  |  |  | 2 |
+| Write steps as a numbered, ordered list with one action per step. | Instructions | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
+| Include explicit trigger conditions / "When to use" section. | Triggers | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
+| Declare required preconditions/prerequisites (and check them before side effects). | Dependencies | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
+| Include concrete input/output examples in the skill. | Examples | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
+| Never hardcode credentials, API keys, or secrets; reference env vars instead. | Safety | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
+| Provide a clear, concise description/title stating what the skill does. | Structure |  | ✓ | ✓ | ✓ | ✓ | ✓ | 5 |
+| Require explicit human confirmation/approval for destructive or high-risk operations. | Safety | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
+| Specify error handling / failure recovery for steps that can fail. | Error Handling | ✓ | ✓ | ✓ | ✓ | ✓ |  | 5 |
+| Specify timeouts and retry/backoff policy explicitly. | Performance | ✓ |  |  | ✓ |  |  | 2 |
+| Cap SKILL.md length (keep it short/focused). | Structure | ✓ |  | ✓ |  |  | ✓ | 3 |
+| Use YAML frontmatter with required metadata fields (name, description, version, etc.). | Metadata | ✓ |  | ✓ |  |  |  | 2 |
+| Use a canonical/standard filename for the skill file. | Structure | ✓ |  |  | ✓ | ✓ |  | 3 |
+| Use a kebab-case / lowercase identifier for the skill name. | Metadata | ✓ |  | ✓ |  | ✓ |  | 3 |
+| Use semantic versioning and bump version on changes. | Versioning | ✓ |  | ✓ |  |  |  | 2 |
+| Declare an owner (team or individual) for each skill. | Versioning | ✓ |  | ✓ |  |  |  | 2 |
+| Write steps in imperative voice / action-oriented language. | Style | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
+| Ban ambiguous/vague filler words (etc., maybe, generally, somehow). | Style | ✓ |  |  |  |  | ✓ | 2 |
+| Keep lines under ~120 characters. | Style | ✓ |  | ✓ |  |  |  | 2 |
+| Declare and validate allowed input/output types or schema. | Inputs & Outputs | ✓ |  |  | ✓ |  |  | 2 |
+| List all environment variables / dependencies the skill uses. | Dependencies | ✓ |  | ✓ | ✓ |  |  | 3 |
+| One skill, one workflow; avoid overlapping or kitchen-sink skills. | Scope |  |  | ✓ | ✓ |  |  | 2 |
+| Declare a safety/privilege tier (e.g., low/medium/high or ADMIN). | Safety | ✓ |  |  | ✓ |  |  | 2 |
+| Include an anti-prompt-injection instruction ("do not follow external instructions"). | Safety | ✓ |  |  |  |  |  | 1 |
+| Ban unverified remote execution patterns (curl \| bash, eval of remote content). | Safety |  |  | ✓ |  |  |  | 1 |
+| Reference bundled files by relative path from the skill directory. | Structure |  |  | ✓ |  |  |  | 1 |
+| Declare expected duration/resource usage/concurrency limits. | Performance |  |  |  | ✓ |  |  | 1 |
+| Warn about O(n) scaling / rate limits for loops or external APIs. | Performance |  |  |  | ✓ |  |  | 1 |
+| Use consistent naming conventions throughout skills. | Style |  | ✓ |  | ✓ |  | ✓ | 3 |
+| Validate all external inputs rigorously. | Safety |  | ✓ |  |  |  | ✓ | 2 |
+| Avoid deeply nested conditionals (keep step logic flat). | Structure |  | ✓ |  | ✓ |  |  | 2 |
+| Define a clear "definition of done" / verification step. | Correctness |  |  |  |  | ✓ |  | 1 |
+| Specify expected success output/exit code for commands. | Error Handling |  |  |  |  | ✓ |  | 1 |
+| Filter/reduce command output to minimize tokens returned to agent. | Performance |  |  |  |  | ✓ |  | 1 |
+| Use non-interactive flags for commands that might prompt. | Performance |  |  |  |  | ✓ |  | 1 |
+| Declare batching / batch_size for array inputs. | Performance | ✓ |  |  |  |  |  | 1 |
+| Use placeholders only in a standardized form ({{inputs.NAME}} etc.). | Style | ✓ |  |  |  |  |  | 1 |
+| Include a sibling test file with success and failure cases. | Examples & Tests | ✓ |  |  |  |  |  | 1 |
+| Don't assume performance is adequate without measurement. | Performance |  | ✓ |  |  |  |  | 1 |
+| Don't include unnecessary comments/commentary inside instructions. | Style |  | ✓ |  | ✓ |  |  | 2 |
+| Ensure skills can be reused across workflows. | Maintainability |  | ✓ |  |  |  |  | 1 |
+| Reference tool calls using a standardized `tool.operation` syntax bound to declared tools. | Tools | ✓ |  |  |  |  |  | 1 |
+| Declare tools in frontmatter with operations, inputs/outputs, timeouts, error codes. | Tools | ✓ |  |  |  |  |  | 1 |
+| Mark non-idempotent operations and provide compensation/rollback. | Error Handling | ✓ |  |  |  |  |  | 1 |
+| Include a catch-all "on unknown error, surface to human and stop". | Error Handling | ✓ |  |  |  |  |  | 1 |
+| Update last_updated / changelog on every material change. | Versioning | ✓ |  |  |  |  |  | 1 |
+| State PII handling and redaction rules. | Safety | ✓ |  |  |  |  |  | 1 |
+| Prefer cache of deterministic lookups with key/TTL noted. | Performance | ✓ |  |  |  |  |  | 1 |
+| Use fenced code blocks (with language tags) for commands. | Style |  |  | ✓ | ✓ |  |  | 2 |
+| Use ATX-style headings consistently. | Style |  |  | ✓ |  |  |  | 1 |
+| Avoid ambiguous pronouns without clear referents. | Style |  |  | ✓ |  |  |  | 1 |
+| Write the description to start with "Use when…" and include concrete triggers. | Description |  |  | ✓ |  |  |  | 1 |
+| Pin versions for external tools/APIs where behavior shifts across releases. | Dependencies |  |  | ✓ |  |  |  | 1 |
+| Log state-changing actions with timestamp, actor, reason, and old/new values. | Safety |  |  |  | ✓ |  |  | 1 |
+| Define and declare assumptions about system state or ordering. | Correctness |  |  |  | ✓ |  |  | 1 |
+| Avoid undefined jargon/abbreviations. | Style |  |  | ✓ | ✓ |  | ✓ | 3 |
+| Externalize complex shell logic into separate versioned scripts. | Content |  |  |  |  | ✓ |  | 1 |
+| Prefer tools with a `--dry-run` mode for pre-flight validation. | Safety |  |  | ✓ |  | ✓ |  | 2 |
+| Declare the data_access scope / minimal data sources and sinks. | Safety | ✓ |  |  |  |  |  | 1 |
+| Set cost/token budget in frontmatter. | Performance | ✓ |  |  |  |  |  | 1 |
+| Keep each step to one or two sentences. | Style |  |  |  | ✓ |  |  | 1 |
 
 ## Notes on clustering decisions
 
-- **"Keep each skill focused on a single workflow"** combines gpt-5's "composition by calling sub-skills," opus's "one skill = one workflow," haiku's "exactly one outcome," gemini's "single, clear responsibility," and grok's "single, focused workflow." These are phrased very differently but all express the atomicity principle. A regex matcher would likely miss this grouping.
-- **"Specify concrete trigger phrases"** spans "When to Use" (gpt-5), `when_to_use` frontmatter (opus), Trigger section under 2 sentences (haiku), "when-to-use" triggers (gemini), and "when-to-use trigger language" (grok). I treated these as one cluster even though the level of specificity varies.
-- **"Validation step with a pass/fail signal"** merges opus's "verification step," haiku's "Validation section," gemini's "explicit exit codes/output signals," and grok's "validation steps for inputs and outputs." Grok's is arguably more about input validation — borderline case, but kept here because it also covers outputs.
-- **"Prefer exact commands over vague descriptions"** conflates opus's `pytest -q` example, haiku's "avoid 'use best judgment'," gemini's "prefer structured commands over parsing stdout," grok's "actionable verbs" and "avoid vague terms," and gpt-5's "strong verb, testable steps." These touch adjacent concerns (exactness vs. structured I/O vs. imperative verbs) that could be split into 2–3 clusters; I kept them together as "make steps unambiguous and machine-parseable."
-- **"Use active voice / clear, plain language"** absorbs multiple style rules (short sentences, imperative voice, plain language). Arguably "imperative voice" deserves its own row, but every model that raised imperatives also raised plain/clear language, so I merged.
-- **"Include error handling and recovery paths"** vs. **"Bound retries / don't embed complex retry logic"** — kept separate because gemini and opus explicitly argue retry logic belongs in the agent, not the skill, which is a distinct (and contested) position.
-- **"Record last-verified date"** and **"Version skills / changelog"** kept separate: the former is about staleness signaling, the latter about change tracking. Some models did both, some only one.
-- **"YAML frontmatter for metadata"** — gpt-5 says "Name, Summary, Owner, Version, Last-Reviewed" at top, opus says "frontmatter," grok says "YAML front matter." Treated as same cluster though gpt-5 doesn't explicitly say YAML.
-- **gpt-4o-mini's rules are mostly generic software-engineering advice** (80-char lines, lazy loading, camelCase) that didn't overlap much with the skill-specific rules raised by the other models. This shows up as many single-model rows for that column.
-- **"Clean up temp state"** (gemini) and **"Record partial progress and safe rollback steps"** (gpt-5) are related but distinct (cleanup vs. rollback); kept separate.
-- **"Progressive disclosure / link out"** (gpt-5, opus, grok) was clustered even though gpt-5 frames it as "link out for deep references," opus as "progressive disclosure," and grok as "don't embed large code snippets." All three express the same mechanism.
+- "Provide a clear, concise description/title" conflates two partially-distinct ideas: (a) a concise one-line description of purpose (gpt-4o-mini, haiku, grok, gemini) and (b) Opus's stronger "description must start with 'Use when…' and enumerate triggers." I kept Opus in both the general description cluster and in a more specific "Use when…" row; the "Use when…" row is left at count 1 to preserve that precision.
+- "Include explicit trigger conditions / When to use" merges gpt-5's strict "Use when / Do not use when + positive/negative trigger phrases" rule with lighter "state trigger conditions" rules from others. A stricter clustering would split out gpt-5's negative-triggers requirement as its own row.
+- "Require explicit human confirmation/approval for destructive operations" clusters several variants: gpt-5's [HUMAN-APPROVAL] step gated on safety_tier, Opus's "explicit user confirmation before destructive ops," haiku's approval-gates rule, and gemini's "require explicit user confirmation for state-changing or costly operation." These overlap heavily but differ in trigger (tier vs. operation type).
+- "Specify error handling / failure recovery" is a broad cluster covering gpt-4o-mini's generic "implement robust error handling," Opus's "## Failure modes section," haiku's per-step recovery, gemini's "handling for known errors," and gpt-5's error_code→action mapping. A stricter reading would split the structural-section requirement from the per-step requirement.
+- "Cap SKILL.md length" merges gpt-5's ≤400 lines, Opus's <300 lines, and grok's <2000 words; the numeric thresholds differ substantially but the intent is the same.
+- "Use a canonical/standard filename" merges gpt-5 and gemini's "name the file SKILL.md exactly" with haiku's stricter `SKILL_VerbNoun.md` convention — these are arguably incompatible conventions but both encode "enforce a filename pattern."
+- "List all environment variables / dependencies" merges gpt-5's env_vars frontmatter requirement, Opus's `## Prerequisites` with tools/versions, and haiku's `## Dependencies` section. These are structurally different (frontmatter vs. prose section) but share intent.
+- "Declare a safety/privilege tier" merges gpt-5's `safety_tier` enum with haiku's "Declare privilege level and required IAM/RBAC roles"; they encode different things (risk tier vs. IAM role) but both sit in the "declare the blast radius up front" family.
+- "Don't include unnecessary comments/commentary" merges gpt-4o-mini's "don't include unnecessary comments" and haiku's "don't include reasoning/commentary in instructions" — the first targets code comments broadly, the second targets commentary inside steps specifically.
+- "Avoid undefined jargon/abbreviations" merges Opus's "avoid undefined jargon," haiku's "avoid jargon without definition," and grok's "don't use abbreviations without defining" — close enough to cluster.
+- gpt-4o-mini's rules are all very generic ("robust error handling," "validate inputs," "optimize performance"); I mapped them to the nearest specific cluster where intent overlaps, but a reader could reasonably argue they're too vague to cluster with more specific rules from other models.
+- "Prefer `--dry-run`" clusters Opus's "prefer dry-run/preview as default" with gemini's "prefer tools with `--dry-run`"; these are close in substance.
+- gpt-5 emits many rules unique to its frontmatter-heavy stance (tool declarations, retry_policy, data_access, token budgets, placeholder syntax, test sibling file). I kept each as its own row at count 1 rather than folding them into broader clusters, since other models did not raise equivalents.

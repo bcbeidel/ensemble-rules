@@ -1,223 +1,362 @@
-# Synthesis of MCP Server Best Practices
+# MCP Servers: Synthesized Best-Practices Guidance
 
 ## 1. Consensus Rules
 
-### Structure & Architecture
+### Transport & I/O Protocol
 
-- **Separate transport/protocol handling from domain logic.** Thin adapters make business logic testable and transport-agnostic. *(substantively similar but differently worded across GPT-5, Claude Opus, Gemini, Grok)*
-- **Keep tools small, focused, and single-purpose.** Narrow scope reduces selection ambiguity and simplifies reasoning. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-- **Name tools with verb-noun patterns in snake_case (e.g., `create_ticket`, `search_users`).** Predictable naming improves model tool selection. *(near-identical across GPT-5, Claude Opus, Claude Haiku)*
+- **Never write non-protocol output to stdout on stdio transports; logs go to stderr or a file.** Stray writes corrupt the JSON-RPC frame and break clients. *(substantively similar but differently worded across GPT-5, Claude Opus, Claude Haiku, Gemini; present in all four detailed responses)*
+- **Use the official MCP SDK rather than hand-rolling the protocol.** SDKs encode subtle framing, timeout, and lifecycle requirements that are easy to miss. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
 
-### Tool & Resource Design
+### Schemas & Input Validation
 
-- **Define strict input/output schemas (JSON Schema, Zod, Pydantic) for every tool and validate at runtime.** Schemas are the contract with a probabilistic client that will invent parameters. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-- **Write tool descriptions as prompts — include purpose, units, constraints, side effects, and examples.** Descriptions are read by the model far more than code is read by humans. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
-- **Return structured data with a stable shape; use `null` for missing fields rather than omission.** Shape stability lets the model parse reliably. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
-- **Paginate list results and cap default page sizes.** Unbounded lists overflow context and silently degrade reasoning. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
-- **Truncate or handle-ify large payloads; do not dump megabytes inline.** Large outputs poison context windows. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
-- **Keep `get_*`, `list_*`, `search_*` tools strictly read-only and idempotent.** Violating this breaks the model's ability to plan safely. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
+- **Define every tool with an explicit, strict input schema (JSON Schema / Zod / Pydantic).** The schema is the contract the LLM reads on every invocation; lying or omitting it propagates into agent behavior. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
+- **Set `additionalProperties: false` (or equivalent strictness) on object schemas.** Unknown fields are usually model hallucinations; reject them loudly. *(near-identical wording across GPT-5 and Claude Opus; also raised by Claude Haiku)*
+- **Validate inputs before the handler does any work and return structured validation errors naming the field.** Catches typos and misuse early and lets the model self-correct. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
+
+### Tool Design & Naming
+
+- **Write tool names and descriptions for the model: stable `verb_noun` snake_case names and short, purposeful descriptions.** The tool surface is the LLM's UI; ambiguity produces misuse. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
+- **Declare side effects and idempotency in each tool's description; default to read-only.** Enables safe retries and scoped approval UX. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
 
 ### Error Handling
 
-- **Return structured, specific errors with stable codes/types and remediation hints.** The model uses error text to self-correct; vague errors cause retry loops. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-- **Never return raw stack traces or internal paths to the client.** They leak internals, waste tokens, and create security risk. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-- **Distinguish retryable (transient) from non-retryable (bad input) errors.** Prevents infinite retry loops and enables correct client behavior. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
+- **Return structured errors with a stable code, a human-readable message, and actionable detail — never a bare string or silent empty result.** Silent failures cause infinite retry loops and wrong-data propagation. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
+- **Distinguish transient from permanent errors so clients know whether to retry.** Prevents retry storms on permanent failures and gives up too easily on transient ones. *(substantively similar across GPT-5, Claude Haiku)*
+- **Set an explicit, configurable timeout on every outbound I/O call.** Unbounded calls hang the agent loop. *(near-identical wording across GPT-5 and Claude Opus; also raised by Claude Haiku, Gemini)*
 
 ### Safety & Security
 
-- **Run the server with least-privilege credentials scoped to what the exposed tools need.** Minimizing privilege limits blast radius. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-- **Treat all model-supplied arguments as untrusted/adversarial input (prompt injection is real).** The LLM is a confused deputy acting on potentially injected instructions. *(substantively similar across Claude Opus, Claude Haiku, Gemini)*
-- **Validate, sanitize, and parameterize all inputs used in queries, paths, or commands.** Prevents SQL injection, path traversal, command injection, SSRF. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
-- **Require explicit confirmation, dry-run, or opt-in for destructive operations.** Models will invoke delete/write tools based on injected instructions otherwise. *(substantively similar across GPT-5, Claude Opus)*
-- **Never log or return secrets, credentials, or PII.** Leakage is irreversible and outputs re-enter prompts. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-- **Enforce hard timeouts, size caps, and resource limits on tools and upstream calls.** Hard limits prevent resource exhaustion and stranded sessions. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
+- **Scope credentials to the minimum required; treat the server as a confused deputy.** The server's token defines the blast radius. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
+- **Never interpolate tool input into shell commands, SQL, or `eval`-like constructs; use parameterized APIs.** This is the dominant injection vector. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
+- **Enforce allowlists for filesystem paths and network egress; reject `..` and traversal.** Allowlists fail closed; denylists don't. *(substantively similar across GPT-5, Claude Haiku, Gemini)*
+- **Never hard-code secrets; never log them.** Use env vars or a secrets manager and redact at log-emission time. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
 
-### Performance
+### Response Size & Performance
 
-- **Target sub-second latency for common tool calls; each call blocks the model's reasoning loop.** Latency directly degrades the assistant experience. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
-- **Use asynchronous/non-blocking I/O throughout.** A single slow synchronous tool blocks the server. *(substantively similar across GPT-5, Gemini, Grok)*
-- **Cache idempotent reads with bounded TTLs.** Models repeat identical calls within a session. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
+- **Paginate or truncate anything that can return a large list, and mark truncation explicitly.** Unbounded responses burn context, money, and memory. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
+- **Cap response sizes and enforce per-request resource limits (memory, wall-clock).** Prevents OOMs and token overflow. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
 
 ### Observability
 
-- **Emit structured (JSON) logs with tool name, arguments summary, caller, outcome, duration, and correlation ID.** Structured logs are queryable; unstructured logs are noise. *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-- **Expose metrics (latency p50/p95, error rates, QPS) per tool.** You cannot tune what you do not measure. *(substantively similar across GPT-5, Claude Opus, Gemini)*
+- **Log every tool invocation with name, arguments (redacted), duration, and outcome in structured form.** Audit trails are the first thing you need when something goes wrong. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
+- **Emit structured JSON logs to stderr with timestamps and correlation IDs.** Makes production triage tractable. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
 
 ### Testing
 
-- **Write unit/contract tests against tool schemas and domain functions independently of the MCP runtime.** Schema drift is the most common regression. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Grok)*
-- **Fuzz tool inputs with malformed, oversized, and adversarial values.** The LLM is effectively a fuzzer — pre-empt it. *(substantively similar across GPT-5, Claude Opus)*
-- **Include end-to-end tests over the real transport.** stdio framing and cancellation bugs only appear end-to-end. *(substantively similar across GPT-5, Claude Opus)*
+- **Write tests covering success, invalid input, boundary, and error paths for every tool.** A tool without a malformed-input test hasn't proven its validation works. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
 
-### Versioning & Compatibility
+### Documentation
 
-- **Version servers and schemas explicitly; never silently repurpose a tool name.** Name stability prevents silent breakage in clients and saved contexts. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
+- **Provide a README documenting purpose, tools, required env vars, and setup.** Operators can't run what they can't configure. *(substantively similar across GPT-5, Claude Haiku, Gemini)*
+
+### Versioning
+
+- **Include a semantic version in server metadata; pin the MCP SDK to a specific version.** The ecosystem is young and churning; floating versions produce silent behavior shifts. *(substantively similar across GPT-5, Claude Opus)*
 
 ## 2. Strong Minority Rules
 
-- **On stdio transport, write nothing to stdout except protocol messages; logs go to stderr.** *(Claude Opus)* — A notoriously common bug that corrupts sessions silently. High-signal, low-cost rule worth keeping.
-- **Flush stdio promptly and handle SIGPIPE/EOF cleanly.** *(GPT-5, Claude Opus)* — Concrete failure mode that silently hangs clients.
-- **For HTTP transport, require authentication and bind to localhost by default.** *(Claude Opus)* — An unauthenticated MCP server on `0.0.0.0` is effectively RCE; critical default.
-- **Block SSRF explicitly: reject private IP ranges, metadata endpoints (`169.254.169.254`), and non-allowlisted hosts in any fetch tool.** *(Claude Opus, Gemini)* — LLMs will happily be instructed to fetch cloud metadata services.
-- **Include a machine-readable status plus a separate human summary field.** *(GPT-5, Claude Opus)* — Prevents mixing prose into structured data while keeping the model oriented.
-- **Return long-running work as operation handles with polling/progress rather than blocking.** *(GPT-5, Claude Opus via pagination/truncation)* — Essential for work that cannot fit in a single turn.
-- **Snapshot-test tool descriptions.** *(Claude Opus)* — Descriptions are prompts; treat regressions as code regressions.
-- **Provide a `/health` or health-check tool without side effects.** *(Claude Haiku, Gemini)* — Standard ops hook; cheap and essential.
-- **Reject unknown input properties (`additionalProperties: false`).** *(Claude Opus)* — Catches hallucinated parameters early.
-- **Fail fast at startup on missing required configuration.** *(Claude Opus)* — Silent misconfiguration surfaces later as confusing tool errors.
-- **Prefer coarse-grained tools that complete a task over N chatty tools the model must chain.** *(Claude Opus)* — Round trips dominate latency; counterbalances the "small tools" rule (see Divergences).
-- **Expose stable, indexable data as resources; use tools for actions and computed/filtered data.** *(Claude Opus, Claude Haiku)* — Provides a useful design heuristic absent from other inputs.
+- **Give destructive tools distinct name prefixes (`delete_*`, `drop_*`, `force_*`).** (Claude Opus) — Name-level signaling is the only safety cue some clients surface to the end user; cheap to adopt and mechanically checkable.
+- **Never expose generic `execute_sql`, `run_shell`, or `eval` tools in production.** (Claude Opus, echoed in spirit by Claude Haiku and Gemini) — Collapses the entire safety model into one prompt injection; worth stating explicitly.
+- **Require a confirmation token (or dry-run mode) for irreversible operations.** (Claude Opus, Claude Haiku) — Forces the model to surface intent to the user before destructive action.
+- **Treat all tool output as untrusted data — never as instructions.** (Claude Opus) — Prompt injection via returned content (tickets, emails, web pages) is a routine attack vector that most guidance omits.
+- **Keep tool handlers short (~50 lines) and avoid module-level mutable state.** (Claude Opus) — Mutable module state breaks HTTP/multi-tenant deployments in subtle ways; worth keeping.
+- **Snapshot the full tool list and schemas; diff on every PR.** (Claude Opus) — Accidental schema changes break deployed clients silently; cheap insurance.
+- **Implement graceful shutdown on SIGTERM/SIGINT and drain in-flight work.** (GPT-5) — Enables safe deploys and autoscaling; commonly overlooked.
+- **Provide `/health` and `/ready` endpoints for HTTP transport.** (GPT-5, Claude Haiku) — Required for any orchestrated deployment.
+- **Prefer `async` handlers uniformly; do not mix sync and async.** (Claude Opus) — Mixed execution models cause subtle deadlocks under load.
+- **Pin base images by digest and include a `.dockerignore` and `HEALTHCHECK`.** (GPT-5) — Reproducibility and container hygiene that tend to be forgotten.
+- **Sandbox tool execution (containers, limited user accounts).** (Gemini) — The strongest defense against malicious tool behavior; worth surfacing as a design option.
 
 ## 3. Divergences
 
-### Tool granularity: fine-grained vs. coarse-grained
+- **Server granularity: one server per integration vs. split at ~20 tools vs. split at 40+.**
+  - GPT-5: one server per operational responsibility (contested).
+  - Claude Opus: tool-count bloat starts hurting model selection at ~40+.
+  - Claude Haiku: 5–15 tools is ideal; split beyond 20.
+  - **Recommendation:** Prefer one server per logical domain; split when it exceeds ~20 tools *or* spans unrelated capabilities. The number is heuristic; the principle (contain blast radius, clarify ownership, keep the tool menu legible to the model) is what matters.
 
-- **Fine-grained / micro-tools:** GPT-5 (with caveat), Gemini — improves selection accuracy, reduces attack surface.
-- **Coarse-grained / task-complete:** Claude Opus — fewer tools reason better, round trips dominate latency.
-- **Synthesis:** Both sides agree on *single-purpose* (not Swiss-army) but disagree on *how much work one tool does*. Recommended rule: **prefer task-complete tools over chatty chains, but keep each tool single-purpose with a narrow, well-named scope.** Measure tool count — if the model is repeatedly chaining N calls to accomplish one user intent, collapse them.
+- **Stateless vs. stateful servers.**
+  - Gemini: stateless, explicitly (contested).
+  - Claude Opus: avoid module-level mutable state (similar stance).
+  - Others: quiet.
+  - **Recommendation:** Default to stateless. Server-side state creates a second coordination problem on top of the client's; externalize it when possible.
 
-### Transport: stdio vs. HTTP
+- **Reject unknown properties (`additionalProperties: false`) vs. tolerate for forward compatibility.**
+  - GPT-5 and Claude Opus: reject. GPT-5 flags it as contested.
+  - Others silent.
+  - **Recommendation:** Reject by default. Forward compatibility for MCP tools is better served by adding optional fields than by tolerating unknowns — because the "unknown" is usually an LLM hallucination, not a future client.
 
-- **stdio preferred for local/desktop:** GPT-5, Claude Opus.
-- **HTTP preferred for production:** Gemini, GPT-5 (for distributed).
-- **Synthesis:** This is a deployment-context question, not a best practice. Recommended rule: **use stdio for local/co-located integrations, HTTP(S) with auth for networked/multi-tenant deployments.** Both sides agree when scoped to their context.
+- **Egress allowlists — hard enforcement vs. observe-and-alert.**
+  - GPT-5: enforce in production (contested).
+  - Others: mostly silent except Gemini's general allowlist stance.
+  - **Recommendation:** Enforce for any server that handles user data or proprietary systems; observe-only is acceptable for dev/experimentation.
 
-### Output format: pure JSON vs. JSON + human summary
+- **Tool granularity: many narrow tools vs. multiplex with a `mode` parameter.**
+  - Claude Opus: one tool per distinct operation (contested).
+  - Claude Haiku: lean narrow but cap at 20.
+  - GPT-5: doesn't take a strong stance.
+  - **Recommendation:** Prefer narrow tools. Multiplexing confuses tool selection and muddles permission boundaries. Accept the tool-count growth and split servers when it gets unwieldy.
 
-- **Pure structured JSON:** Gemini implicitly, GPT-5 (leaning).
-- **JSON with a `summary` human-readable field:** Claude Opus, GPT-5 (contested tag).
-- **Synthesis:** The summary field is low-cost and measurably improves model behavior. Recommended: **return structured data as the primary payload; include a short `summary` field when the model benefits from a human-quotable description.** Keep prose out of data fields either way.
-
-### Business-rule validation at the server
-
-- **Validate schema only; let backend decide business rules:** Claude Haiku.
-- **Validate aggressively including business constraints:** GPT-5, Gemini.
-- **Synthesis:** Validate schema always; validate business rules only when the server owns the authority or when failing fast saves significant cost. Avoid duplicating authorization logic that lives elsewhere.
-
-### Internal retry on transient errors
-
-- **Retry internally with backoff:** Grok, GPT-5 (for idempotent ops).
-- **Fail fast; let the caller retry:** Claude Haiku.
-- **Synthesis:** **Retry only idempotent upstream calls with bounded attempts and jitter; surface exhaustion as a retryable error to the client.** Never retry mutations without idempotency keys.
+- **Base-image digest pinning.**
+  - GPT-5: pin by digest (contested).
+  - Others silent.
+  - **Recommendation:** Pin in production images; for local dev or internal-only servers this is overkill. The rule carries real cost (update overhead) and should be adopted deliberately.
 
 ## 4. Notable Omissions
 
-- **Prompt injection / untrusted-input treatment:** Absent from GPT-4o-mini and Grok. This is arguably the defining security concern for MCP servers — its omission is significant.
-- **stdio stdout contamination rule:** Only Claude Opus raises this specifically. Given how often this bug occurs in practice, its absence from GPT-5, Gemini, Haiku, and Grok is notable.
-- **Tool descriptions as prompts / description quality:** Absent from GPT-4o-mini and Grok. These models treated MCP servers as generic services, missing that the description *is* the interface for the model.
-- **Destructive-operation confirmation/dry-run:** Only GPT-5 and Claude Opus raise this explicitly. A critical safety pattern missing from Haiku, Gemini, and Grok.
-- **Pagination and payload truncation:** Absent from GPT-4o-mini and Grok. Consensus among the more detailed responses; its absence correlates with less MCP-specific reasoning.
-- **Schema-first validation with named libraries:** GPT-4o-mini and Grok speak only generically about "input validation" without naming schemas as the contract.
-- **Read-only idempotency of `get_*`/`list_*` tools:** Only Claude Opus and Claude Haiku raise this explicitly, though it's a foundational property.
-- **GPT-4o-mini and Grok overall:** Both produced generic "good software" advice with little MCP-specific content. Their outputs carry less independent signal on MCP-specific questions.
+- **stdout/stderr discipline** — GPT-4o-mini doesn't mention this, despite it being the single most common MCP-specific footgun and appearing in all other responses. The absence reflects that GPT-4o-mini's response is generic "good engineering" advice without MCP-specific content.
+- **Schema strictness and `additionalProperties: false`** — Missing from GPT-4o-mini and Claude Haiku (partially); this is a near-universal recommendation elsewhere.
+- **Use the official MCP SDK** — GPT-4o-mini omits; Gemini omits. Strong consensus elsewhere that hand-rolling the protocol is a mistake.
+- **Pagination / response-size caps** — GPT-4o-mini and Gemini both omit concrete pagination guidance, despite token budgets being the dominant performance constraint in agent contexts.
+- **Structured error responses with codes** — GPT-4o-mini mentions logging errors but not returning structured error objects with stable codes — a recommendation made by the three other detailed responses.
+- **Tool invocation audit logging** — GPT-4o-mini omits; near-universal elsewhere. This is the single most important observability rule for MCP servers because mutating tools can cause real damage.
+- **Prompt injection via tool output** — Only Claude Opus raises this explicitly; a notable omission across the others given how widespread the risk is.
+- **Timeouts on I/O calls** — GPT-4o-mini omits despite this being table stakes.
+
+GPT-4o-mini's response is conspicuously generic throughout — most of its rules apply to any service, not specifically to MCP servers. Treat its omissions as low signal individually but high signal collectively: the response likely did not engage with MCP specifics.
+
+## 5. Shared Deterministic Checks
+
+### Multi-model checks
+
+- **Check:** Verify that no code path outside the SDK's protocol writer emits to stdout in a stdio-transport server.
+  - **Signal:** Source AST (language-specific: `console.log`, `process.stdout.write`, `print(` without `file=sys.stderr`, `sys.stdout.write`).
+  - **Tool candidate:** ESLint `no-console` (scoped), ruff/flake8 custom rule; otherwise ad-hoc.
+  - **Raised by:** GPT-5, Claude Opus, Claude Haiku, Gemini.
+  - **Variance:** GPT-5 and Claude Opus require a suppression pragma allowlist for the legitimate SDK writer; Gemini frames it as linting with exemptions; Claude Haiku treats it as part of logger-config validation. All agree the check is a heuristic, not a proof.
+
+- **Check:** Verify every tool registration includes a non-empty input schema, and that every object schema has `additionalProperties: false` (or language equivalent: Zod `.strict()`, Pydantic `extra="forbid"`).
+  - **Signal:** AST of tool registration calls, or compiled JSON Schema.
+  - **Tool candidate:** ad-hoc; Zod→`zod-to-json-schema`, Pydantic→`model_json_schema()`.
+  - **Raised by:** GPT-5, Claude Opus, Claude Haiku.
+  - **Variance:** Claude Opus requires whitelisting legitimate metadata bags via inline comment; GPT-5 and Haiku are stricter. Substance agrees.
+
+- **Check:** Verify every outbound I/O call (HTTP, DB, subprocess) passes an explicit timeout argument.
+  - **Signal:** Source AST.
+  - **Tool candidate:** ad-hoc; partial coverage via `bandit`, `semgrep`, custom lint rules.
+  - **Raised by:** GPT-5, Claude Opus, Claude Haiku.
+  - **Variance:** Claude Opus recognizes client-level default timeouts as acceptable; GPT-5 and Haiku are more literal and may false-positive on wrapped clients.
+
+- **Check:** Verify no shell-injection-prone patterns exist: `shell=True` in Python subprocess, `exec`/`execSync` in Node, string interpolation into SQL.
+  - **Signal:** Source AST.
+  - **Tool candidate:** `bandit` (Python), `semgrep`, `gosec`, ESLint security plugin.
+  - **Raised by:** GPT-5, Claude Opus, Claude Haiku, Gemini.
+  - **Variance:** Gemini requires taint analysis to confirm user input reaches the sink; others use simpler pattern matching. Taint analysis has fewer false positives but requires heavier tooling.
+
+- **Check:** Verify the MCP SDK dependency is pinned to an exact version (or a lockfile is committed).
+  - **Signal:** `package.json`, `requirements.txt`, `pyproject.toml`, lockfiles.
+  - **Tool candidate:** ad-hoc dependency-manifest parser.
+  - **Raised by:** GPT-5 (general dependency pinning), Claude Opus (specifically the MCP SDK).
+  - **Variance:** GPT-5 applies to all deps; Opus applies specifically to the SDK. A lockfile can satisfy both.
+
+- **Check:** Run a secret scanner over the repo and fail on high-confidence findings.
+  - **Signal:** Full repo tree.
+  - **Tool candidate:** `gitleaks`, `trufflehog`, `detect-secrets`.
+  - **Raised by:** GPT-5, Claude Haiku.
+  - **Variance:** Agree on substance; Haiku adds a log-statement scan for live secret leakage.
+
+- **Check:** Verify a README exists at the repo root and documents environment/configuration.
+  - **Signal:** `README.md` contents.
+  - **Tool candidate:** ad-hoc (keyword/heading search).
+  - **Raised by:** GPT-5, Claude Haiku.
+  - **Variance:** Haiku checks for a tool list and setup instructions; GPT-5 only checks for env/config keywords. Haiku is stricter.
+
+- **Check:** Verify list-returning tools declare a pagination parameter (`limit`, `cursor`, `offset`, `page`, `page_size`) or enforce `maxItems`.
+  - **Signal:** Input schema + handler AST.
+  - **Tool candidate:** ad-hoc.
+  - **Raised by:** Claude Opus, Claude Haiku.
+  - **Variance:** Opus infers list-return from handler AST (`findAll()`, `SELECT` without `LIMIT`); Haiku checks schema `maxItems` and hand-rolled limits. Complementary.
+
+- **Check:** Verify a tool test suite exists and invokes each registered tool.
+  - **Signal:** Test files + tool registry.
+  - **Tool candidate:** ad-hoc; coverage tools as secondary signal.
+  - **Raised by:** Claude Opus (snapshot diff), Claude Haiku (per-tool tests + smoke test).
+  - **Variance:** Opus emphasizes schema-snapshot diffing in CI; Haiku emphasizes coverage-based per-tool tests. Different primary targets but both want automated tool-surface verification.
+
+### Singleton checks
+
+- **Check:** Verify tool names match `^[a-z][a-z0-9]*(_[a-z0-9]+)+$` and start with a known verb prefix.
+  - **Signal:** Tool registration AST.
+  - **Tool candidate:** ad-hoc.
+  - **Raised by:** Claude Opus.
+
+- **Check:** Verify tools whose handlers invoke destructive operations (SQL `DELETE`, `fs.unlink`, HTTP `DELETE`) carry a destructive name prefix.
+  - **Signal:** Tool registration AST + handler AST.
+  - **Tool candidate:** ad-hoc.
+  - **Raised by:** Claude Opus.
+
+- **Check:** Verify no tool is registered under the names `execute_sql`, `run_shell`, `eval`, `exec`, etc.
+  - **Signal:** Tool registration AST.
+  - **Tool candidate:** ad-hoc (regex match).
+  - **Raised by:** Claude Opus.
+
+- **Check:** Verify tool-handler functions are under ~50 non-blank, non-comment lines.
+  - **Signal:** Handler AST.
+  - **Tool candidate:** ad-hoc; existing complexity/length linters.
+  - **Raised by:** Claude Opus.
+
+- **Check:** Verify no module-level `let`/`var` or Python module-level names are reassigned after first bind.
+  - **Signal:** Module-scope AST.
+  - **Tool candidate:** ad-hoc; partial via ESLint `prefer-const`.
+  - **Raised by:** Claude Opus.
+
+- **Check:** Verify tool handlers are uniformly async (or uniformly sync).
+  - **Signal:** Handler registration AST.
+  - **Tool candidate:** ad-hoc.
+  - **Raised by:** Claude Opus.
+
+- **Check:** Verify signal handlers for SIGTERM/SIGINT exist and call a server shutdown method.
+  - **Signal:** Source AST.
+  - **Tool candidate:** ad-hoc.
+  - **Raised by:** GPT-5.
+
+- **Check:** Verify an HTTP server registers `/health` and `/ready` routes.
+  - **Signal:** Source AST (framework-specific route registration).
+  - **Tool candidate:** ad-hoc.
+  - **Raised by:** GPT-5, Claude Haiku (similar but less strict).
+
+- **Check:** Verify a `Dockerfile` contains a non-root `USER` instruction, a `HEALTHCHECK`, and pins `FROM` by digest.
+  - **Signal:** Dockerfile.
+  - **Tool candidate:** `hadolint` (partial coverage).
+  - **Raised by:** GPT-5.
+
+- **Check:** Verify CI configuration runs at least one linter, one secret scanner, and one dependency auditor.
+  - **Signal:** CI workflow YAML.
+  - **Tool candidate:** ad-hoc.
+  - **Raised by:** GPT-5.
+
+- **Check:** Verify server `stdout` on a test request yields valid line-delimited JSON.
+  - **Signal:** Live process stdout given a known input.
+  - **Tool candidate:** ad-hoc runtime harness.
+  - **Raised by:** Gemini.
+
+- **Check:** Verify the tool-parameter schema validates against the JSON Schema meta-schema.
+  - **Signal:** Tool manifest file.
+  - **Tool candidate:** JSON Schema validator against `draft-2020-12` meta-schema.
+  - **Raised by:** Gemini.
+
+- **Check:** Verify path-accepting tool handlers call a normalization + allowlist check before filesystem access.
+  - **Signal:** Handler AST.
+  - **Tool candidate:** ad-hoc; `semgrep` rules.
+  - **Raised by:** Claude Haiku.
+
+- **Check:** Verify handlers for mutating tools require a `confirm_token` or `dry_run` parameter before performing the mutation.
+  - **Signal:** Schema + handler AST.
+  - **Tool candidate:** ad-hoc.
+  - **Raised by:** Claude Haiku.
 
 ---
 
-## 5. Final Rules File
+## 6. Final Rules File
 
-# MCP Server Best Practices
+# MCP Server Best-Practices Rules
 
-**Scope:** Building Model Context Protocol servers (stdio or HTTP) that expose tools, resources, and prompts to AI assistants.
-**Audience:** Engineers and AI coding assistants authoring, reviewing, or operating MCP servers.
+**Scope.** Servers implementing the Model Context Protocol over stdio or HTTP, exposing tools, resources, or prompts to LLM clients.
 
----
+**Audience.** Engineers and AI coding assistants building or modifying such servers.
 
-## Architecture & Structure
+**Philosophy.** The tool surface is the LLM's UI. Be strict about contracts, safe by default, transparent when things fail, and bounded in resource use. Correctness before performance.
 
-- **Separate transport, protocol, and domain layers.** Tool handlers should be thin wrappers over pure domain functions so logic is testable without the MCP runtime.
-- **Register tools, resources, and prompts declaratively in one place.** Central registration makes capabilities auditable and discoverable.
-- **Co-locate each tool's schema, validator, and implementation.** Proximity keeps contract and code in sync.
-- **Keep each tool single-purpose with a narrow, well-named scope.** Narrow scope reduces selection ambiguity.
-- **Prefer task-complete tools over chatty chains the model must sequence.** Round trips dominate latency inside the model's reasoning loop.
-- **Expose stable, indexable data as resources; use tools for actions and computed results.** Resources are cacheable and discoverable; tools are for effects.
+## Structure & Project Layout
 
-## Naming & Descriptions
+- Use the official MCP SDK for your language rather than hand-rolling JSON-RPC or stdio framing.
+- Pin the MCP SDK to an exact version (or commit a lockfile).
+- Keep one server per logical domain; split when a server exceeds ~20 tools or mixes unrelated capabilities.
+- Separate protocol handling, tool dispatch, and tool implementation into distinct modules.
+- Co-locate each tool's schema, handler, and tests in one file.
+- Default to a stateless server design; externalize session state to clients or a shared store. *(contested)*
+- Avoid module-level mutable state; it breaks under concurrent HTTP or multi-tenant deployment.
+- Minimize external dependencies; each one is maintenance and attack surface.
 
-- **Name tools with `verb_object` in snake_case** (e.g., `create_ticket`, `search_users`). Predictable naming improves model tool selection.
-- **Namespace related tools with a shared prefix** (e.g., `db_query`, `db_migrate`). Grouping clarifies intent in large servers.
-- **Write tool descriptions as prompts, not docstrings.** Include purpose, when to use (and not use) the tool, units, constraints, side effects, and a minimal example.
-- **State side effects explicitly** ("writes to disk", "sends email"). The model uses this to decide whether to ask the user first.
-- **Snapshot-test tool descriptions.** Descriptions are prompts; regressions silently degrade model behavior.
+## Tool Design & Naming
 
-## Schemas & Validation
+- Name tools `verb_noun` in snake_case, using a consistent set of verbs (`list_`, `get_`, `create_`, `update_`, `delete_`, `search_`, etc.).
+- Write tool descriptions for the model, not the human: one to three sentences covering purpose, when to use it, when not to, and what it returns.
+- Declare one tool per distinct operation; do not multiplex with a `mode` parameter.
+- Default every tool to read-only; require explicit opt-in for mutation.
+- Give destructive tools distinct name prefixes (`delete_`, `drop_`, `force_`).
+- Never expose generic `execute_sql`, `run_shell`, `exec`, or `eval` tools in production.
+- Declare side effects, idempotency, and rollback semantics in the tool description.
+- Require a confirmation token or dry-run mode for irreversible operations.
 
-- **Define strict JSON Schema (or Zod/Pydantic) for every tool input and output.** Schemas are your contract with a probabilistic client.
-- **Reject unknown properties (`additionalProperties: false`).** Silent acceptance hides hallucinated parameters and masks bugs.
-- **Use enums, ranges, and formats for constrained fields.** Tight constraints prevent garbage-in.
-- **Validate both inputs and outputs at runtime.** Never trust model-supplied shapes; never emit outputs that violate your own schema.
-- **Version schemas and server capabilities explicitly; never silently repurpose a tool name.** Deprecate with a clear path; add new tools rather than mutating semantics.
+## Schemas & Input Validation
 
-## Tool & Resource Design
-
-- **Return structured JSON with a stable shape.** Use `null` for missing fields, never omission.
-- **Include a short human-readable `summary` field alongside structured data.** Gives the model something to quote without re-serializing.
-- **Make all `get_*`, `list_*`, `search_*` tools strictly read-only and idempotent.** Violating this breaks the model's ability to plan safely.
-- **Paginate every list endpoint with sensible default caps (a few dozen items).** Unbounded lists overflow context and silently truncate reasoning.
-- **Truncate large string fields and return a `truncated: true` flag plus a fetch handle.** Dumping megabytes degrades model performance.
-- **Use links or operation handles for large blobs and binaries; never base64 inline.**
-- **Return operation handles with progress/polling for long-running work instead of blocking.** Handles enable streaming, cancellation, and retry.
-- **Include enough context in returned data to act on it later** (IDs, paths, timestamps), not just display strings.
-
-## Error Handling
-
-- **Return structured errors with a stable machine-readable type/code and a human message.** Example: `{ type: "ValidationError", message: "expected YYYY-MM-DD, got 'next Tuesday'", field: "due_date" }`.
-- **Write error messages that tell the model how to fix the call.** Include the offending field, expected format, and an example.
-- **Never return stack traces, internal paths, or library versions to the client.** Log them server-side with a correlation ID.
-- **Distinguish retryable (transient) from non-retryable (bad input) errors, and include `retry_after` hints when applicable.** Prevents infinite retry loops and thundering herds.
-- **Retry only idempotent upstream calls internally, with bounded attempts and jitter.** Surface exhaustion as a retryable error.
-- **Fail closed on ambiguity.** If intent cannot be determined safely, return an error asking for clarification rather than guessing.
+- Define every tool's input with a strict schema (Zod, Pydantic, or JSON Schema). Never register a tool without one.
+- Set `additionalProperties: false` (or Zod `.strict()` / Pydantic `extra="forbid"`) on all object schemas. Allow exceptions only with an explicit annotation.
+- Validate inputs before the handler does any work; return structured validation errors naming the offending field and violation.
+- Mark optional parameters optional; do not encode optionality with sentinel values like `""` or `-1`.
+- Use enums for any parameter with a fixed set of values.
+- Enforce length, cardinality, and range limits in the schema (`maxLength`, `maxItems`, `minimum`, `maximum`).
+- For path inputs, validate against an explicit allowlist and reject `..` and absolute paths outside that list. Resolve symlinks before re-validating.
 
 ## Safety & Security
 
-- **Treat every model-supplied argument as untrusted and adversarial.** Prompt injection can originate from any document the model has seen.
-- **Run the server as a non-root user with least-privilege credentials scoped to the exposed tools.** A read-only tool gets read-only DB creds.
-- **Never authenticate based on tool arguments.** The server's identity is fixed; arguments are model-supplied.
-- **Parameterize all database queries, shell invocations, and path operations.** Never string-concatenate untrusted input.
-- **Require `confirm: true` or a dry-run → execute flow for destructive operations.** Models will invoke delete/write tools based on injected instructions otherwise.
-- **Sandbox filesystem tools to an explicit root allowlist; resolve symlinks before checks.** Path traversal via `..` and symlinks is the most common MCP exploit.
-- **Block SSRF: reject private IP ranges, cloud metadata endpoints (`169.254.169.254`), and non-allowlisted hosts in any fetch tool.**
-- **Never echo or log secrets, credentials, or PII.** Outputs re-enter prompts; logs are read.
-- **Log every tool invocation with tool name, caller, sanitized arguments, outcome, and correlation ID.** Auditability is non-negotiable for agent-driven systems.
+- Scope the server's credentials to the minimum required; assume the server is a confused deputy.
+- Never interpolate tool input into shell commands, SQL, or `eval`-like constructs. Use parameterized queries and safe exec variants only.
+- Enforce allowlists over denylists for filesystem paths and outbound network hosts.
+- Sandbox tool execution (containers, isolated users) for servers handling untrusted or sensitive data.
+- Treat all tool output as untrusted data — never as instructions. Do not auto-chain tools based on string patterns in other tools' output.
+- Require TLS and authentication on every HTTP endpoint; never expose unauthenticated HTTP to untrusted networks.
+- Never hard-code secrets. Read them from environment variables or a secrets manager, validated at startup.
+- Redact secrets and PII from logs and error messages by field name, not by pattern matching.
+- Pin dependencies and scan for vulnerabilities in CI.
 
-## Transport
+## Error Handling
 
-- **Use stdio for local/co-located integrations; use HTTP(S) with authentication for networked or multi-tenant deployments.**
-- **On stdio, write nothing to stdout except protocol messages.** Logs go to stderr; a stray `print` corrupts the session.
-- **Flush stdout after every message; handle SIGPIPE and EOF cleanly.** Hanging servers strand clients.
-- **For HTTP, require authentication and bind to localhost by default.** An unauthenticated MCP server on `0.0.0.0` is an RCE primitive.
-- **Set explicit timeouts on every outbound call** (DB, HTTP, subprocess). A hung tool hangs the entire assistant turn.
-- **Implement capability negotiation and graceful shutdown correctly per spec.**
+- Return structured errors with a stable `code`, an actionable `message`, and a `detail` field — never bare strings, stack traces, or silent empty results.
+- Distinguish transient errors (`timeout`, `rate_limited`, `service_unavailable`) from permanent ones (`validation_error`, `permission_denied`, `not_found`).
+- Include the offending argument name and value in validation errors.
+- Set an explicit, configurable timeout on every outbound I/O call (HTTP, DB, subprocess, filesystem).
+- On timeout, return immediately with a `timeout` error — do not wait for the operation to finish.
+- Retry only idempotent operations, with exponential backoff and jitter.
+- Never crash the process on bad input.
 
-## Performance
+## Transport & I/O
 
-- **Target sub-second latency for common tool calls.** Each call blocks the model's reasoning loop.
-- **Use asynchronous, non-blocking I/O throughout.** One slow synchronous tool blocks the server.
-- **Cache idempotent reads with short, bounded TTLs keyed by arguments.** Models repeat identical calls within a session.
-- **Use connection pools and exponential backoff with jitter for upstream calls.**
-- **Apply per-tool concurrency limits and backpressure.** Protects the server and its dependencies.
-- **Enforce per-tool latency budgets and payload size caps.** Hard limits prevent tail-latency regressions and resource exhaustion.
+- On stdio transport, never write to stdout except via the SDK's protocol writer. All `console.log`, `print`, and direct stdout writes are protocol-corruption bugs.
+- Send logs to stderr (or a file) in structured JSON form with timestamp, level, tool name, request ID, duration, and outcome.
+- Flush or await all writes before process exit.
+- For HTTP transport, require authentication on every request and never rely on session cookies alone.
+- Handle connection drops and EOF gracefully; clean up resources.
+
+## Response Size & Performance
+
+- Paginate any tool that can return more than ~50 items. Declare `limit`, `cursor`, or `page_size` in the schema.
+- Truncate large string fields with an explicit marker (e.g., `...[truncated 12KB]`). Never truncate silently.
+- Return summaries by default; provide separate `get_*` tools for full detail.
+- Cap response sizes and enforce per-request memory and wall-clock limits.
+- Reuse connections (HTTP keepalive, DB pools) instead of reconnecting per call.
+- Stream progress or return a handle plus a `get_status` tool for operations over ~2 seconds.
+- Prefer async I/O uniformly; do not mix sync and async handlers in the same server.
 
 ## Observability
 
-- **Emit structured (JSON) logs with timestamp, correlation ID, tool, caller, duration, size, and outcome.**
-- **Expose metrics for QPS, p50/p95 latency, error rate, and queue depth per tool.** You cannot tune what you do not measure.
-- **Add tracing spans around each tool call and upstream dependency.**
-- **Provide a health/readiness check without side effects.** Standard ops hook for orchestrators and load balancers.
-- **Fail fast at startup on missing required configuration or unreachable dependencies.** Silent misconfiguration surfaces later as confusing tool errors.
+- Log every tool invocation with name, redacted arguments, duration, and outcome.
+- Log mutating operations with enough context to audit what changed, when, and by whom.
+- Emit a structured startup log line with server name, version, and tool count.
+- Propagate and log correlation/request IDs across downstream calls.
+- For HTTP transport, expose `/health` (liveness) and `/ready` (readiness) endpoints that validate critical dependencies.
+- Implement graceful shutdown on SIGTERM/SIGINT; drain in-flight requests.
 
 ## Testing
 
-- **Write contract tests against tool schemas and unit tests against domain functions.** Schema drift is the most common regression.
-- **Fuzz tool inputs with malformed, oversized, and adversarial strings.** The LLM is effectively a fuzzer.
-- **Include end-to-end tests over the real transport.** stdio framing, cancellation, and backpressure bugs only surface end-to-end.
-- **Test limits explicitly:** timeouts, size caps, pagination, rate limits, and error paths.
+- Write tests for every tool covering success, invalid input, boundary conditions, and error paths.
+- Invoke tools through the MCP protocol in at least one test, not only by calling handlers directly.
+- Include a smoke test that invokes every tool with a minimal valid input and verifies schema compliance.
+- Snapshot the full tool list and schemas; diff on every PR to catch accidental contract changes.
+- Validate output schemas in tests rather than at runtime.
 
-## Style & Operations
+## Documentation
 
-- **Use the official SDK (TypeScript, Python) rather than hand-rolling the protocol.** The spec evolves; SDKs track it.
-- **Pin SDK and dependency versions.** Protocol-level breakage is hard to diagnose from the model's side.
-- **Keep tool handlers thin (~50 lines): validate, call, format, return.** Push logic into domain modules.
-- **Normalize timestamps to ISO-8601 UTC.** Consistent time simplifies reasoning and joins.
-- **Write tool descriptions in imperative mood** ("Create a new ticket") and keep them concise.
-- **Document required environment variables, dependencies, and typical latencies per tool.**
-- **Gate new tools behind feature flags; measure usage before removing deprecated ones.**
+- Provide a README covering purpose, exposed tools, required environment variables, and setup.
+- Document every parameter with a description, allowed values, and constraints — in the schema, not just in prose.
+- Document side effects, rate limits, and latency expectations for each tool.
+- Maintain a CHANGELOG and follow semantic versioning; never reuse a tool name for different behavior — version instead.
+
+## Deployment
+
+- Include a semantic version in server metadata and bump it on every change.
+- For container images: use a minimal base, set a non-root `USER`, pin the base by digest, include a `HEALTHCHECK`, and commit a `.dockerignore`.
+- Fail fast on missing required environment variables at startup.
+- Bind to localhost by default for local servers; require explicit configuration to listen externally.
+- In CI, run formatters, linters, secret scanners, and dependency auditors; fail the build on any violation.

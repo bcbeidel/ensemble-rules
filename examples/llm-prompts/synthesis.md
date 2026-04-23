@@ -1,274 +1,324 @@
-# Synthesis of LLM Prompt Best-Practices
+# Synthesis of LLM Prompt Best Practices
 
 ## 1. Consensus Rules
 
 ### Structure & Organization
 
-- **Organize prompts into explicit, named sections (goal, constraints, context, examples, output format).** *(substantively similar but differently worded across all 5 models)*
-  Rationale: Explicit structure aids both human maintainers and model parsing.
+- **Store prompts as version-controlled files, not inline strings or database rows.** Enables review, diffing, rollback, and treats prompts as durable engineering artifacts. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
 
-- **Use delimiters (XML tags, markdown headers, or triple backticks) to separate instructions from data/context.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
-  Rationale: Prevents format bleed and ambiguity between roles of content.
+- **Use consistent, ordered sections (Role/Goal, Context, Constraints, Output Format, Examples).** Predictable structure makes prompts scannable and maintainable. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
 
-- **Use named placeholders (e.g., `{user_query}`, `{{variable_name}}`) for dynamic content rather than string concatenation.** *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
-  Rationale: Clearly separates instructions from data and prevents injection.
+- **State an explicit goal/task as the first content in the prompt.** A stated goal is the reference point for all downstream decisions. *(substantively similar across GPT-5, Claude Haiku, Gemini, Grok)*
 
-- **Place primary instructions/goal at the start; restate critical constraints at the end.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-  Rationale: Models attend most to the beginning and end of prompts.
+- **Isolate variable/user content with explicit delimiters and a consistent placeholder syntax.** Reduces injection risk and clarifies substitution. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
 
-### Output Specification
+- **Use a real templating engine (Jinja, Handlebars, etc.) rather than string concatenation or f-strings.** String concatenation produces injection bugs and malformed prompts. *(raised by Claude Opus and Gemini; substantively similar)*
 
-- **Specify output format with a concrete schema or literal example, not prose descriptions.** *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-  Rationale: Natural-language format descriptions drift; literal schemas don't.
+### Output Contract
 
-- **Prefer JSON / structured output / function calling when the consumer is code.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-  Rationale: Structured I/O is more reliable and reduces parsing errors.
+- **Specify the output format with a concrete schema, grammar, or literal example — never prose alone.** Prose-only format specs fail unpredictably and cause parsing errors downstream. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
 
-- **Define an explicit failure/uncertainty output (e.g., "unknown", error object, refusal).** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-  Rationale: Overrides the model's default tendency to guess or fabricate.
+- **Use the provider's native structured-output / JSON-mode / tool-calling feature when available.** More reliable than instructing the model in English. *(raised by GPT-5 and Claude Opus, substantively similar)*
 
-- **Enumerate edge cases explicitly (empty input, ambiguous input, out-of-scope requests).** *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
-  Rationale: The dominant failure mode is underspecification of edge behavior.
+- **Instruct the model to return only the specified output, with no conversational filler or markdown fences.** Simplifies downstream parsing. *(substantively similar across GPT-5, Claude Opus, Gemini)*
 
-### Clarity & Instructions
+- **Define an explicit error/refusal/abstention path with a fixed shape.** Standardizes failure modes and prevents hallucinated answers when inputs are insufficient. *(substantively similar across GPT-5, Claude Haiku, Grok)*
 
-- **Use direct, imperative, unambiguous language; avoid vague exhortations.** *(substantively similar across all 5 models)*
-  Rationale: Specific constraints change behavior; vague ones ("be careful", "be thorough") do not.
+### Style
 
-- **Avoid contradictory instructions (e.g., "concise AND exhaustive").** *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
-  Rationale: Models silently resolve contradictions in unpredictable ways.
+- **Write instructions in short, imperative, active-voice sentences.** Matches instruction-tuned model training and reduces ambiguity. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Grok)*
 
-### Safety & Input Handling
+- **Delete filler, politeness, and narrative preamble ("please," "kindly," "you are a world-class expert").** Tokens cost money and filler has negligible measurable effect on frontier models. *(substantively similar across Claude Opus, Claude Haiku, Grok; flagged contested by Claude Opus)*
 
-- **Treat all user input, retrieved docs, and tool outputs as untrusted data, not instructions.** *(near-identical across GPT-5, Claude Opus, Claude Haiku, Gemini)*
-  Rationale: Prompt injection is the default threat model, not an edge case.
+- **Use consistent terminology for the same entity throughout a prompt.** Terminology drift confuses models and increases hallucination. *(substantively similar across GPT-5, Claude Haiku)*
 
-- **Explicitly tell the model that delimited user/retrieved content is data to be ignored if it contains instructions.** *(substantively similar across GPT-5, Claude Opus, Gemini)*
-  Rationale: Defense in depth against injection.
+### Safety
 
-- **Define refusal behavior and unsafe-content boundaries explicitly.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
-  Rationale: Consistent, detectable refusals enable graceful downstream handling.
+- **Treat all retrieved context, tool outputs, and user input as untrusted data, not instructions.** The system prompt is not a security boundary; injection is not solved by prompting alone. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)*
 
-- **Never embed secrets, API keys, or PII in prompts.** *(near-identical across GPT-5, Claude Opus)*
-  Rationale: Prompts leak through logs, traces, and outputs.
+- **Never embed secrets, API keys, or credentials in prompt templates.** Prompts are logged, cached, and sometimes leaked in error traces. *(substantively similar across Claude Opus, Claude Haiku, Gemini, Grok)*
 
-### Versioning & Maintainability
+- **Include an explicit refusal/safety policy for the task's sensitive categories.** Defense-in-depth; enables auditing and compliance. *(substantively similar across GPT-5, Claude Haiku, Gemini, Grok)*
 
-- **Store prompts in version control and treat them as code subject to review.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Grok)*
-  Rationale: Prompts drift with model updates; they need diffs, rollback, and review.
+### RAG
 
-- **Attach an evaluation/test suite to every production prompt.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
-  Rationale: Prompts regress; without tests, changes are guesswork.
+- **Separate retrieved context from instructions using explicit delimiters; require abstention when evidence is absent.** Prevents injection and hallucination. *(substantively similar across GPT-5, Claude Haiku, Gemini)*
 
-- **Pin the model version / decoding parameters alongside the prompt.** *(substantively similar across GPT-5, Claude Opus)*
-  Rationale: Same prompt behaves differently across model versions; reproducibility requires pinning.
+- **Require citations with stable source identifiers for any sourced claim.** Enables auditability. *(raised by GPT-5 and Claude Haiku)*
 
-### Performance
+### Performance & Cost
 
-- **Remove redundancy and boilerplate, but never sacrifice clarity for brevity.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)*
-  Rationale: Tokens cost money and dilute attention, but reliability matters more than raw cost.
+- **Set explicit length budgets (max_tokens, item counts, or token limits).** Runaway generations are a cost and latency bug. *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Grok)*
 
-- **Cap output length with an explicit hard limit (tokens, words, or characters).** *(substantively similar across GPT-5, Claude Haiku)*
-  Rationale: Vague "be concise" guidance doesn't constrain output reliably.
+- **Be as concise as possible without sacrificing clarity or necessary constraints.** Reduces token cost and latency; each instruction must earn its place. *(substantively similar across GPT-5, Claude Opus, Gemini, Grok)*
 
-### Examples (Few-Shot)
+- **Use few-shot examples sparingly — only when format is non-obvious or empirically justified.** Examples inflate cost, bias content, and don't always help on frontier models. *(substantively similar across GPT-5, Claude Opus, Claude Haiku; all flag contested)*
 
-- **Ensure examples exactly match the expected output format.** *(substantively similar across Claude Opus, Claude Haiku, Gemini)*
-  Rationale: The model follows examples over instructions when they conflict.
+### Testing & Versioning
 
-### RAG / Context Handling
+- **Maintain a fixed evaluation set (golden cases) checked into the repo and run it on every change.** Without an eval set, every change is vibes-based. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
 
-- **Label retrieved chunks with source/provenance metadata and require citation.** *(substantively similar across GPT-5, Claude Opus)*
-  Rationale: Enables attribution, verification, and graceful "insufficient context" behavior.
+- **Version prompts with semver and maintain a changelog.** Downstream systems depend on specific versions; rollback and debugging require history. *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
 
-- **Cap retrieved context to a small top-k ranked by relevance.** *(substantively similar across GPT-5, Claude Opus)*
-  Rationale: More tokens dilute attention rather than adding signal.
-
-### Agentic Workflows
-
-- **Give agents an explicit termination condition; never allow unbounded loops.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku)*
-  Rationale: Prevents runaway cost and infinite recursion.
+- **Pin model name and version in frontmatter and in recorded eval results.** Floating aliases change behavior; results are meaningless without a pinned model. *(raised by Claude Opus; GPT-5 implies via `model_targets`)*
 
 ## 2. Strong Minority Rules
 
-- **Exploit prompt caching by placing stable content first, volatile content last.** (Claude Opus only)
-  Kept because: This is a concrete, measurable performance win on modern APIs (Anthropic, OpenAI) that the other models missed.
+- **Place static content first and variable content last to maximize prefix-cache hit rates.** *(Claude Opus only.)* Kept because it is a concrete, provider-supported optimization with measurable (~90%) cost impact on cached tokens — a specific, actionable mechanism that the other models gesture at only vaguely.
 
-- **Chain multiple simple prompts instead of one mega-prompt for multi-step tasks.** (Gemini; implicit in Claude Opus)
-  Kept because: Modularity and debuggability are real production concerns; this is a well-reasoned architectural principle.
+- **Set temperature to 0 for extraction, classification, and structured-output tasks.** *(Claude Opus only.)* Kept because determinism is a common source of flaky evals and the rule is crisp and mechanically checkable.
 
-- **Include a metadata header on each prompt (name, version, owner, model targets).** (GPT-5 only)
-  Kept because: Concrete operational discipline that supports the consensus "prompts are code" principle.
+- **Do not add "think step by step" to prompts targeting reasoning-tuned models (o1, o3, R1, Claude extended thinking).** *(Claude Opus only.)* Kept because it is a specific, current correction to cargo-culted CoT advice and avoids a real regression on modern models.
 
-- **Require agents to state their plan before destructive operations.** (Claude Opus only)
-  Kept because: Cheap, high-leverage safety mechanism specific to agentic workflows.
+- **Declare every template variable with a type and description in frontmatter.** *(Claude Opus; partially GPT-5 and Gemini.)* Kept because it enables the variable-AST check below and catches silent breakage at the template-call boundary.
 
-- **Log every prompt, tool call, and output for agentic systems.** (Claude Opus only)
-  Kept because: Non-reproducible agent failures are a well-known operational pain point.
+- **Put the primary instruction before large context blocks.** *(Gemini, Claude Opus implied via "lost in the middle.")* Kept because it maps to a measurable model behavior (attention at start/end) and is cheap to apply.
 
-- **Use second person ("you") for addressing the model, not third person.** (Claude Opus only)
-  Kept because: Low-cost stylistic clarity rule with no apparent downside.
+- **Cover edge cases in few-shot examples, not the happy path.** *(Claude Opus only.)* Kept because models infer happy paths; this refines the generic "use few-shot sparingly" consensus.
 
-- **Don't use prompts to fix problems that belong in application code (parsing, validation, retries).** (Claude Opus only)
-  Kept because: A critical architectural principle — overloading prompts is a common anti-pattern.
-
-- **Review prompt diffs like code diffs; a one-word change can flip behavior on 10% of inputs.** (Claude Opus; implicit in Claude Haiku)
-  Kept because: Captures the non-obvious fragility of prompt changes.
+- **Document inputs, outputs, and known failure modes in frontmatter or an adjacent README.** *(Claude Opus, Claude Haiku, GPT-5.)* Kept because presence-of-documentation is checkable and the artifact is often the only context the next engineer will have.
 
 ## 3. Divergences
 
-### Persona / Role-Play Preambles ("You are an expert...")
-- **Pro:** Gemini explicitly endorses role-play as low-cost context-setting.
-- **Con:** GPT-5 and Claude Opus call generic personas "cargo culting" or "fluff."
-- **Nuanced:** Claude Haiku says use only when persona directly shapes output.
-- **Synthesis:** Skip generic "helpful assistant" framing; use concrete roles only when they demonstrably shape style/expertise in evals. The burden of proof is on the persona.
+### Prompt length limits
+- **GPT-5:** Set explicit length budgets; no absolute number.
+- **Claude Opus:** Recommends <500 tokens unless evidence justifies more (flagged contested).
+- **Grok:** Prescribes <500 tokens as a hard rule.
+- **Others:** Silent or "concise."
+- **Synthesis:** Require an explicit length budget (consensus), but make absolute thresholds project-configurable. A hardcoded 500-token limit is too aggressive for legitimate RAG/agentic prompts. Recommend budget + waiver pattern from Claude Opus.
 
-### Chain-of-Thought Reasoning
-- **Skeptical:** GPT-5, Claude Opus, Claude Haiku — costly, leaks reasoning, measure before adding.
-- **Neutral:** Grok mentions it improves reasoning but notes latency cost.
-- **Synthesis:** Default off. Enable only when evals show a measurable accuracy lift that justifies the latency/cost.
+### Markup style: XML vs Markdown
+- **Gemini:** Advocates XML-style tags for rigidity and parse clarity.
+- **Claude Opus:** Either works on Claude 3.5+; pick one per project and be consistent.
+- **Claude Haiku, GPT-5, Grok:** Agnostic; emphasize consistency.
+- **Synthesis:** Adopt Claude Opus's position — pick one style per project and enforce consistency. XML has a slight edge for untrusted-input isolation because tag names are less likely to collide with content.
 
-### Few-Shot Examples: Default or Last Resort?
-- **Always use examples:** Claude Haiku ("one example is almost always better than none"), Gemini ("worth a thousand words"), Grok.
-- **Use sparingly:** GPT-5, Claude Opus ("use few-shot only when instructions alone fail your evals").
-- **Synthesis:** Start with clear instructions + schema; add examples when (a) the task is structurally tricky, (b) evals show instruction-only prompts fail, or (c) tone/style is hard to describe. Examples are powerful but costly and anchor flaws.
+### Chain-of-thought prompting
+- **Gemini:** Use CoT for complex reasoning tasks (flagged contested).
+- **Claude Opus:** Never on reasoning-tuned models; for others, isolate in a delimited region.
+- **GPT-5:** Prefer not in user-facing output; structured rationale field if needed.
+- **Synthesis:** Default to no CoT on reasoning-tuned models; for non-reasoning models, use a dedicated `<thinking>` block or separate `rationale` field distinct from the final answer. Do not mix reasoning into user-visible output.
 
-### Negative Examples (showing what *not* to do)
-- **Against:** Claude Haiku warns negatives can confuse the model into doing the forbidden thing.
-- **For:** Gemini says "state constraints and prohibitions explicitly and negatively" works well.
-- **Synthesis:** Use negative *constraints* ("Do not invent sources") freely; use negative *examples* (showing a bad output) sparingly and only for common, specific failure modes.
+### Negative vs positive instructions
+- **Gemini:** Prefer positive ("Do X") over negative ("Don't Y") as a general rule.
+- **Claude Opus:** Use negative constraints only for observed failures — speculative prohibitions can prime the forbidden behavior.
+- **Synthesis:** Claude Opus's position is more precise and better reasoned. Keep negative instructions but require they be tied to a documented failure mode.
 
-### Markdown vs. XML Tags
-- **XML-leaning:** Claude Opus, Claude Haiku (Anthropic-native convention).
-- **Markdown-leaning:** Gemini.
-- **Agnostic:** GPT-5, Grok.
-- **Synthesis:** Pick one and apply consistently within a prompt. Model-dependent; test both if it matters.
+### RFC 2119 keywords (MUST/SHOULD/MAY)
+- **GPT-5:** Recommends, flagged contested.
+- **Others:** Silent.
+- **Synthesis:** Optional project-level convention; do not elevate to universal rule. The underlying intent (unambiguous priority) is served by the consensus "imperative voice" rule.
 
-### Temperature / Decoding Parameters in the Prompt
-- **In config:** Claude Haiku says decoding belongs in config, not prompt text.
-- **Pinned with prompt:** GPT-5 says pin decoding params per version for reproducibility.
-- **Synthesis:** Store decoding params in prompt *metadata* (version-pinned), not in prompt *body*. Both views are compatible.
-
-### Single Prompt vs. Chained Prompts
-- **Chaining:** Gemini favors it for complex workflows (single-responsibility principle).
-- **Not discussed:** Others.
-- **Synthesis:** Prefer chaining for multi-step tasks; it improves testability at the cost of latency.
+### Clarifying questions
+- **GPT-5:** At most 2 clarifying questions before answering (flagged contested).
+- **Others:** Silent or prefer explicit error path.
+- **Synthesis:** Prefer the error/refusal path (consensus) over clarifying questions for non-conversational prompts. Clarifying questions are appropriate for interactive assistants; make this a conditional, not universal, rule.
 
 ## 4. Notable Omissions
 
-- **GPT-4o-mini omits nearly everything concrete:** no prompt injection handling, no output-schema specification details, no RAG guidance, no agentic workflow rules, no model-version pinning, no eval-set requirement, no prompt caching, no templating discipline. Its rules file reads as generic platitudes ("be specific", "be concise") without the operational detail the other four models converge on. The absence is the signal: this model produced a weaker output than its peers.
+- **GPT-4o-mini omits nearly all consensus rules.** Its output is substantially less specific than the other four responses — no versioning, no structured output schemas, no eval sets, no delimiter isolation, no templating, no RAG-specific guidance. The response reads as generic advice rather than engineering practice. Weight its signal accordingly.
 
-- **Grok omits prompt injection as a threat model.** It mentions safety generally but does not treat untrusted-input handling or delimiting as a core discipline — a significant gap given how strongly the other four converge on it.
+- **Gemini omits versioning, changelog, and eval-set rules** that appear in GPT-5, Claude Opus, and Claude Haiku. Surprising given its "prompts as code" framing — the logical extension to test suites and semver is missing.
 
-- **Gemini omits explicit testing/eval infrastructure rules** beyond "iterate and test." Claude Opus, Claude Haiku, GPT-5, and Grok all call out attaching eval suites as non-negotiable.
+- **Grok omits prompt injection / untrusted-input isolation as a safety boundary concept.** It mentions "prompt injection risks" in passing but does not articulate the core rule that system prompts are not security boundaries.
 
-- **Claude Haiku and Grok omit prompt caching / cache-friendly ordering** — a concrete performance lever Claude Opus highlights.
+- **GPT-4o-mini and Grok both omit the structured-output / JSON-mode feature recommendation.** This is a concrete, high-impact rule the stronger responses converged on.
 
-- **GPT-4o-mini and Grok omit model-version pinning** — a maintainability point GPT-5 and Claude Opus treat as essential.
+- **GPT-5, Gemini, and Grok omit `max_tokens` enforcement at the call site** that Claude Opus flags. Given its concrete cost/latency impact, this is a notable gap.
 
-- **Grok omits structured output / JSON mode preference** — the other four all recommend it when the consumer is code.
+- **Only Claude Opus addresses prefix caching.** Given it's supported across Anthropic, OpenAI, and Gemini and cuts costs ~90% on cached tokens, the omission by Gemini is particularly conspicuous.
+
+## 5. Shared Deterministic Checks
+
+### Shared Checks (Multiple Models)
+
+- **Check** — Verify the prompt file contains an explicit, labeled goal/task statement near the top.
+  - **Signal** — Raw prompt source file.
+  - **Tool candidate** — ad-hoc (regex over first N lines for `^(Goal|Task|Objective|Purpose):` or imperative action verbs).
+  - **Raised by** — Claude Haiku, Grok, GPT-5 (via required section ordering).
+  - **Variance** — Claude Haiku adds a sentence-length cap (≤20 words, single sentence); Grok uses action-verb regex on the first sentence; GPT-5 requires a named section. Substance agrees: "a goal exists and is at the top."
+
+- **Check** — Verify required sections are present and appear in the canonical order (Role/Goal, Context, Constraints, Output Format, Examples).
+  - **Signal** — Raw source file; extracted Markdown headings or XML tags.
+  - **Tool candidate** — ad-hoc markdown AST parser (e.g., `remark`, `markdown-it`).
+  - **Raised by** — GPT-5, Claude Opus, Claude Haiku.
+  - **Variance** — GPT-5's canonical list is longer (includes Non-Goals, Safety, Tests); Claude Opus treats missing sections as allowed but reordering as a violation; Claude Haiku checks specific section labels exist when certain keywords appear in the body. Converge on "order is enforced, presence is section-specific."
+
+- **Check** — Verify template variables use a consistent placeholder syntax and every referenced variable is declared.
+  - **Signal** — Raw source file + frontmatter + template AST.
+  - **Tool candidate** — Jinja2 / Handlebars parser for variable extraction; regex for syntax conformance.
+  - **Raised by** — GPT-5, Claude Opus, Gemini.
+  - **Variance** — GPT-5 requires `{{UPPER_SNAKE}}` and an allowlist; Gemini requires uppercase snake_case via regex; Claude Opus requires declared `type` and `description` for each variable. Agree on substance; differ on declaration strictness.
+
+- **Check** — Verify the output-format section contains a schema or fenced code-block example, not prose only.
+  - **Signal** — Raw source file; fenced code-block detection; optional JSON Schema validation.
+  - **Tool candidate** — `ajv` / `jsonschema` for schema validation of any JSON example against the declared schema.
+  - **Raised by** — GPT-5, Claude Opus, Claude Haiku.
+  - **Variance** — GPT-5 requires both a schema and a compliant example and validates one against the other; Claude Opus and Claude Haiku require at least one of schema/example. GPT-5's check is stricter.
+
+- **Check** — Verify an error/refusal path exists in the schema and is referenced in an Error Handling section.
+  - **Signal** — Raw source file + parsed output schema.
+  - **Tool candidate** — JSON Schema validator + ad-hoc regex on section headings.
+  - **Raised by** — GPT-5, Claude Haiku.
+  - **Variance** — GPT-5 specifies acceptable shapes (`oneOf` branch with `error`, or `error` object with `code`/`message`); Claude Haiku only checks for a Safety/Constraints section when refusal verbs appear. Substance agrees on "refusal path must exist and be documented."
+
+- **Check** — Verify untrusted-input variables are wrapped in explicit delimiters.
+  - **Signal** — Raw source file; allowlist of variable names treated as untrusted.
+  - **Tool candidate** — ad-hoc regex; requires project-config allowlist.
+  - **Raised by** — Claude Haiku, Gemini.
+  - **Variance** — Claude Haiku checks for any delimiter pattern (`<USER_INPUT>`, `[USER_INPUT]`, `{{USER_INPUT}}`); Gemini specifically requires XML-style encapsulation (`<query>{{VAR}}</query>`). Gemini is stricter.
+
+- **Check** — Scan prompt files for leaked secrets (API keys, tokens, private keys).
+  - **Signal** — Raw source file.
+  - **Tool candidate** — `gitleaks`, `trufflehog`, or `detect-secrets`.
+  - **Raised by** — Claude Opus, Claude Haiku.
+  - **Variance** — None substantive. Both name industry-standard scanners and acknowledge false positives via pragma comments.
+
+- **Check** — Verify prompt length is under a configured token budget.
+  - **Signal** — Rendered prompt text piped through a tokenizer.
+  - **Tool candidate** — `tiktoken` (OpenAI), provider SDK tokenizers, or a shared tokenizer library.
+  - **Raised by** — Claude Opus, Grok.
+  - **Variance** — Grok hard-codes 500; Claude Opus makes it configurable with a `size_waiver` escape hatch. Opus's version is more usable.
+
+- **Check** — Verify each prompt file has a valid semver version, either in the filename or frontmatter.
+  - **Signal** — Filename; YAML frontmatter.
+  - **Tool candidate** — semver regex (standard: `^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)`); YAML parser.
+  - **Raised by** — GPT-5, Claude Opus, Claude Haiku.
+  - **Variance** — GPT-5 requires it in YAML frontmatter only; Claude Opus accepts filename-embedded version; Claude Haiku accepts either git tags or frontmatter. Opus/Haiku are more flexible.
+
+- **Check** — Verify each prompt has a matching eval/test file with a minimum number of cases.
+  - **Signal** — Repository file layout; eval file contents.
+  - **Tool candidate** — ad-hoc directory convention; JSONL/YAML parser.
+  - **Raised by** — GPT-5, Claude Opus, Claude Haiku.
+  - **Variance** — GPT-5 requires at least one golden case; Claude Opus requires ≥20; Claude Haiku requires 5–10. Adopt a configurable minimum; the concept is unanimous.
+
+- **Check** — Verify material edits to a prompt are accompanied by a version bump and a changelog entry.
+  - **Signal** — Git diff + frontmatter `version` + changelog file.
+  - **Tool candidate** — ad-hoc pre-commit hook.
+  - **Raised by** — GPT-5, Claude Opus, Claude Haiku.
+  - **Variance** — All three agree on substance. Differ on whether the check lives in CI or pre-commit.
+
+### Singleton Checks (Generally Useful)
+
+- **Check** — Verify prompts targeting reasoning-tuned models do not contain "think step by step" or equivalent CoT phrases.
+  - **Signal** — Frontmatter `model` field + body regex.
+  - **Tool candidate** — ad-hoc regex with maintained model allowlist.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verify call sites passing structured-output prompts use the provider's JSON-schema / tool-calling response_format.
+  - **Signal** — Source code AST at LLM call sites + prompt frontmatter `output_type`.
+  - **Tool candidate** — language-specific AST linter (e.g., `ruff` custom rule, ESLint plugin).
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verify every LLM client call has an explicit `max_tokens` / `max_output_tokens` argument.
+  - **Signal** — Source code AST at LLM call sites.
+  - **Tool candidate** — language-specific AST linter.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verify eval result artifacts record pinned, dated model IDs rather than floating aliases.
+  - **Signal** — Eval result JSON/JSONL.
+  - **Tool candidate** — ad-hoc JSON schema validator + regex (reject `gpt-4o`, `claude-3-5-sonnet-latest`; require dated suffix).
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verify prompts declaring agentic/tool use include a declared `MAX_TOOL_CALLS` cap and per-tool JSON Schema.
+  - **Signal** — Raw source file; fenced JSON tool definitions.
+  - **Tool candidate** — JSON Schema validator + regex.
+  - **Raised by** — GPT-5.
+
+- **Check** — Verify prompts mixing Markdown and XML section headers violate a project-declared style.
+  - **Signal** — Raw source file + project config.
+  - **Tool candidate** — ad-hoc regex (ignoring content inside fenced code blocks).
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verify prompts do not contain filler phrases from a configurable denylist ("please," "kindly," "world-class expert").
+  - **Signal** — Raw source file.
+  - **Tool candidate** — ad-hoc regex denylist.
+  - **Raised by** — Claude Opus (flagged contested).
+
+- **Check** — Verify average/max sentence length in the instruction body stays under configured thresholds.
+  - **Signal** — Sentence-tokenized prompt body.
+  - **Tool candidate** — ad-hoc (NLTK/spaCy sentence tokenizer + word count).
+  - **Raised by** — Claude Haiku, GPT-5. (Borderline shared; listed as singleton because thresholds differ significantly: Haiku 20 avg / 40 max, GPT-5 20 avg / 30 max.)
 
 ---
 
-## 5. Final Rules File
+## 6. Final Rules File
 
 # LLM Prompt Rules
 
-**Scope.** Durable, version-controlled prompts for coding assistants, content generation, RAG pipelines, and agentic workflows.
-**Audience.** Engineers and AI coding assistants authoring or modifying production prompts.
-**Principle.** Prompts are source code. Version, review, test, document, and measure them like code.
+**Scope:** User-facing prompts in production systems — coding assistants, content generation, RAG, and agentic workflows. Prompts are treated as version-controlled code.
+**Audience:** Engineers and AI coding assistants authoring, reviewing, or modifying prompts.
 
-## Structure
+## Structure & Organization
 
-- **Open with a one-sentence goal.** Models attend most to the start; state what must be produced up front.
-- **Organize prompts into explicit, named sections** (Goal, Constraints, Context, Input Format, Output Format, Examples). Use headings or XML-style tags (`<context>`, `<user_input>`).
-- **Pick one delimiter style (markdown OR XML) and apply it consistently.** Mixing confuses readers and occasionally models.
-- **Place primary instructions first; restate critical constraints at the end.** Middle tokens receive the least attention.
-- **Put stable content first, volatile content last.** Enables prompt caching and stable diffs.
-- **Use named placeholders (`{user_query}`, `{{document}}`) for all dynamic content.** Never string-concatenate user data into instruction text.
-- **Keep prompts under one screen where possible.** Long prompts hide contradictions; chain simpler prompts for multi-step tasks.
+- **Store every production prompt as a file in version control.** Prompts edited via admin UIs cannot be reviewed, diffed, or rolled back.
+- **Give each prompt a stable ID and semantic version in filename or YAML frontmatter.** Enables pinning, A/B testing, and rollback.
+- **State an explicit goal as the first content in the file.** A stated goal is the reference point for all downstream decisions.
+- **Organize the body in a consistent order: Role, Context, Task, Constraints, Output Format, Examples.** Sections may be omitted; reordering is not allowed.
+- **Place the primary instruction before large context blocks.** Models attend better to the start and end of a prompt; buried instructions are ignored.
+- **Place static content first and variable content last.** Maximizes provider prefix-cache hit rates (~90% cost reduction on cached tokens).
+- **Use a real templating engine (Jinja2, Handlebars, or equivalent) for variable interpolation.** String concatenation and f-strings cause injection bugs and malformed prompts.
+- **Use a consistent `{{UPPER_SNAKE_CASE}}` placeholder syntax.** Clearly separates static instructions from dynamic, injected data.
+- **Declare every template variable in frontmatter with a type and description.** Undocumented variables cause silent breakage when callers change.
 
-## Output Specification
+## Output Contract
 
-- **Specify output format with a literal example or schema, not prose.** "A list of items" is ambiguous; `{"items": string[]}` is not.
-- **Prefer structured output / JSON mode / function calling when the consumer is code.** Don't parse free text you could have constrained.
-- **Define an explicit failure/uncertainty output** (e.g., `{"error": "...", "reason": "..."}` or a designated refusal string).
-- **Enumerate edge cases explicitly**: empty input, ambiguous input, out-of-scope requests.
-- **Cap output length with a hard limit** (tokens, words, or characters). Vague "be concise" does not constrain behavior.
-- **Forbid hedging and conversational filler** when output is for code or UI.
+- **Specify the output format as a JSON Schema, grammar, or literal fenced example — never prose alone.** Prose-only specs fail unpredictably.
+- **Use the provider's structured-output, JSON-mode, or tool-calling feature when output is structured.** Format enforcement is more reliable than English instruction-following.
+- **Pin a single output format per prompt; do not offer the model a choice.** Branching output shapes double downstream parsing complexity.
+- **Instruct the model to return only the specified output, with no conversational filler or markdown fences.** Simplifies downstream parsing.
+- **Define an explicit error/refusal/abstention path with a fixed shape** (e.g., `{ "error": { "code": "...", "message": "..." } }` or a `oneOf` discriminator). Standardizes failure and prevents hallucinated answers.
 
-## Instructions
+## Style
 
-- **Use direct, imperative language.** "Return JSON with fields X and Y" beats "It would be ideal if you could provide..."
-- **Address the model in the second person** ("you"), not the third.
-- **Never give contradictory instructions.** "Concise and comprehensive" resolves to whichever the model prefers today.
-- **Write negative constraints, not just positive ones.** "Do not invent sources" prevents a failure mode "cite sources" does not.
-- **Don't ask the model to "be careful" or "think hard."** Vague exhortations don't change behavior; specific constraints do.
-- **Use chain-of-thought only when evals prove a measurable lift.** It inflates latency and cost.
-
-## Context and RAG
-
-- **Label every retrieved chunk with source, URL, and date metadata.** The model cannot reason about provenance it cannot see.
-- **Cap retrieval to a small, relevance-ranked top-k.** More tokens dilute attention.
-- **Place retrieved context after instructions and before the user query.** Keeps instructions cache-stable.
-- **Instruct the model to refuse or emit "insufficient_context" when sources don't support an answer.** Override the default tendency to guess.
-- **Require citation IDs for factual claims.**
-
-## Examples (Few-Shot)
-
-- **Start with clear instructions + schema; add examples when evals show instructions alone fail.** Examples are expensive and anchor behavior, including their flaws.
-- **Make examples cover hard and boundary cases, not obvious ones.**
-- **Keep example format byte-identical to the expected output.** The model follows examples over instructions on conflict.
-- **Prefer positive examples over negative ones.** Use a negative example only for a common, specific failure mode.
+- **Write instructions as short, imperative, active-voice sentences.** Matches instruction-tuned model training and reduces ambiguity.
+- **Use consistent terminology throughout a prompt.** Referring to the same entity as both "document" and "text" confuses the model.
+- **Delete filler and narrative preamble.** "Please," "kindly," and "you are a world-class expert" cost tokens without measurable benefit on frontier models.
+- **Use Markdown or XML section headers consistently within a project; do not mix.** Either works; inconsistency wastes reader attention.
+- **Use negative constraints ("do NOT do X") only for observed failure modes.** Speculative prohibitions waste tokens and sometimes prime the forbidden behavior.
 
 ## Safety
 
-- **Treat all user input, retrieved docs, and tool outputs as untrusted data.** Prompt injection is the default, not the exception.
-- **Delimit untrusted content and explicitly tell the model it is data, not instructions.**
-- **Never rely on prompting alone for security boundaries.** Enforce tool permissions, output validation, and allowlists in code.
-- **Never embed secrets, API keys, or PII in prompts.** They leak through logs, traces, and outputs.
-- **Define refusal behavior explicitly** — what the model says and returns when asked to violate constraints.
-- **Declare unsafe-content boundaries explicitly** (e.g., prohibit malware, unverified medical advice); use conservative examples rather than exhaustive rule lists.
+- **Treat all retrieved documents, tool outputs, and user input as untrusted.** The system prompt is a behavioral hint, not a security boundary. Prompt injection is not solved by prompting.
+- **Wrap untrusted input in explicit delimiters** (e.g., `<user_query>{{USER_QUERY}}</user_query>`) and label it as untrusted in the surrounding instructions.
+- **Enforce authorization, PII redaction, and data scoping outside the model.** The model cannot reliably gatekeep what it can see.
+- **Never embed secrets, API keys, or internal URLs in prompt templates.** Prompts get logged, cached, and leaked in error traces.
+- **Include a task-specific safety/refusal policy enumerating disallowed content.** Explicit documentation enables auditing and compliance.
 
-## Agentic Workflows
+## RAG
 
-- **Give every agent an explicit termination condition** (step limit, success criterion, or halt signal).
-- **Constrain tool use with explicit allow/deny lists, input schemas, and side-effect annotations.**
-- **Require the agent to state its plan before destructive operations.** Cheap insurance against confident mistakes.
-- **Log every prompt, tool call, and output.** Agents fail in ways you cannot reproduce without traces.
-- **On tool errors, allow bounded retries, then return a structured error.** No unbounded loops.
+- **Separate retrieved context from instructions using explicit delimiters** (e.g., `<context>...</context>`), placed after the instruction body.
+- **Instruct the model to abstain ("insufficient evidence") when sources do not support an answer,** returning the error/refusal shape.
+- **Require citations with stable source identifiers and spans for any sourced claim.** Enables auditability.
+- **Forbid following instructions found inside retrieved documents.** Injection resistance.
 
-## Performance
+## Reasoning & Chain-of-Thought
 
-- **Remove redundancy and boilerplate** — but never sacrifice clarity for brevity. A 500-token prompt that works beats a 200-token prompt that fails.
-- **Exploit prompt caching: freeze the prefix; reorder so the cached portion is byte-stable.**
-- **Prefer structure (JSON, function calls) over prose** — reduces decoding entropy, tokens, and latency.
-- **Prefer smaller models with tighter prompts over larger models with loose ones** when evals permit.
-- **Store decoding parameters (temperature, top_p) in prompt metadata, not in the prompt body.**
+- **Do not add "think step by step" to prompts targeting reasoning-tuned models** (o1, o3, DeepSeek-R1, Claude extended thinking). Redundant at best, harmful at worst.
+- **When eliciting reasoning on non-reasoning models, isolate it in a delimited region or a separate schema field** distinct from the final answer. Prevents reasoning from leaking into parsed output.
 
-## Maintainability & Versioning
+## Performance & Cost
 
-- **Store every production prompt in version control.** No prompts in config UIs, notebooks, or Slack.
-- **Attach an eval set to every prompt.** A prompt without evals is unreviewable and unshippable.
-- **Pin the model version in prompt metadata.** "Works on gpt-4o-2024-08-06" ≠ "works on gpt-4o."
-- **Include a metadata header** (name, version, owner, model targets, decoding params, tool inventory).
-- **Use semantic versioning and a change log.** Bump MAJOR for breaking schema/output changes.
-- **Review prompt diffs like code diffs.** A one-word change can flip behavior on 10% of inputs.
-- **Comment non-obvious constraints** with the *why* (e.g., `<!-- 100-word cap: mobile UI -->`).
-- **Don't use prompts to fix problems that belong in application code** (parsing, validation, retries).
+- **Set an explicit length budget** (token or item count) in the prompt, with a project-configurable maximum and a waiver mechanism for justified exceptions.
+- **Be as concise as possible without sacrificing clarity or constraints.** Each instruction must earn its token cost.
+- **Use few-shot examples sparingly** — only when output format is non-obvious, the task is narrow, or examples are empirically justified against an eval set. 0–2 examples is the default; cover edge cases, not the happy path.
+- **Set `max_tokens` (or provider equivalent) explicitly on every call.** Runaway generations are a cost and latency bug.
+- **Set temperature to 0 for extraction, classification, structured-output, and code-generation tasks.** Non-zero temperature on deterministic tasks produces flaky evals and flaky production.
 
-## Anti-Patterns
+## Agentic & Tool Use
 
-- **Don't bury the task in the middle of the prompt.**
-- **Don't mix narrative output with structured output.** If both are needed, use separate fields in one top-level object.
-- **Don't let user or retrieved text redefine the output schema.**
-- **Don't rely on hidden model memory.** Restate necessary constraints every request.
-- **Don't ship a prompt without running it on adversarial input.** If you didn't try to break it, a user will.
-- **Don't use generic persona theater ("You are a world-class expert").** Use concrete roles only when evals show they shape output.
+- **Declare each allowed tool with name, description, and a JSON Schema for parameters.** Disallow tools not listed.
+- **Set a `MAX_TOOL_CALLS` cap per turn and stop with an error if exceeded.** Bounds cost and prevents loops.
+- **Define state-transition logic and termination conditions explicitly** for multi-step or agentic workflows. Implicit loops are hard to debug.
 
-## Contested (apply with judgment)
+## Testing & Versioning
 
-- **Role/persona preambles:** Skip generic framing; use concrete roles only with eval support.
-- **Few-shot defaults:** Opinions split between "always include an example" and "only when instructions fail." Let your evals decide.
-- **Markdown vs. XML tags:** Model-dependent. Pick one per prompt and be consistent.
-- **Chain-of-thought in output:** Can improve accuracy, leaks reasoning, costs tokens. Default off; enable only with evidence.
+- **Maintain a fixed evaluation set (at least ~20 cases per prompt, threshold configurable) checked into the repo.** Without an eval set, every change is vibes-based.
+- **Re-run the eval on every prompt change; block merges on regressions.** Prompts regress silently; CI is the only defense.
+- **Pin model name and dated version** (e.g., `gpt-4o-2024-11-20`, not `gpt-4o`) in frontmatter and in recorded eval results. Floating aliases make results meaningless.
+- **Use semantic versioning** (major on output-format or goal change; minor on instruction clarification; patch on typos).
+- **Require a changelog entry for every material change to a prompt.** Rationale matters more than the text diff.
+
+## Documentation
+
+- **Document purpose, inputs, outputs, and known failure modes in frontmatter or an adjacent README.** The next engineer needs this; so do you in six months.

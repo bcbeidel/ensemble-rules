@@ -1,8 +1,8 @@
 {
   "topic": "LLM Prompts",
-  "started_at": "2026-04-22T20:56:55.288173+00:00",
-  "finished_at": "2026-04-22T21:00:31.861498+00:00",
-  "elapsed_seconds": 216.573325,
+  "started_at": "2026-04-23T00:53:12.821806+00:00",
+  "finished_at": "2026-04-23T00:57:54.906001+00:00",
+  "elapsed_seconds": 282.084195,
   "panel": [
     "openai/gpt-5",
     "openai/gpt-4o-mini",
@@ -14,52 +14,52 @@
   "synthesizer": "anthropic/claude-opus-4-7",
   "usage_by_model": {
     "openai/gpt-5": {
-      "prompt_tokens": 327,
-      "completion_tokens": 4657,
-      "total_tokens": 4984,
-      "cost_usd": 0.04697875
+      "prompt_tokens": 729,
+      "completion_tokens": 9203,
+      "total_tokens": 9932,
+      "cost_usd": 0.09294125
     },
     "openai/gpt-4o-mini": {
-      "prompt_tokens": 328,
-      "completion_tokens": 899,
-      "total_tokens": 1227,
-      "cost_usd": 0.0005886
+      "prompt_tokens": 730,
+      "completion_tokens": 1078,
+      "total_tokens": 1808,
+      "cost_usd": 0.0007563
     },
     "anthropic/claude-opus-4-7": {
-      "prompt_tokens": 534,
-      "completion_tokens": 3293,
-      "total_tokens": 3827,
-      "cost_usd": 0.08499500000000001
+      "prompt_tokens": 1116,
+      "completion_tokens": 7286,
+      "total_tokens": 8402,
+      "cost_usd": 0.18773
     },
     "anthropic/claude-haiku-4-5": {
-      "prompt_tokens": 378,
-      "completion_tokens": 3832,
-      "total_tokens": 4210,
-      "cost_usd": 0.019538
+      "prompt_tokens": 819,
+      "completion_tokens": 5320,
+      "total_tokens": 6139,
+      "cost_usd": 0.027419000000000002
     },
     "vertex_ai/gemini-2.5-pro": {
-      "prompt_tokens": 343,
-      "completion_tokens": 4099,
-      "total_tokens": 4442,
-      "cost_usd": 0.04141875
+      "prompt_tokens": 763,
+      "completion_tokens": 5335,
+      "total_tokens": 6098,
+      "cost_usd": 0.05430375000000001
     },
     "xai/grok-3-mini": {
-      "prompt_tokens": 321,
-      "completion_tokens": 1646,
-      "total_tokens": 2658,
-      "cost_usd": 0.0012639
+      "prompt_tokens": 715,
+      "completion_tokens": 2068,
+      "total_tokens": 3348,
+      "cost_usd": 0.00152425
     }
   },
   "synthesis_usage": {
-    "prompt_tokens": 21483,
-    "completion_tokens": 6898,
-    "total_tokens": 28381,
-    "cost_usd": 0.27986500000000003
+    "prompt_tokens": 34354,
+    "completion_tokens": 9930,
+    "total_tokens": 44284,
+    "cost_usd": 0.42002
   },
   "coverage_llm_usage": {
-    "prompt_tokens": 21524,
-    "completion_tokens": 3943,
-    "total_tokens": 25467,
-    "cost_usd": 0.20619500000000002
+    "prompt_tokens": 33891,
+    "completion_tokens": 4012,
+    "total_tokens": 37903,
+    "cost_usd": 0.269755
   }
 }

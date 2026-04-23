@@ -1,172 +1,277 @@
-# Synthesis of CLAUDE.md Best Practices
+# Synthesis: CLAUDE.md Project Memory File Best Practices
 
 ## 1. Consensus Rules
 
 ### Structure & Placement
 
-- **Place the file at the repository root.** (substantively similar across Gemini, Haiku, GPT-5) — AI assistants auto-load it from there; any other location requires explicit configuration.
-- **Use Markdown headings with a predictable section order.** (substantively similar across all models) — Headings enable both humans and AI to navigate by skimming.
-- **Use bulleted lists, not prose paragraphs.** (substantively similar across Opus, Haiku, Gemini, Grok, GPT-4o-mini) — Lists are scannable and more machine-parseable than prose.
-- **Enforce a hard length cap (roughly 200 lines / under 2000 tokens).** (near-identical wording between Opus and Gemini at "under 200 lines"; Haiku says "under 2000 lines" — see Divergences) — Every token is paid for on every request; brevity forces prioritization.
+- **Place a single project memory file at the repository root.** (substantively similar but differently worded across GPT-5, Claude Opus, Claude Haiku, Gemini) — Assistants look for it there; nested files are for subprojects.
+- **Use hierarchical Markdown headings (H1 title, H2 sections) to organize content.** (substantively similar across all five models) — Predictable structure enables both human scanning and AI parsing.
+- **Enforce a size/length limit to stay within AI context budgets.** (substantively similar but differently worded; thresholds vary — see Divergences) — Every token loads each session; bloat displaces useful context.
 
-### Content Priorities
+### Content Essentials
 
-- **Document only what is specific to *this* project; don't repeat generic best practices.** (substantively similar across Opus, Haiku, Gemini) — Generic advice is noise that displaces project-specific signal.
-- **Link to source-of-truth files (configs, ADRs, package.json) rather than duplicating their content.** (substantively similar across GPT-5, Opus, Haiku, Gemini) — Duplication guarantees drift.
-- **Include exact, canonical commands for setup, test, lint, and build.** (substantively similar across GPT-5, Opus, Haiku) — Agents will invent plausible-but-wrong commands when left to guess.
-- **Use exact file paths and identifiers in backticks, not descriptions.** (substantively similar across Opus and Gemini) — Paths are unambiguous; descriptions drift.
-- **Enumerate non-obvious invariants and architectural constraints.** (substantively similar across GPT-5, Opus, Haiku) — Models are literal; unstated constraints will be violated.
+- **List exact build, test, lint, and run commands in copy-pastable code blocks.** (substantively similar across GPT-5, Claude Opus, Claude Haiku) — These are the highest-frequency assistant lookups.
+- **Document project layout: where source, tests, and config live.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — A map prevents blind grepping.
+- **State primary language(s), runtime version(s), and key frameworks explicitly.** (substantively similar across GPT-5, Claude Haiku, Gemini) — Prevents environment mismatches.
+- **Link to canonical sources (ADRs, CONTRIBUTING.md, linter configs) rather than duplicating content.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — Duplication guarantees drift.
+- **Document prohibitions and destructive-command guardrails explicitly as imperative negatives.** (substantively similar across GPT-5, Claude Opus, Claude Haiku) — Prohibitions are the highest-ROI content.
 
-### Style & Tone
+### Style
 
-- **Write in imperative voice ("Do X" / "Don't Y"), not hedged or preference-based language.** (near-identical wording across Opus, Haiku, Gemini, Grok) — Models weight imperative language more reliably than "we prefer" or "consider."
-- **Document ground truth, not aspiration.** (near-identical wording across Opus, Haiku, Gemini) — Aspirational rules produce code inconsistent with the actual codebase; if a rule isn't enforced, enforce it or delete it.
-- **One rule per bullet; avoid compound rules.** (substantively similar across Opus and Haiku) — Compound rules get partially followed.
+- **Write in concise imperative bullets, not prose paragraphs.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Grok) — Scannability improves reliability for humans and LLMs.
+- **Use consistent Markdown syntax (ATX headings, standard bullet markers, fenced code blocks with language tags).** (substantively similar across GPT-5, GPT-4o-mini, Claude Opus, Grok) — Uniformity improves parsing.
+- **Use repository-relative paths for intra-repo references.** (substantively similar across GPT-5, Gemini) — Relative links work in forks, IDEs, and clones.
 
 ### Safety
 
-- **Explicitly enumerate files and directories the AI must not modify.** (substantively similar across GPT-5, Opus, Haiku, Gemini) — Generated code, vendored deps, and migrations are common footguns.
-- **Never commit secrets, internal hostnames, or customer data to the file.** (substantively similar across GPT-5 and Opus) — Memory files are routinely shared, indexed, and pasted into prompts.
-- **State destructive-command and approval policies explicitly (migrations, deploys, new dependencies).** (substantively similar across GPT-5, Opus, Haiku) — Defaults are not safe; models need unambiguous guardrails.
-- **Document security-critical conventions (input sanitization, auth, SQL usage).** (substantively similar across Haiku and Gemini) — Codifies secure-by-default code generation.
+- **Do not include secrets, tokens, credentials, PII, or private/production endpoints.** (substantively similar across GPT-5, Claude Haiku, Gemini, GPT-4o-mini) — The file is committed to source control and loaded into AI context.
+- **Document security-relevant conventions and safe patterns explicitly.** (substantively similar across GPT-5, GPT-4o-mini, Claude Haiku, Gemini, Grok) — Guides the AI toward approved patterns for auth, PII, and sensitive data.
 
-### Maintainability
+### Maintenance
 
-- **Assign a single owner (e.g., CODEOWNERS entry) for the file.** (substantively similar across GPT-5 and Opus) — Shared ownership means no ownership.
-- **Update the file in the same PR that changes the things it describes.** (substantively similar across GPT-5, Opus, Haiku, Gemini) — Staleness is the dominant failure mode; co-change prevents drift.
-- **Include a last-updated date or version stamp.** (substantively similar across GPT-5, Haiku, Grok) — Visible currency builds trust and triggers reviews.
-- **Delete rules that aren't actually enforced.** (substantively similar across Opus and Haiku) — Stale rules are worse than no rules.
+- **Assign an owner or responsible team for the file.** (substantively similar across GPT-5, Claude Haiku, Gemini) — Without ownership, the file rots.
+- **Delete aspirational, outdated, or unverifiable content aggressively; document current reality only.** (substantively similar across Claude Opus, Claude Haiku, Gemini) — Stale guidance is worse than missing guidance because it actively misleads.
+- **Track freshness with a last-updated date or include the file in PR review for relevant changes.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Grok) — Drift is the default mode; review is the fix.
 
 ## 2. Strong Minority Rules
 
-- **Pair prohibitions with positive alternatives** (Opus only) — Kept because "Don't use X" without "Use Y instead" leaves the model to guess, which often reproduces the anti-pattern.
-- **Start with a one-paragraph project summary / TL;DR** (GPT-5, Opus) — Kept because models need to know what the repo *is* before reading rules; fast orientation prevents early mistakes.
-- **Don't rely on screenshots, images, or decorative emoji** (GPT-5, Opus, Grok) — Kept because these add tokens without behavioral signal and don't survive diffs/terminals.
-- **Don't restate what the linter, formatter, or type-checker already enforces** (Opus, Haiku) — Kept because tooling is the source of truth for mechanical rules; duplication creates conflict.
-- **Follow each rule with a one-line rationale** (Haiku explicit, implied by GPT-5/Opus) — Kept because brief rationales help humans and AI know when it's safe to break the rule.
-- **Include short code examples showing ✓ preferred and ✗ anti-pattern forms** (Haiku) — Kept because concrete examples disambiguate style rules that prose cannot, *if kept short*.
-- **Provide subdirectory CLAUDE.md files for domain-specific rules** (Opus, GPT-5) — Kept because it keeps the root lean and loads context only when relevant; marked contested (tool support varies).
-- **Include a CI check that validates commands and links in the file** (GPT-5) — Kept because automation is the only scalable defense against staleness.
-- **State an "Ask-before" checklist for high-risk changes** (GPT-5, Opus) — Kept because human-in-the-loop is the ultimate guardrail for irreversible operations.
+- **Symlink `AGENTS.md` to `CLAUDE.md` (or maintain byte-identical copies) for tool-agnosticism.** (Claude Opus, Gemini) — The ecosystem is converging on `AGENTS.md` as a vendor-neutral name; dual-file setups fail predictably. Worth including because it solves a real portability problem.
+- **Include commands for running a single test, not just the full suite.** (Claude Opus) — Targeted reruns are the dominant iteration loop; a specific, high-value content rule.
+- **State where generated/vendored code lives and mark it as non-hand-editable.** (Claude Opus, Claude Haiku) — Prevents the single most common class of destructive edits.
+- **Mark unknowns explicitly with "Unknown as of YYYY-MM-DD" rather than omitting or guessing.** (GPT-5) — Explicit unknowns avert AI guesswork and invite updates.
+- **Define project-specific terminology and acronyms in a glossary.** (Gemini, Claude Haiku) — AIs lack the team's cultural context and will otherwise invent meanings.
+- **Call out non-obvious architectural boundaries (e.g., "packages/core must not import from packages/web").** (Claude Opus) — Import rules are invisible to a reader of the directory tree.
+- **Include a bold warning not to paste secrets or production data into prompts.** (GPT-5) — Habitual guardrails at the point of use prevent leaks.
 
 ## 3. Divergences
 
-### Length Cap
-- **~200 lines:** Opus, Gemini, Grok
-- **~300 lines:** GPT-5
-- **~2000 lines:** Haiku
-- **No specific cap:** GPT-4o-mini
+### File size / length limit
 
-**Recommendation:** 200 lines as a soft target, 300 as a hard cap. The majority position (4 of 5 with explicit caps) clusters near 200. Haiku's 2000 is an outlier that conflicts with the shared rationale that every token costs attention on every request.
+- **Positions:** GPT-5 says ≤50 KB and ≤1,200 lines; Claude Opus says ≤200 lines; Claude Haiku says ≤60 lines per section (~1 screen); Grok says ≤500 lines; Gemini says ≤32 KB. GPT-4o-mini has no limit.
+- **Synthesis:** The direction of agreement is clear (shorter is better), but numbers span an order of magnitude. The variance reflects different assumed use cases — a small app vs. a complex monorepo. **Recommendation:** set a soft warning at ~200 lines and a hard limit around 32 KB / 1,000 lines, with per-section caps (~60 lines) as a second line of defense. Treat the number as a configurable threshold, not a universal law.
 
-### Filename: CLAUDE.md vs AGENTS.md
-- **AGENTS.md preferred for vendor neutrality:** GPT-5 (strongly)
-- **Either acceptable, pick one:** Opus, Haiku, Gemini
-- **CLAUDE.md as primary:** Grok, GPT-4o-mini (implicitly)
+### Prescribed section ordering
 
-**Recommendation:** Use `AGENTS.md` as the canonical file with `CLAUDE.md` as a symlink or one-line pointer. This captures GPT-5's portability argument without breaking Claude's auto-load. Don't maintain two copies.
+- **Positions:** GPT-5 mandates 16 sections in exact order; Claude Opus mandates 5 fixed headings (Overview, Commands, Architecture, Conventions, Do Not) with order not enforced; Claude Haiku suggests themes without strict order; Gemini, Grok, GPT-4o-mini give no mandatory list.
+- **Synthesis:** GPT-5's 16-section schema is too heavy for the median repo and tips into the "encyclopedia" failure mode all models warned about. Claude Opus's minimal fixed set hits the right target. **Recommendation:** require a small set of named sections (Commands, Architecture, Do Not, plus an Overview/summary), allow additions, and do not enforce order.
 
-### Inclusion of Rationales vs Pure Imperatives
-- **Rationales belong inline (brief):** Haiku (required), GPT-5, Gemini
-- **Rationales are bloat:** Opus (implicit; favors pure imperatives with context-window concern)
+### File naming (`CLAUDE.md` vs. `AGENTS.md`)
 
-**Recommendation:** Include one-line rationales for non-obvious rules only. They guide when-to-break decisions for humans and AI, but mechanical rules ("use camelCase") don't need them.
+- **Positions:** Gemini recommends `AGENTS.md` as the vendor-neutral standard and would rename `CLAUDE.md`. GPT-5 accepts either but bans having both. Claude Opus suggests symlinking the two. Others don't address it.
+- **Synthesis:** The community is genuinely in transition. **Recommendation:** accept either, prohibit unsynchronized duplicates, and prefer `AGENTS.md` for new projects while supporting `CLAUDE.md` for ecosystem compatibility.
 
-### Structured Metadata / Frontmatter
-- **Useful for AI parsing:** GPT-5 (marks contested), Grok
-- **Unnecessary coupling:** Opus, Haiku, Gemini (by omission)
+### Images, diagrams, and raw HTML
 
-**Recommendation:** Skip frontmatter unless you have tooling that consumes it. Majority view is that plain markdown is sufficient.
+- **Positions:** GPT-5 bans them outright (parser fragility, token cost). Others don't prohibit them.
+- **Synthesis:** The ban is reasonable but aggressive. **Recommendation:** discourage inline images and raw HTML; allow links to diagrams stored elsewhere. Mark as an opinionated, contested rule.
 
-### Including Commands vs Linking to package.json
-- **Include canonical commands inline:** GPT-5, Opus, Haiku
-- **Only 1–3 most critical; link to package.json/Makefile:** Gemini, Grok
+### Code examples
 
-**Recommendation:** Include the small set of commands an agent will actually need (test, lint, build, run, format). These are high-value even if duplicative because agents fabricate them otherwise.
+- **Positions:** Claude Opus bans code blocks >15 lines; Claude Haiku caps at 3 lines; Grok at 5 lines; Gemini prefers descriptions over snippets; GPT-5 caps at 120 lines per block.
+- **Synthesis:** All agree long examples don't belong; thresholds differ. **Recommendation:** keep illustrative snippets short (≤15 lines) and link to a live file for anything larger.
+
+### Table of Contents
+
+- **Positions:** GPT-4o-mini and Claude Haiku require one; Claude Opus explicitly bans one ("at this length it's noise").
+- **Synthesis:** At the file sizes the majority endorses (under ~200 lines), a TOC is overhead. **Recommendation:** no TOC; rely on stable H2 headings for navigation.
 
 ## 4. Notable Omissions
 
-- **GPT-4o-mini omitted nearly every concrete rule** that other models converged on: no length cap, no imperative-voice rule, no "link don't duplicate," no explicit file-paths-in-backticks rule, no specific commands-to-include list, no "do-not-touch" section. Its output reads as generic documentation advice, not CLAUDE.md-specific guidance. Treat its signal as low.
-- **Grok omitted the "document ground truth, not aspiration" rule** that Opus, Haiku, and Gemini all emphasized as critical. This is a significant omission because aspirational rules are a dominant failure mode.
-- **Gemini omitted explicit rules about "do-not-edit" files and destructive-command policy.** GPT-5, Opus, and Haiku all treat these as first-order safety rules.
-- **Haiku omitted the "write for AI, not as a README" framing** that Opus and Gemini both stress. Haiku's file is the most verbose and reads closer to README-style guidance — consistent with its much higher line-count tolerance.
-- **Opus omitted explicit CI-validation of commands** that GPT-5 raised. Given Opus's emphasis on staleness as the dominant failure mode, this is a noteworthy gap.
-- **GPT-5 and Opus both omitted the "define project terminology/glossary" rule** raised by Gemini and Haiku. Useful for domain-heavy codebases.
+- **GPT-4o-mini omits nearly all consensus rules** — no file placement, no commands section, no size limit, no architectural content, no ownership, no freshness tracking, no secrets ban. Its output is a generic documentation-quality template that misses what makes project memory files distinct from ordinary docs. The absence is the signal: treat this model's output as low-weight in the synthesis.
+- **Grok omits the secrets/safety ban**, the most universally agreed safety rule across the other four models. Also omits ownership, file placement, and architectural content guidance.
+- **Grok omits the "link, don't duplicate" principle** that four of five other models surface as central to maintainability.
+- **Gemini omits explicit guidance on listing commands and prohibitions**, which Claude Opus and Claude Haiku identify as the highest-ROI content. Gemini's file is strong on meta-principles, weaker on concrete content prescriptions.
+- **GPT-5 omits the "delete aspirational content" rule** that Claude Opus, Claude Haiku, and Gemini each call out as a primary failure mode — interesting given GPT-5's otherwise thorough coverage.
+- **No model except Claude Opus mentions single-test commands**, though this is arguably the most-used assistant operation during iteration.
+
+## 5. Shared Deterministic Checks
+
+### Multi-model checks
+
+- **Check** — Verifies the project memory file exists at the repository root under a recognized name (`CLAUDE.md` or `AGENTS.md`).
+  - **Signal** — Filesystem listing of the repo root.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — GPT-5, Claude Opus, Gemini.
+  - **Variance** — GPT-5 requires exactly one of the two names (fails if both exist); Claude Opus accepts either or both if symlinked/identical; Gemini prefers `AGENTS.md` and flags `CLAUDE.md` without an accompanying `AGENTS.md`. Substantively they agree on "exactly one source of truth at the root."
+
+- **Check** — Verifies the file is under a maximum size or line count.
+  - **Signal** — File size in bytes and/or line count.
+  - **Tool candidate** — `wc -l`, `stat`.
+  - **Raised by** — GPT-5, Claude Opus, Claude Haiku, Gemini, Grok.
+  - **Variance** — Thresholds span 200 lines (Opus) to 1,200 lines / 50 KB (GPT-5). Haiku applies a per-section cap instead of a whole-file cap. All agree a limit should exist; set the number per project.
+
+- **Check** — Verifies H2 headings exist and include required sections.
+  - **Signal** — Parsed Markdown AST (or regex over `^## `).
+  - **Tool candidate** — `remark`, `markdown-it`, or regex; `markdownlint`.
+  - **Raised by** — GPT-5, GPT-4o-mini, Claude Opus, Claude Haiku, Grok.
+  - **Variance** — GPT-5 requires 16 sections in exact order; Opus requires a minimum set including `Commands` and `Do Not`; Haiku requires at least some H2s; Grok requires at least three specific names; GPT-4o-mini requires two H2s minimum. Substance converges on "enforce a minimum set of H2 headings"; strictness varies.
+
+- **Check** — Verifies consistent Markdown formatting (heading style, bullets, fenced code blocks).
+  - **Signal** — Raw source text parsed as Markdown.
+  - **Tool candidate** — `markdownlint` (rules MD003, MD004, MD040, MD048).
+  - **Raised by** — GPT-5, GPT-4o-mini, Claude Opus, Grok.
+  - **Variance** — GPT-5 restricts code fence language tags to an allow-list (bash/sh/pwsh/json/yaml/ini); others just require consistency. Grok names `markdownlint` explicitly.
+
+- **Check** — Verifies the file contains no secrets, credentials, or tokens.
+  - **Signal** — Raw source text run through a secret scanner.
+  - **Tool candidate** — `gitleaks`, `trufflehog`.
+  - **Raised by** — GPT-5, Gemini.
+  - **Variance** — GPT-5 additionally flags production URL patterns and internal TLDs; Gemini relies on the scanner's entropy/pattern rules alone. Both agree the scanner output is the primary signal.
+
+- **Check** — Verifies a last-updated date or freshness marker is present near the top.
+  - **Signal** — Raw source text (regex over first N lines or frontmatter parse).
+  - **Tool candidate** — ad-hoc regex; optionally cross-check against `git log` on the file.
+  - **Raised by** — GPT-5, Claude Haiku, Grok.
+  - **Variance** — GPT-5 requires strict ISO 8601 and exact casing; Haiku accepts HTML comments and per-section timestamps; Grok accepts version strings or dates. Collapse to: require at least one ISO-8601 date or explicit "Last updated:" line within the first ~30 lines.
+
+- **Check** — Verifies a Commands section contains at least one fenced code block with build/test/lint invocations.
+  - **Signal** — Parsed Markdown; section under `## Commands` (or synonym).
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — GPT-5, Claude Opus.
+  - **Variance** — Opus requires coverage of specific command categories (build, test, lint, typecheck, run) and cross-checks the declared package manager against lockfiles on disk; GPT-5 only requires at least one code block per section.
+
+- **Check** — Verifies internal references use relative paths, not absolute paths or full URLs to the same repo.
+  - **Signal** — Markdown links extracted from source.
+  - **Tool candidate** — ad-hoc regex.
+  - **Raised by** — GPT-5, Gemini.
+  - **Variance** — GPT-5 focuses on flagging `github.com/<this-repo>/blob/...` URLs; Gemini focuses on root-absolute paths (`/src/...`). Both miss cases the other catches; combine them.
+
+- **Check** — Verifies a "Do Not" / prohibitions section exists and contains at least one imperative negative bullet.
+  - **Signal** — Parsed Markdown; text of the designated section.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — Claude Opus, Claude Haiku.
+  - **Variance** — Opus requires a section named `Do Not` or synonym; Haiku searches keywords across the file without requiring a dedicated section.
+
+### Singleton checks worth keeping
+
+- **Check** — Verifies no fenced code block exceeds a line threshold (e.g., 15 lines).
+  - **Signal** — Parsed Markdown; length of each fenced block.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verifies every top-level repo directory (excluding standard ignores) is mentioned in the Architecture section.
+  - **Signal** — Directory listing cross-referenced with section text.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verifies that when a lockfile is present on disk, the corresponding package manager is named explicitly in the Commands section (and generic phrasing like "your package manager" is flagged).
+  - **Signal** — Filesystem (lockfile presence) + section text.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verifies a CODEOWNERS entry exists for the project memory file.
+  - **Signal** — `.github/CODEOWNERS` or `CODEOWNERS` at repo root.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — GPT-5.
+
+- **Check** — Warns when a PR modifies `package.json` scripts, `Makefile`, dependency manifests, or top-level directory structure without touching the memory file.
+  - **Signal** — Git diff of the PR.
+  - **Tool candidate** — ad-hoc CI check.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verifies generated code paths (detected via `.gitattributes linguist-generated` or `generated/` directories) are mentioned in the file alongside a "do not edit" phrase.
+  - **Signal** — `.gitattributes` + filesystem + section text.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Verifies a Changelog section contains bullets prefixed with ISO dates in non-increasing order.
+  - **Signal** — Parsed Changelog section.
+  - **Tool candidate** — ad-hoc regex.
+  - **Raised by** — GPT-5.
+
+- **Check** — Flags hedging language ("should", "try to", "might", "consider") in directive sections; expects >80% of bullets to use imperative or prohibitive forms.
+  - **Signal** — Raw source; per-section bullet analysis.
+  - **Tool candidate** — `vale`, `diction`.
+  - **Raised by** — Claude Haiku.
+
+- **Check** — Verifies bullets in directive sections use active voice, not passive (flags "should be run", "is deployed by").
+  - **Signal** — Raw source; per-bullet analysis.
+  - **Tool candidate** — `vale`.
+  - **Raised by** — Claude Haiku.
 
 ---
 
-## 5. Final Rules File
+## 6. Final Rules File
 
-```markdown
-# CLAUDE.md / AGENTS.md Authoring Rules
+# Project Memory File (`CLAUDE.md` / `AGENTS.md`) — Authoring Rules
 
-**Scope:** Top-level project memory files (`CLAUDE.md` or `AGENTS.md`) that
-AI coding assistants auto-load at the start of every session.
+**Scope.** Top-level project memory file loaded automatically by AI coding assistants at session start, at the root of a repository or well-scoped subproject.
 
-**Audience:** Engineers who write and review these files, and AI agents
-generating or updating them.
+**Audience.** Engineers and AI assistants authoring, reviewing, or consuming the file.
 
 ---
+
+## Naming and Placement
+
+- **Place the file at the repository root.** Assistants look there first; nested files are reserved for subprojects.
+- **Use `AGENTS.md` for new projects; accept `CLAUDE.md` for ecosystem compatibility. Do not maintain both as separate content.** If both filenames exist, symlink one to the other or keep their contents byte-identical. Two independently-edited files drift.
 
 ## Structure
 
-- **Place the file at the repository root.** AI assistants auto-load it from there.
-- **Use `AGENTS.md` as the canonical file with `CLAUDE.md` as a symlink or one-line pointer.** Vendor-neutral naming preserves portability without breaking Claude's auto-load. Don't maintain two copies. *(contested)*
-- **Keep the file under 200 lines; hard cap at 300.** Every token is paid on every request and displaces attention from the user's task.
-- **Open with a one-paragraph project summary.** The model needs to know what the repo *is* before it reads rules.
-- **Use a fixed section order:** Overview → Commands → Architecture → Conventions → Safety / Do-Not-Touch → Gotchas. Critical safety rules must precede stylistic ones.
-- **Use H2 headings for top-level sections; avoid nesting beyond H3.** Deep nesting hurts skimmability for both humans and models.
-- **Use bulleted lists, not prose paragraphs.** Lists are scannable and parseable.
-- **One rule per bullet; no compound rules joined by "and."** Compound rules get partially followed.
+- **Open with an H1 title and a one-sentence summary of what the repo is and its primary stack.** Fast orientation cuts time-to-first-correct-action.
+- **Organize content under stable H2 headings.** At minimum include: Overview, Commands, Architecture, Conventions, and Do Not (or a clear synonym for each). Predictable structure speeds parsing and diffs.
+- **Keep the file short.** Aim for under ~200 lines and under ~32 KB; treat ~1,000 lines as a hard ceiling. Every token loads on every session.
+- **Keep individual sections under roughly one screen (~60 lines).** If a section grows, link out rather than expand inline.
+- **Do not include a table of contents.** At this length it is noise.
 
-## Content
+## Commands
 
-- **Document only what is specific to *this* project.** Generic best practices ("write tests," "avoid null") are noise.
-- **Document only what a competent engineer would get wrong by default.** Obvious things waste context; non-obvious things prevent bugs.
-- **Link to source-of-truth files (configs, ADRs, `package.json`) instead of duplicating their content.** Duplication guarantees drift.
-- **Don't restate what the linter, formatter, or type-checker already enforces.** Tooling is the source of truth for mechanical rules.
-- **Include exact, copy-pasteable commands for setup, test, lint, build, and run.** Agents fabricate plausible-but-wrong commands when left to guess.
-- **Name the package manager, language version, and OS assumptions explicitly.** `npm` vs `pnpm` vs `yarn` produces silently broken installs.
-- **Reference files and identifiers by repo-relative path in backticks (`src/api/router.ts`).** Paths are unambiguous; descriptions drift.
-- **Enumerate non-obvious architectural invariants** (e.g., "all API routes must call `requireAuth()`"). These are the rules the type system can't enforce.
-- **List anti-patterns the team has explicitly rejected.** Prevents assistants from re-introducing solutions that were tried and failed.
-- **Define project-specific terminology on first use.** Gives the AI a glossary for domain language.
-- **Consider subdirectory `CLAUDE.md` files for domain-specific rules in large repos.** Keeps the root lean; tool support varies. *(contested)*
+- **List exact commands for build, test, lint, typecheck, and run in fenced code blocks, one command per line.** These are the assistant's most frequent lookups.
+- **Specify the package manager explicitly (e.g., `pnpm`, not "your package manager").** Mixed package managers corrupt lockfiles.
+- **Include a command for running a single test, not just the full suite.** Targeted reruns are the common iteration case.
+- **Reference `package.json` scripts or `Makefile` targets; do not duplicate their contents.** Duplication guarantees drift.
 
-## Style & Tone
+## Architecture
 
-- **Write in imperative voice ("Do X." / "Never Y.").** Models weight imperatives more reliably than "we prefer" or "consider."
-- **Document ground truth, not aspiration.** If a rule isn't enforced, either enforce it or delete it. Aspirational rules produce code inconsistent with the codebase.
-- **Use present tense and active voice.** "The API returns JSON" beats "JSON will be returned by the API."
-- **Follow non-obvious rules with a one-line rationale.** Helps humans and agents decide when it's safe to break a rule. Skip rationales for mechanical rules.
-- **Pair prohibitions with positive alternatives.** "Don't use `var`; use `const` by default, `let` for loop counters." Bare prohibitions leave the model to guess.
-- **Omit marketing language, mission statements, team values, and decorative emoji.** Zero behavioral impact; pure context-window tax.
-- **Include short ✓ / ✗ code examples only for rules prose cannot make concrete.** Keep examples under 10 lines.
+- **Name top-level directories and what lives in each, in two lines or fewer per directory.** Provides a map without blind grepping.
+- **Call out non-obvious boundaries and import rules (e.g., "`packages/core` must not import from `packages/web`").** Import rules are invisible to a reader of the tree.
+- **State where generated, vendored, or codegen output lives, and mark it as non-hand-editable.** Prevents the most common class of destructive edits.
+- **Link to an ADR index or authoritative architecture doc rather than restating rationale inline.** CLAUDE.md is *what*, not *why*.
 
-## Safety
+## Conventions
 
-- **Enumerate files and directories that must never be edited without approval.** Generated code, vendored deps, migrations, and CI config are common footguns.
-- **State destructive-command policy explicitly** (migrations, `rm -rf`, force-push, prod deploys, dependency additions). Defaults are not safe.
-- **Provide an "ask before" checklist for high-risk changes** (schema changes, public API changes, cross-boundary refactors, new dependencies). Human-in-the-loop is the ultimate guardrail.
-- **Never commit secrets, tokens, internal hostnames, or customer data to this file.** It is routinely shared, indexed, and pasted into prompts.
-- **State security-critical conventions** (e.g., "use `db.query()` prepared statements," "sanitize input via `src/utils/sanitize.ts`"). Codifies secure-by-default generation.
-- **Specify data-handling and PII rules** with links to the full policy. Clear data rules reduce compliance risk.
+- **State conventions only where they deviate from ecosystem defaults or are enforced in this repo.** The assistant already knows standard idioms.
+- **Defer style and formatting rules to the linter/formatter config; name the tool and config file (`.eslintrc`, `.prettierrc`, `ruff.toml`, etc.).** The config is the source of truth.
+- **Specify the test framework and test file-naming pattern.** Disambiguates `*.test.ts` vs. `*.spec.ts` vs. `__tests__/`.
+- **Define project-specific terminology and acronyms in a short glossary.** Assistants lack the team's implicit vocabulary.
 
-## Maintainability
+## Do Not (Prohibitions & Safety)
 
-- **Assign a single owner via CODEOWNERS.** Shared ownership means no ownership.
-- **Update this file in the same PR that changes what it describes.** Co-change policy is the primary defense against staleness.
-- **Delete rules that aren't actually enforced.** A stale "we use Jest" rule three months after migrating to Vitest is worse than no file at all.
-- **Add a CI check that runs the canonical commands and validates links.** Automation is the only scalable defense against drift.
-- **Include a "Last Updated" date at the top.** Visible currency triggers reviews and builds trust.
-- **Audit the file quarterly and on major version bumps.** Scheduled review catches drift that PR review misses.
+- **Write prohibitions as imperative negatives ("Do not run `prisma migrate` against production").** Prohibitions are the highest-ROI lines in the file.
+- **Name destructive commands and environments that require confirmation (e.g., `db:reset`, `deploy:prod`, `main` branch).** The assistant cannot infer destructiveness from a command name.
+- **Include a bold warning not to paste secrets or production data into AI prompts.** Habitual guardrails prevent leaks at the point of use.
+- **Do not state prohibitions the assistant already infers (e.g., "don't commit secrets").** Wastes context.
+- **Document the project's security-critical areas and preferred secure patterns (auth flow, PII handling, approved libraries).** Guides the AI toward approved patterns.
 
-## Anti-Patterns
+## Safety (File Contents)
 
-- **Don't paste the README into this file.** READMEs target new humans; this file targets agents mid-task. Different jobs.
-- **Don't duplicate full guides, API references, or ADRs.** Link to them.
-- **Don't document the obvious** ("this is a TypeScript project"). The model can see `tsconfig.json`.
-- **Don't use vague verbs** like "run the app" or "write clean code." Specify exact commands and concrete rules.
-- **Don't bury "Do not edit" warnings.** Prominent guards are respected.
-- **Don't rely on screenshots or images for critical steps.** Text survives terminals and diffs.
-```
+- **Do not include secrets, tokens, credentials, PII, private endpoints, or production URLs.** The file is committed to source control and loaded into AI context.
+- **Link to `SECURITY.md` and name the secrets-management system (vault path, env var loader) without values.** Directs readers to the right place without creating exposure.
+
+## Content Hygiene
+
+- **Link to canonical sources (ADRs, `CONTRIBUTING.md`, linter configs, runbooks) rather than duplicating them.** Duplication guarantees drift.
+- **Document current reality, not aspirations.** "We use TDD" when the codebase doesn't is worse than silence.
+- **Delete any claim you cannot point to a file or command to verify.** Unverifiable content is noise at best, actively misleading at worst.
+- **Do not include onboarding prose, team history, motivational statements, or dated roadmap items.** Wrong audience, wrong file.
+- **Mark unknowns explicitly as "Unknown as of YYYY-MM-DD" rather than omitting or guessing.** Explicit unknowns avert AI guesswork.
+
+## Style
+
+- **Write in concise, imperative bullets; avoid prose paragraphs.** Scannability improves reliability for humans and LLMs.
+- **Use present tense and active voice.** "Tests run on every PR", not "Tests should be run".
+- **Use consistent Markdown: ATX headings (`#`, `##`), `-` for bullets, fenced code blocks with language tags.** Uniformity aids parsing.
+- **Use repository-relative paths for intra-repo references; reserve full URLs for external resources.** Relative paths work in forks, IDEs, and clones.
+- **Keep code examples short (≤15 lines).** Link to a live file for anything larger.
+- **Avoid inline images, diagrams, and raw HTML; link to assets instead.** They hinder parsing and inflate token cost.
+
+## Maintenance and Freshness
+
+- **Include a "Last updated: YYYY-MM-DD" line near the top, or per-section timestamps for longer files.** Visibility encourages upkeep.
+- **Assign an owner or team for the file and add it to `CODEOWNERS`.** Without ownership, the file rots.
+- **Review the memory file in any PR that changes commands, directory layout, dependencies, or architecture.** Drift is the default; review is the fix.
+- **Keep H2 heading names stable across revisions.** Stability enables robust assistant anchoring and clean diffs.
+
+---
+
+*This rules file is opinionated. Thresholds (line limits, section names) are defaults; adjust per project but keep the shape.*

@@ -7,89 +7,77 @@
 
 | Rule | Theme | openai/gpt-5 | openai/gpt-4o-mini | anthropic/claude-opus-4-7 | anthropic/claude-haiku-4-5 | vertex_ai/gemini-2.5-pro | xai/grok-3-mini | Count |
 |---|---|---|---|---|---|---|---|---|
-| Write each rule as a single imperative sentence. | Content/Style | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Scope paths narrowly via frontmatter globs. | Structure/Scoping | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Include YAML/metadata frontmatter at the top of each file. | Structure | ✓ |  | ✓ |  | ✓ | ✓ | 4 |
-| Keep each rule file small / under a size or line cap. | Performance/Structure | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
-| Keep each file single-purpose / one concern. | Structure/Maintainability | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Group rules under predictable headings (Structure, Safety, etc.). | Structure/Style | ✓ | ✓ | ✓ | ✓ |  |  | 4 |
-| Attach a short rationale to each rule. | Content | ✓ |  | ✓ |  | ✓ | ✓ | 4 |
-| Make rules concrete, falsifiable, and verifiable. | Correctness | ✓ | ✓ | ✓ | ✓ | ✓ |  | 5 |
-| Encode only conventions the codebase actually follows (no aspirational rules). | Correctness/Maintainability |  |  | ✓ | ✓ |  |  | 2 |
-| Never include secrets, tokens, or credentials in rule files. | Safety | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
-| Periodically review / assign owners to rule files to prevent rot. | Maintainability | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Avoid hedging language ("should", "maybe", "consider"); use absolute/imperative wording. | Style | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Don't duplicate rules already enforced by linters/formatters. | Correctness/Performance |  |  | ✓ | ✓ |  |  | 2 |
-| Link to canonical/external docs instead of embedding long content. | Content/Performance | ✓ |  |  | ✓ | ✓ | ✓ | 4 |
-| Define precedence/conflict-resolution for overlapping rule files. | Loading/Precedence | ✓ |  | ✓ |  |  |  | 2 |
-| Forbid destructive commands and require confirmation for risky operations. | Safety | ✓ |  | ✓ |  |  |  | 2 |
-| Treat rule files as code: review, version, and change-control them. | Maintainability | ✓ |  | ✓ |  | ✓ |  | 3 |
-| Require/mandate tests for rules or generated code. | Testing/Correctness | ✓ | ✓ |  |  |  |  | 2 |
-| Specify exact tools, libraries, or versions by name. | Correctness | ✓ |  | ✓ |  |  |  | 2 |
-| Provide a fallback behavior for ambiguity or unmatched cases. | Error Handling | ✓ |  |  |  |  | ✓ | 2 |
-| Remove or update rules violated frequently in practice. | Maintainability |  |  | ✓ | ✓ |  |  | 2 |
-| Put universally-applicable rules in top-level memory, not path-scoped files. | Scoping | ✓ |  | ✓ |  |  |  | 2 |
-| Use consistent file naming that reflects scope/purpose. | Structure | ✓ |  |  |  | ✓ |  | 2 |
-| State exceptions to a rule explicitly when they exist. | Correctness |  |  | ✓ | ✓ |  |  | 2 |
-| Don't paste untrusted external content into rule files (injection surface). | Safety |  |  | ✓ |  |  |  | 1 |
-| Use narrow code examples only when the rule's shape is non-obvious. | Content |  |  | ✓ |  | ✓ |  | 2 |
-| Prefer positive framing over negative prohibitions. | Style |  |  |  |  | ✓ |  | 1 |
-| Prefer negative rules for defaults the base model gets wrong. | Content |  |  | ✓ |  |  |  | 1 |
-| Don't weaken security, logging, or validation via rules. | Safety |  |  |  |  | ✓ |  | 1 |
-| Include license headers / license compliance guidance. | Safety | ✓ |  |  |  |  |  | 1 |
-| Sanitize or synthesize PII in examples/fixtures. | Safety | ✓ |  |  |  |  |  | 1 |
-| Require idempotent, reversible migrations with rollbacks. | Safety | ✓ |  |  |  |  |  | 1 |
-| Don't fetch remote code/data during generation. | Safety | ✓ |  |  |  |  |  | 1 |
-| Don't execute shell commands; propose them instead. | Safety | ✓ |  |  |  |  |  | 1 |
-| Validate frontmatter and glob coverage in CI. | Tooling/CI | ✓ |  |  |  |  |  | 1 |
-| Lint rule files for banned hedge words. | Tooling/CI | ✓ |  |  |  |  |  | 1 |
-| Enforce a review_by expiration date for rule files. | Maintainability | ✓ |  |  |  |  |  | 1 |
-| Bump a version field on substantive rule edits. | Maintainability | ✓ |  |  |  |  | ✓ | 2 |
-| Surface a generated index of rules by path in docs. | Tooling | ✓ |  |  |  |  |  | 1 |
-| Restate applicable rules before making code changes. | Assistant Interaction | ✓ |  |  |  |  |  | 1 |
-| Propose minimal-scope diffs that reference rule IDs. | Assistant Interaction | ✓ |  |  |  |  |  | 1 |
-| Don't override rules via prompt; edit the rule file. | Assistant Interaction | ✓ |  |  |  |  |  | 1 |
-| When rules conflict or are impossible, stop and ask owners. | Error Handling | ✓ |  |  |  |  |  | 1 |
-| Prefer no change over unsafe change under uncertainty. | Error Handling | ✓ |  |  |  |  |  | 1 |
-| Reuse existing helpers before writing new ones. | Performance | ✓ |  |  |  |  |  | 1 |
-| Set function/module size caps in generated code. | Performance | ✓ |  |  |  |  |  | 1 |
-| Mirror CI/linter configs exactly. | Correctness | ✓ |  |  |  |  |  | 1 |
-| State the minimum language standard / runtime version. | Correctness | ✓ |  |  |  |  |  | 1 |
-| Define directory-level architectural boundaries. | Correctness | ✓ |  |  |  |  |  | 1 |
-| Co-locate rule files with the code they govern. | Structure |  |  | ✓ |  |  |  | 1 |
-| Open with a one-line scope statement. | Structure |  |  | ✓ |  |  |  | 1 |
-| Don't explain language/framework basics the model knows. | Style |  |  | ✓ |  |  |  | 1 |
-| Use fenced code blocks with language tags. | Style |  |  | ✓ |  |  |  | 1 |
-| Test new rule files by observing whether they fire in a representative task. | Maintainability |  |  | ✓ |  |  |  | 1 |
-| Don't include single-file-only rules in shared rule files. | Maintainability |  |  |  | ✓ |  |  | 1 |
-| Avoid cargo-culting rules from other projects. | Maintainability |  |  |  | ✓ |  |  | 1 |
-| Don't mix unrelated domains (e.g., backend + frontend) in one file. | Structure |  |  |  | ✓ |  |  | 1 |
-| Forbid certain third-party libraries only with strong justification. | Correctness |  |  |  | ✓ |  |  | 1 |
-| Profile code before applying performance optimizations. | Performance |  | ✓ |  |  |  |  | 1 |
-| Only recommend optimizations when justified. | Performance |  | ✓ |  |  |  |  | 1 |
-| Define and use jargon only after explaining it. | Style |  | ✓ |  |  |  | ✓ | 2 |
-| Document expected behavior for each rule. | Error Handling |  | ✓ |  |  |  |  | 1 |
-| Always handle errors explicitly in code samples. | Error Handling |  | ✓ |  |  |  | ✓ | 2 |
-| Specify test types (unit vs integration). | Testing |  | ✓ |  |  |  |  | 1 |
-| Enforce a maximum line length (e.g., 80 chars). | Style |  |  |  |  |  | ✓ | 1 |
-| Don't use conditional logic or variables in rules. | Performance |  |  |  |  |  | ✓ | 1 |
-| Don't nest rules deeply within markdown sections. | Structure |  |  |  |  |  | ✓ | 1 |
+| Require YAML frontmatter with a `paths` scoping glob. | Structure/Scoping | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
+| Write each rule as a short imperative sentence followed by a one-line rationale. | Content/Style | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
+| Group rules under clear thematic headings. | Structure | ✓ | ✓ | ✓ | ✓ |  | ✓ | 5 |
+| Avoid hedging language ("should", "try", "consider"); use plain imperatives. | Content/Style | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
+| Keep rule files small/concise to conserve context budget. | Performance | ✓ |  | ✓ |  | ✓ | ✓ | 4 |
+| Never include secrets, tokens, or real credentials in rule files. | Safety | ✓ | ✓ | ✓ |  |  |  | 3 |
+| Avoid overly broad globs like `**/*` that apply rules everywhere. | Scoping | ✓ |  | ✓ |  | ✓ |  | 3 |
+| Limit or constrain code-block examples (length/count). | Performance/Content | ✓ |  | ✓ |  | ✓ |  | 3 |
+| Keep one focused concern per rule file; split by subsystem. | Maintenance | ✓ |  | ✓ |  | ✓ |  | 3 |
+| Forbid or guard destructive shell commands in examples. | Safety | ✓ |  | ✓ |  | ✓ |  | 3 |
+| Use language-tagged fenced code blocks for code snippets. | Style | ✓ |  | ✓ | ✓ |  |  | 3 |
+| Record ownership / last-reviewed metadata for each rule file. | Maintenance | ✓ |  |  | ✓ |  |  | 2 |
+| Remove or archive obsolete/deprecated rules rather than leaving them stale. | Maintenance | ✓ |  | ✓ |  |  |  | 2 |
+| Validate frontmatter and globs in CI before merge. | Correctness/Testing | ✓ |  | ✓ |  |  |  | 2 |
+| Do not duplicate the same rule across multiple files. | Maintenance | ✓ |  | ✓ |  |  |  | 2 |
+| Provide a fallback / precedence mechanism for conflicting rules. | Error Handling | ✓ |  | ✓ |  |  |  | 2 |
+| State rules in falsifiable, concrete terms (avoid vague qualifiers). | Content/Clarity | ✓ |  |  | ✓ |  |  | 2 |
+| Mark contested rules explicitly as (contested). | Content | ✓ |  |  | ✓ |  |  | 2 |
+| Use kebab-case / descriptive filenames for rule files. | Structure | ✓ |  |  |  | ✓ |  | 2 |
+| Cap line length for readability. | Style | ✓ |  |  |  |  | ✓ | 2 |
+| Include a short preamble stating scope/audience/purpose. | Structure | ✓ |  |  | ✓ |  |  | 2 |
+| Use bullet lists (rather than long prose) for rules. | Style |  |  |  | ✓ | ✓ |  | 2 |
+| Version rules (semver) and include an ISO-8601 updated date. | Maintenance | ✓ |  |  |  |  |  | 1 |
+| Declare capability frontmatter (allow_tools/deny_tools/network). | Safety | ✓ |  |  |  |  |  | 1 |
+| Use UTF-8 encoding and LF line endings. | Structure | ✓ |  |  |  |  |  | 1 |
+| Limit the combined number of include/exclude globs. | Performance | ✓ |  |  |  |  |  | 1 |
+| Require a resolvable owner (email or team slug). | Maintenance | ✓ |  |  |  |  |  | 1 |
+| Date or version rules tied to migrations/deprecations. | Maintenance |  |  | ✓ |  |  |  | 1 |
+| Place load-bearing rules first within each section. | Structure |  |  | ✓ |  |  |  | 1 |
+| Reference project-specific names/APIs by exact identifier. | Content |  |  | ✓ |  |  |  | 1 |
+| Omit rules that describe universal programming hygiene. | Content |  |  | ✓ |  |  |  | 1 |
+| Keep rationales falsifiable (not "because it's cleaner"). | Maintenance |  |  | ✓ |  |  |  | 1 |
+| Write in second-person/bare imperative (avoid "we"). | Style |  |  | ✓ |  |  |  | 1 |
+| Keep intro prose under two lines. | Style |  |  | ✓ |  |  |  | 1 |
+| Limit heading depth to two levels. | Structure |  |  | ✓ |  |  |  | 1 |
+| Prefer positive framing ("Use X") over negative ("Don't Y") when clearer. | Content |  |  |  | ✓ |  |  | 1 |
+| Name common exceptions explicitly in the rule itself. | Content |  |  |  | ✓ |  |  | 1 |
+| Security/stability rules must be unhedged and cite consequences. | Safety |  |  |  | ✓ |  |  | 1 |
+| Do not use rule files to hide proprietary/sensitive methods. | Safety |  |  |  | ✓ |  |  | 1 |
+| Avoid rules that cause the AI to silently override user intent. | Safety |  |  |  | ✓ |  |  | 1 |
+| Update rules only via version-controlled PRs, not ad-hoc. | Maintenance |  |  |  | ✓ |  |  | 1 |
+| Do not duplicate linter/formatter configs; reference them. | Content |  |  |  | ✓ |  |  | 1 |
+| Use inline code for identifiers, keywords, and file paths. | Style |  |  |  | ✓ |  |  | 1 |
+| Reference other rule files by relative path/link. | Structure |  |  |  | ✓ |  |  | 1 |
+| Use at most two heading levels (## and ###). | Structure |  |  | ✓ |  |  |  | 1 |
+| Keep file under a hard line/token budget (e.g., 200 lines / 2k tokens). | Performance |  |  | ✓ |  |  |  | 1 |
+| Don't ignore error returns in functions. | Error Handling |  | ✓ |  |  |  |  | 1 |
+| Document error-handling behavior for all functions. | Error Handling |  | ✓ |  |  |  |  | 1 |
+| Adopt a consistent naming convention. | Style |  | ✓ |  |  |  |  | 1 |
+| Avoid excessive abbreviations in identifiers. | Style |  | ✓ |  |  |  |  | 1 |
+| Include descriptive comments for complex code sections. | Style |  | ✓ |  |  |  |  | 1 |
+| Avoid deprecated APIs. | Safety |  | ✓ |  |  |  |  | 1 |
+| Minimize use of global variables. | Performance |  | ✓ |  |  |  |  | 1 |
+| Avoid unnecessary calculations inside loops. | Performance |  | ✓ |  |  |  |  | 1 |
+| Don't nest rules more than three levels deep. | Structure |  | ✓ |  |  |  |  | 1 |
+| Reference an external source of truth (linter/tests) when possible. | Correctness |  |  |  |  | ✓ |  | 1 |
+| Prefer guiding code generation over abstract principles. | Correctness |  |  |  |  | ✓ |  | 1 |
+| Remove redundant/obvious instructions. | Performance |  |  |  |  | ✓ |  | 1 |
+| Include a safety disclaimer in the preamble for high-risk rules. | Safety |  |  |  |  |  | ✓ | 1 |
 | Prioritize essential rules over optional ones. | Performance |  |  |  |  |  | ✓ | 1 |
-| Use markdown structure (headings, lists) for readability. | Style |  |  |  |  | ✓ |  | 1 |
-| State each rule on its own line as a list item. | Style |  |  |  |  | ✓ |  | 1 |
+| Don't mix tabs and spaces; use spaces exclusively. | Style |  |  |  |  |  | ✓ | 1 |
 
 ## Notes on clustering decisions
 
-- **"Scope paths narrowly"** (5 models) vs **"Include YAML frontmatter"** (4 models): I kept these separate because some models stressed *having* frontmatter as a loading prerequisite while others stressed *narrowness* of the globs. Gemini and grok discuss both; gpt-5 and opus explicitly separate them.
-- **"Keep each file single-purpose"** vs **"Keep each rule file small"**: Related but distinct — size caps (bytes/lines) vs topical scope. gpt-5, opus, and haiku raised both; I did not merge.
-- **"Make rules concrete/falsifiable"** is a broad cluster: includes gpt-5's "concrete, checkable constraints", 4o-mini's "single actionable directive / unambiguous", opus's "falsifiable against a diff", haiku's "objectively falsifiable", and gemini's "avoid vague rules". A stricter matcher would split these, but the intent overlaps heavily.
-- **"Avoid hedging language"** clusters gpt-5's "Do/Don't/Must, not should/might", opus's "Don't hedge", haiku's imperative vs. suggestion, and gemini's imperative-mood advocacy.
-- **"Link to canonical docs"** clusters gpt-5's explicit rule, haiku's "link to external docs", gemini's "reference canonical documentation", and grok's "reference external standards". 4o-mini and opus do not say this.
-- **Safety sub-rules** (destructive commands, secrets, remote fetches, PII, migrations) were kept as separate rows because different models named different specific hazards; only "no secrets" appears across multiple models. A coarser matcher might merge them all under a single "safety guardrails" rule.
-- **"Treat rule files as code / review them"** merges gemini's code-review framing with gpt-5's owner/version/review_by requirements and opus's review-on-code-change rule. Arguable whether gpt-5's "owners in frontmatter" belongs here vs. under a separate "assign owners" rule (which I collapsed into periodic review).
-- **"Bump a version field"**: gpt-5 calls for versioning on substantive edits; grok lists a version field in frontmatter. Different motivations (change tracking vs. rollback), but I merged.
-- **"Define and use jargon only after explaining it"** merges 4o-mini's "avoid jargon unless defined" and grok's "don't use jargon without definition".
-- **"Always handle errors explicitly in code samples"** merges 4o-mini's rule with grok's "mandate error handling in all rule examples".
-- **Opus's "Don't use `paths: **/*`"** is essentially the same as gpt-5's "universal rules go in top-level memory" — merged.
-- **Positive vs negative framing**: gemini prefers positive; opus prefers negative for base-model defaults. I kept these as two separate rows because they are in tension, not the same rule.
-- **Haiku's "Don't forbid third-party libraries without justification"** and gpt-5's "Enumerate allowed dependency scopes and pin levels" are about dependency policy but point in opposite directions; not merged.
+- **"Require YAML frontmatter with paths"**: I merged gpt-5's broader "start with YAML frontmatter bounded by ---" and "provide keys title/paths/owner/..." with the narrower "must have `paths:`" from Opus, Haiku, Gemini, and Grok. gpt-4o-mini did not mention frontmatter at all. A stricter clustering would split "frontmatter at all" from "paths key specifically."
+- **"Keep files small/concise"**: gpt-5 (16 KB / 300 lines), Opus (200 lines / 2k tokens), Gemini (2 KB), and Grok (10 KB, <500 lines) all gave different numeric budgets. I clustered them as one rule since the intent is the same; a stricter matcher would separate byte-size, line-count, and token-count variants.
+- **"Group under thematic headings"**: Grok's "organize content into clear thematic headings" and Haiku's "group rules by theme with second-level headings" and gpt-4o-mini's "use clear and consistent headings" were clustered together. Opus's separate "use at most two heading levels" is kept distinct because it's a depth constraint, not a grouping directive.
+- **Imperative phrasing vs. avoiding hedges**: I kept "write as imperative + rationale" separate from "avoid should/try/consider." They often co-occur but are mechanically distinct (one is a format rule, one is a vocabulary ban). gpt-4o-mini arguably implies imperative style but doesn't state it, so I left it blank.
+- **Destructive-command safety**: gpt-5's "prefix destructive examples with echo/DANGEROUS", Opus's "spell out destructive prohibitions", and Gemini's "don't suggest rm -rf/dd" were clustered as one safety rule about destructive shell content. A stricter reading would split "don't include them" from "mark them if you do."
+- **Scoping narrowly / avoid broad globs**: gpt-5 ("no `**/*`"), Opus ("write paths as narrowly as the domain" + "don't load for every file"), and Gemini (implicit via "narrowly defined paths glob" in reasoning but also the rules stress scoping) clustered. Grok's "don't allow wildcard paths; specify exact patterns" also fits; I included it.
+- **"One concept per file" vs. "don't duplicate rules"**: These are related but distinct. I kept "one focused concern per file" (gpt-5, Opus, Gemini) separate from "don't duplicate a rule across files" (gpt-5, Opus).
+- **gpt-4o-mini's rules about code quality** (naming conventions, avoiding globals, loop calculations, deprecated APIs, etc.) are about *application code*, not about *agent rule files*. I listed them as singletons rather than forcing them into clusters with meta-rules from other models, because they're addressing the wrong target audience. A regex matcher might mis-cluster "avoid deprecated APIs" with "remove obsolete rules."
+- **Haiku's "reference other rule files by relative path"** is adjacent to gpt-5's linking conventions but specific enough that I kept it a singleton.
+- **"Contested" marking**: gpt-5 and Haiku both explicitly prescribe marking contested rules; I clustered those. Other models use "(contested)" tags themselves but don't state it as a rule.

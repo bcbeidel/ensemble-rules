@@ -17,6 +17,7 @@ class ModelResponse:
     model: str
     reasoning: str
     rules_file: str
+    deterministic_checks: str
     error: str | None
     usage: Usage
     elapsed_seconds: float
@@ -90,12 +91,21 @@ def _validate_response(r: object, idx: int) -> ModelResponse:
         raise ValueError(f"responses[{idx}] must be an object")
     _require_keys(
         r,
-        {"model", "reasoning", "rules_file", "error", "usage", "elapsed_seconds"},
+        {
+            "model",
+            "reasoning",
+            "rules_file",
+            "deterministic_checks",
+            "error",
+            "usage",
+            "elapsed_seconds",
+        },
         f"responses[{idx}]",
     )
     _require_type(r, "model", str, idx)
     _require_type(r, "reasoning", str, idx)
     _require_type(r, "rules_file", str, idx)
+    _require_type(r, "deterministic_checks", str, idx)
     if r["error"] is not None and not isinstance(r["error"], str):
         raise ValueError(f"responses[{idx}].error must be str or null")
     if not isinstance(r["elapsed_seconds"], (int, float)):
@@ -105,6 +115,7 @@ def _validate_response(r: object, idx: int) -> ModelResponse:
         model=r["model"],
         reasoning=r["reasoning"],
         rules_file=r["rules_file"],
+        deterministic_checks=r["deterministic_checks"],
         error=r["error"],
         usage=usage,
         elapsed_seconds=float(r["elapsed_seconds"]),

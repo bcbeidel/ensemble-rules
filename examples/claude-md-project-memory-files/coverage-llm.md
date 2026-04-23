@@ -7,68 +7,55 @@
 
 | Rule | Theme | openai/gpt-5 | openai/gpt-4o-mini | anthropic/claude-opus-4-7 | anthropic/claude-haiku-4-5 | vertex_ai/gemini-2.5-pro | xai/grok-3-mini | Count |
 |---|---|---|---|---|---|---|---|---|
-| Use clear Markdown headings and bullet lists for structure. | Structure | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Write rules as imperatives, not preferences or aspirations. | Style | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Keep the file short/under a line cap to preserve signal and context. | Structure | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Link to source-of-truth docs/files instead of duplicating content. | Maintainability | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Review and update the memory file alongside related code changes. | Maintainability | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Never commit secrets, tokens, or sensitive data in the file. | Safety | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
-| Document project-specific security/safety conventions explicitly. | Safety | ✓ | ✓ |  | ✓ | ✓ | ✓ | 5 |
-| Assign a clear owner (e.g., CODEOWNERS) for the file. | Maintainability | ✓ |  | ✓ |  | ✓ |  | 3 |
-| Enumerate "do not edit" files/directories (generated code, vendored deps, migrations). | Safety | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Require human approval before high-risk/destructive actions (migrations, deps, prod). | Safety | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Provide canonical/exact commands for setup, test, lint, build, run. | Content | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Include a last-updated date or version stamp. | Maintainability | ✓ | ✓ |  | ✓ |  | ✓ | 4 |
-| State architectural invariants and constraints the type system can't enforce. | Content | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Place the file at the repository root. | Structure | ✓ |  |  | ✓ | ✓ |  | 3 |
-| Use a fixed/predictable section order and group related rules thematically. | Structure | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
-| Begin with a brief project overview/TL;DR/preamble. | Structure | ✓ | ✓ | ✓ | ✓ |  |  | 4 |
-| Document toolchain/language/package-manager versions and assumptions. | Content | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Use repo-relative paths and backtick identifiers for unambiguous references. | Style | ✓ |  | ✓ |  | ✓ |  | 3 |
-| Don't document the obvious or duplicate linter/formatter/type-checker rules. | Content |  |  | ✓ | ✓ | ✓ |  | 3 |
-| Describe ground truth, not aspirations; ensure rules match enforced reality. | Correctness |  |  | ✓ | ✓ | ✓ |  | 3 |
-| Provide a CI or automated check to validate commands/links/examples. | Maintainability | ✓ |  |  | ✓ |  |  | 2 |
-| Document deprecated patterns and forbid them in new code. | Content |  |  | ✓ | ✓ |  | ✓ | 3 |
-| Define a "Definition of Done" (tests pass, lint clean, docs updated). | Correctness | ✓ |  |  |  |  |  | 1 |
-| Declare SLOs/performance budgets and identify hot paths. | Performance | ✓ |  |  | ✓ |  |  | 2 |
-| Specify testing framework, patterns, and coverage expectations. | Testing | ✓ |  |  | ✓ |  |  | 2 |
-| State error-handling policy (retries, fail-fast, error shape). | Error Handling | ✓ |  |  | ✓ |  | ✓ | 3 |
-| Include a glossary of project-specific terminology. | Content |  |  |  |  | ✓ | ✓ | 2 |
-| Specify commit/PR/branch conventions. | Content | ✓ |  | ✓ |  |  |  | 2 |
-| Provide short inline rationales for each rule. | Style |  |  |  | ✓ | ✓ | ✓ | 3 |
-| Include rollback/migration/incident-recovery procedures and contacts. | Safety | ✓ |  |  |  |  |  | 1 |
-| Pair ✓/✗ examples or anti-examples to illustrate rules. | Style |  |  |  | ✓ |  |  | 1 |
-| Prefer vendor-neutral AGENTS.md naming (with CLAUDE.md as alias). | Structure | ✓ |  | ✓ |  | ✓ |  | 3 |
-| Include machine-readable frontmatter/metadata for tools. | Automation | ✓ |  |  |  |  |  | 1 |
-| Support nested CLAUDE.md files in subdirectories for domain-specific rules. | Structure |  |  | ✓ |  |  |  | 1 |
-| Keep examples short, minimal, and executable. | Style | ✓ |  | ✓ | ✓ |  |  | 3 |
-| List files/actions the AI must not modify or perform without approval. | Safety |  |  | ✓ | ✓ | ✓ |  | 3 |
-| List required environment variables and their handling. | Content | ✓ |  |  | ✓ |  |  | 2 |
-| Solicit team feedback on the documentation to surface issues. | Maintainability |  | ✓ |  |  |  |  | 1 |
-| Declare explicit non-goals or out-of-scope items. | Content | ✓ |  |  |  |  |  | 1 |
-| Specify logging conventions and what must never be logged. | Error Handling | ✓ |  |  | ✓ |  |  | 2 |
-| Avoid deep heading nesting (≤2–3 levels). | Structure | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Include a table of contents for long files. | Structure |  |  |  | ✓ |  | ✓ | 2 |
-| One rule per bullet/sentence; avoid compound rules. | Style |  |  | ✓ | ✓ |  |  | 2 |
-| Use consistent terminology across sections. | Style | ✓ |  |  | ✓ |  |  | 2 |
-| Avoid decorative elements (emoji, images, screenshots). | Style | ✓ |  | ✓ |  |  | ✓ | 3 |
-| Define naming conventions for files, folders, and identifiers. | Style |  |  |  | ✓ |  |  | 1 |
-| Define a repo map highlighting key paths. | Structure | ✓ |  |  | ✓ |  | ✓ | 3 |
-| Validate that code examples/snippets in the file actually run. | Correctness |  |  |  | ✓ |  |  | 1 |
-| Use plain language and define jargon on first use. | Readability |  | ✓ |  | ✓ |  | ✓ | 3 |
-| Include an architectural decision log or link to ADRs. | Content | ✓ |  |  |  |  |  | 1 |
-| Prefer positive phrasing over negative-only prohibitions. | Style |  |  | ✓ |  |  |  | 1 |
+| Do not include secrets, credentials, or sensitive data in the file. | Safety | ✓ | | | ✓ | ✓ | | 3 |
+| Include a last-updated date or timestamp to track freshness. | Maintenance | ✓ | | | ✓ | | ✓ | 3 |
+| Keep the file concise and under a defined size/line limit. | Performance | ✓ | | ✓ | | ✓ | ✓ | 4 |
+| Link to canonical sources rather than duplicating their content. | Maintenance | ✓ | | ✓ | ✓ | ✓ | | 4 |
+| List exact build/test/run commands as copy-pastable code blocks. | Content | ✓ | | ✓ | ✓ | | | 3 |
+| Organize content under clear hierarchical headings/sections. | Structure | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
+| Place the memory file at the repository root. | Structure | ✓ | | ✓ | | ✓ | | 3 |
+| Use concise bullets and imperative language over prose. | Style | ✓ | | ✓ | ✓ | | ✓ | 4 |
+| Use consistent Markdown formatting/syntax. | Style | ✓ | ✓ | | | ✓ | ✓ | 4 |
+| Assign clear ownership (owner/team/CODEOWNERS) for the file. | Maintenance | ✓ | | | ✓ | ✓ | | 3 |
+| Document architectural decisions, layout, or boundaries (link to ADRs). | Content | ✓ | | ✓ | ✓ | | | 3 |
+| Document environment variables/secrets location with placeholders, not values. | Safety | ✓ | | | ✓ | | | 2 |
+| Document project directory layout / where code lives. | Content | ✓ | | ✓ | ✓ | | | 3 |
+| Document testing framework, coverage, and how to run tests. | Content | ✓ | | ✓ | ✓ | | | 3 |
+| Explicitly list prohibitions / "Do Not" items for assistants. | Safety | ✓ | | ✓ | ✓ | | | 3 |
+| Include a changelog or review history for the file. | Maintenance | ✓ | | | | | | 1 |
+| Include a table of contents / elevator pitch at the top. | Structure | | ✓ | | ✓ | | | 2 |
+| Include an H1/summary naming the project at the top. | Structure | ✓ | | ✓ | | | | 2 |
+| Include security best practices / guide toward secure patterns. | Safety | | ✓ | | ✓ | ✓ | ✓ | 4 |
+| Keep only one canonical memory file (CLAUDE.md or AGENTS.md, not both). | Structure | ✓ | | ✓ | | ✓ | | 3 |
+| Link to linter/formatter configs rather than restating style rules. | Style | | | ✓ | ✓ | | | 2 |
+| Maintain a changelog section with dated entries. | Maintenance | ✓ | | | | | | 1 |
+| Name linters, formatters, and pre-commit hooks used. | Content | | | | ✓ | | | 1 |
+| Prefer relative links for intra-repo references. | Style | ✓ | | | | ✓ | | 2 |
+| Require PR review / CODEOWNERS enforcement for changes to the file. | Maintenance | ✓ | | ✓ | ✓ | ✓ | ✓ | 5 |
+| Restrict or limit embedded code examples in length. | Style | | | ✓ | ✓ | ✓ | ✓ | 4 |
+| Specify branching strategy and CI/CD expectations. | Content | | | | ✓ | | | 1 |
+| Specify the package manager and runtime versions explicitly. | Content | ✓ | | ✓ | ✓ | | | 3 |
+| State conventions only where they deviate from ecosystem defaults. | Content | | | ✓ | ✓ | | | 2 |
+| State forbidden/destructive actions requiring confirmation. | Safety | ✓ | | ✓ | | | | 2 |
+| State goals and non-goals / scope explicitly. | Content | ✓ | | | | | | 1 |
+| State what's internal/private/off-limits in the codebase. | Safety | | | ✓ | ✓ | | | 2 |
+| Use a glossary / define project-specific terminology. | Content | ✓ | | | | ✓ | | 2 |
+| Use fixed/predictable section names and stable headings. | Structure | ✓ | | ✓ | | | | 2 |
+| Use plain GitHub-Flavored Markdown; avoid custom directives/HTML. | Interoperability | ✓ | | | | | | 1 |
+| Use present tense / active voice. | Style | | | | ✓ | | ✓ | 2 |
+| Warn users not to paste secrets/production data into prompts. | Safety | ✓ | | | | | | 1 |
+| Warn about repo-specific anti-patterns and gotchas. | Safety | ✓ | | ✓ | ✓ | | | 3 |
+| Write in a clear style avoiding jargon / define acronyms. | Style | | ✓ | | | ✓ | ✓ | 3 |
 
 ## Notes on clustering decisions
 
-- **"Keep the file short"** merged hard line caps (200/300/2,000 lines) and general brevity advice into one cluster; the specific caps differ substantially (Haiku's 2,000 is ~10× others') but the intent is the same.
-- **"Link to source of truth"** clusters a range of related rules: linking to ADRs (gpt-5, grok), linking to config files (opus, haiku, gemini), and avoiding duplication generally. A stricter reading could split "link to ADRs" from "link to configs."
-- **"Write rules as imperatives"** groups opus's "imperative not hedged," haiku's "active imperative voice," gemini's "direct imperative sentences," grok's "do/don't" format, and gpt-4o-mini's similar guidance. Different wording, same substance.
-- **"Use Markdown headings/bullets"** bundles separate rules some models stated as two or three bullets (headings, bullets, code fences). A more granular matrix would split these.
-- **"State ground truth, not aspirations"** (opus, haiku, gemini) could arguably merge with **"Describe what is enforced"** — I kept them as one cluster since all three models frame it the same way.
-- **"Provide canonical commands"** merges rules ranging from "exact test/lint/build commands" (opus, haiku) to "canonical verbs for setup/run/test/..." (gpt-5) to "limit to 1–3 critical commands" (gemini). Gemini's is arguably the inverse, but all agree commands should appear and be exact.
-- **"Assign an owner"** and **"Review in PRs"** were kept separate because some models raise one without the other (gpt-4o-mini mentions review but not ownership).
-- **"Avoid decorative elements"** merges gpt-5's "no screenshots/images," opus's "no emoji/decoration," and grok's "no images/non-MD elements."
-- **"AI guardrails / don't modify X"** (opus, haiku, gemini) overlaps with **"Enumerate do-not-edit files"** (gpt-5, opus, haiku). I kept them as two clusters because the first is about AI-behavioral constraints broadly and the second about specific generated/vendored directories — but a looser matcher would collapse them.
-- **"Short rationales inline"** (haiku, gemini, grok) is distinct from "link to ADRs for full rationale" (gpt-5); both appear as separate clusters.
-- Haiku's extensive domain-specific sections (Testing, Naming, Type Safety, Performance/Scalability) were mostly matched only where another model raised a comparable rule; the many unique rules in that response appear as count-1 entries or are omitted for brevity.
+- "Organize content under clear hierarchical headings" was clustered aggressively: gpt-5's exact-ordered H2 list, opus's "fixed top-level headings", haiku's "single-level hierarchy", gemini's "hierarchical headings", grok's "hierarchical structure", and 4o-mini's "clearly defined sections" were all treated as the same rule despite very different levels of prescriptiveness. A stricter matcher would split these.
+- "Keep the file concise and under a defined size/line limit" collapses wildly different thresholds (gpt-5: 50KB/1200 lines; opus: 200 lines; gemini: 32KB; grok: 500 lines). Clustered because the underlying rule — bound file size for context economy — is identical.
+- "Require PR review / CODEOWNERS enforcement" merges gpt-5's CODEOWNERS rule, opus's "review in PR that changes commands", haiku's "assign owner + review yearly", gemini's "review in PR process", and grok's "require peer review for updates". These could plausibly split into "ownership" vs. "review workflow" clusters; I kept them together since all target the same drift-prevention mechanism. I also kept a separate "Assign clear ownership" row for rules that focus on naming an owner rather than the review process — borderline overlap with the review row.
+- "Link to canonical sources rather than duplicating" merges gpt-5's "link to SSoT", opus's "don't duplicate package.json scripts", haiku's "link to CONTRIBUTING.md", and gemini's "link, don't duplicate". Close call vs. the separate "link to linter config" rule, which I kept distinct because opus and haiku specifically called it out as a style-deferral rule.
+- "Restrict embedded code examples" merges opus's "no blocks >15 lines", haiku's "≤3 lines", gemini's "prefer descriptions over snippets", and grok's "≤5 lines with link". All share the same intent.
+- "Include security best practices" groups 4o-mini's generic "document security best practices", haiku's error-handling/secrets conventions, gemini's "highlight security-critical areas", and grok's "state security best practices". Arguably gemini's rule is closer to "warn about anti-patterns"; kept here because its framing is about promoting secure patterns.
+- "Use concise bullets / imperative language" and "Write in a clear style avoiding jargon" are adjacent and could be merged. Kept separate because the first is about form (bullets, imperatives) and the second about vocabulary (jargon, acronym definitions).
+- gpt-5's many interoperability rules (inline links, no reference-style links, no HTML comments, etc.) were mostly left as single-model rows rather than force-merged, since no other model addressed them.
+- opus's "Symlink AGENTS.md to CLAUDE.md" and gemini's "Use the filename AGENTS.md" both touch file-name choice but take opposite positions; I did not cluster them. gpt-5's "use one, not both" is closer to opus and was clustered with it under "Keep only one canonical memory file".
+- 4o-mini is sparse; many rows show blank for it not because it disagreed but because it didn't raise the topic.

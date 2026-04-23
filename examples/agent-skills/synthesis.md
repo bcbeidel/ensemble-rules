@@ -1,258 +1,378 @@
-# Synthesis of Agent Skills Best Practices
+# Synthesis of Agent Skills Best-Practices Guidance
 
 ## 1. Consensus Rules
 
-### Structure & Metadata
+### Structure & File Layout
 
-- **Include explicit frontmatter/metadata with name, description, and when-to-use triggers at the top of every SKILL.md.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)* — Metadata drives skill selection; if selection fails, nothing else matters.
-- **Enforce a consistent section ordering across all skills (name, trigger, preconditions, steps, validation, etc.).** *(substantively similar across GPT-5, Claude Haiku, Grok, GPT-4o-mini)* — Consistency reduces cognitive load for both humans and parsers.
-- **Use a clear, action-oriented naming convention (verb-noun, kebab-case).** *(substantively similar across Claude Opus, Gemini, GPT-5)* — Communicates action and outcome at a glance; aids predictable resolution.
+- **Name the file `SKILL.md` and place it in a dedicated skill directory.** (substantively similar but differently worded across GPT-5, Claude Opus, Gemini) — Standard, discoverable naming enables tooling and agent loaders to find skills without configuration.
 
-### Scope & Granularity
+- **Begin with YAML frontmatter containing at minimum `name`, `description`, and `version`.** (substantively similar across GPT-5, Claude Opus; Gemini uses H2 sections instead) — Structured metadata is the discovery and routing signal; without it, skills cannot be reliably indexed.
 
-- **One skill = one workflow/outcome; split composite workflows into separate skills.** *(substantively similar across Claude Opus, Claude Haiku, Gemini, GPT-5)* — Composite skills degrade selection accuracy, bloat context, and harm reusability.
+- **Use a consistent set of required H2 sections (e.g., When to use, Prerequisites, Steps/Instructions, Failure modes, Examples) in a predictable order.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — Predictable structure aids both model retrieval and human review.
 
-### Triggering & Selection
+- **Keep the SKILL.md short; cap around 300–400 lines and move reference detail to sibling files.** (substantively similar across GPT-5 (400), Claude Opus (300), Grok (2000 words)) — Every line is paid for in context tokens on invocation; long skills degrade both model focus and review quality.
 
-- **Write "when to use" with concrete, specific trigger phrases — not vague domain labels.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)* — Vague descriptions cause mis-selection or over-triggering.
-- **Include an explicit "when NOT to use" section with negative triggers.** *(substantively similar across GPT-5, Claude Opus)* — Prevents over-firing on adjacent tasks.
+- **Use a lowercase, hyphen/kebab-case name as the unique identifier.** (near-identical wording across GPT-5 and Claude Opus) — Portable, machine-safe identifiers for routing and lookup.
 
-### Preconditions & Inputs
+- **Write the Steps/Instructions section as a numbered ordered list, one atomic action per step.** (near-identical wording across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok) — Models follow numbered sequences more reliably than prose or bullets.
 
-- **State all preconditions, required tools, permissions, and inputs explicitly upfront.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok, GPT-4o-mini)* — Models do not reliably infer context; missing preconditions are a top cause of silent failure.
-- **Validate prerequisites in the earliest possible step (fail fast).** *(substantively similar across GPT-5, Claude Haiku, Gemini)* — Avoids wasted work and degraded user trust.
+### Descriptions & Triggers
 
-### Steps & Instructions
+- **Write the description to enumerate concrete invocation triggers, not capabilities.** (substantively similar across Claude Opus, Claude Haiku, Gemini, Grok) — The description is the retrieval signal; "Use when the user asks to convert .csv to .parquet" beats "Handles tabular conversion."
 
-- **Write steps as numbered, atomic, imperative actions — one action per step.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)* — Atomic imperatives enable precise failure diagnosis and are executed rather than ignored.
-- **Prefer exact commands and parameters over descriptions of commands.** *(substantively similar across Claude Opus, Claude Haiku, Gemini)* — `pytest -q` beats "run the tests"; specificity prevents improvisation.
-- **Forbid hedging/vague language ("maybe", "try", "use best judgment").** *(substantively similar across Claude Opus, Claude Haiku, Gemini, Grok)* — Ambiguity compounds across steps; agents execute, they don't improvise.
+- **Provide an explicit "When to use" section with scannable, concrete conditions.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — Reduces misrouting and skill collisions; vague triggers are the top cause of wrong-skill invocation.
 
-### Validation & Correctness
+### Instructions & Clarity
 
-- **End every skill with an explicit, machine-checkable validation step.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)* — Without one, models over-report success on no-ops.
-- **Declare expected postconditions/success criteria (exit codes, files, HTTP status).** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)* — Gives the agent an objective target.
-- **Prefer idempotent steps; explicitly flag any that are not.** *(substantively similar across GPT-5, Claude Opus, Gemini)* — Retries are common; non-idempotency causes duplication or wedged state.
+- **Write steps in imperative, active voice addressed to the agent.** (near-identical wording across GPT-5, Claude Opus, Claude Haiku, Grok) — Reduces hedging, ambiguous pronouns, and passive-voice mis-parsing.
 
-### Error Handling
+- **State preconditions explicitly and check them in the first step.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — Assumed state is the single biggest source of silent skill failures; fail fast.
 
-- **Every step touching external systems must declare error detection and recovery behavior.** *(substantively similar across GPT-5, Claude Haiku, Gemini, Grok, GPT-4o-mini)* — Silent failures are the dominant cascading-error source.
-- **Fail loudly and surface errors rather than silently continuing with invalid state.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)* — Improvised recovery masks real failures.
+- **Include at least one worked example with inputs, outputs, and side effects.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — Concrete examples anchor the model better than abstract rules.
+
+- **Ban vague/hedging language (e.g., "etc.", "maybe", "generally", vague pronouns).** (substantively similar across GPT-5, Claude Opus, Grok) — Ambiguity propagates directly into model behavior.
 
 ### Safety
 
-- **Never embed secrets, credentials, or tokens in skill text; reference them by handle/env var.** *(near-identical wording across GPT-5, Claude Opus, Claude Haiku, Gemini)* — Skills are shared, mirrored, and logged.
-- **Require an explicit confirmation/dry-run step before any destructive or irreversible action.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini, Grok)* — The latency is cheap; irreversible mistakes are not.
-- **Apply principle of least privilege; state minimum required permissions.** *(substantively similar across GPT-5, Claude Opus, Gemini)* — Limits blast radius of a faulty skill.
-- **Enumerate destructive operations in a dedicated Danger/Safety section.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku)* — Makes guardrails visible at selection and review time.
+- **Never embed secrets, API keys, or credentials; reference environment variables or vault paths instead.** (near-identical wording across GPT-5, Claude Opus, Claude Haiku, Grok) — Skills are version-controlled documentation; a committed credential is a breach.
 
-### Maintainability
+- **Require explicit user confirmation (or human-approval gating) before any destructive or production-affecting operation.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — Agents execute what they read; irreversible actions must be human-gated.
 
-- **Assign an explicit owner/maintainer and include a "last verified" date with tested versions.** *(substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini)* — Skills rot as tool APIs change; staleness must be legible.
-- **Store skills in version control alongside the code they operate on.** *(substantively similar across GPT-5, Claude Opus)* — Drift between code and skill is the dominant decay mode.
-- **Document known limitations, edge cases, and incompatibilities.** *(substantively similar across Claude Haiku, Claude Opus, Gemini)* — Sets realistic expectations.
+- **Prefer dry-run or preview steps before executing destructive variants.** (substantively similar across Claude Opus, Gemini) — "Show the plan, then apply" is the safe-by-default pattern.
 
-### Performance & Brevity
+- **Do not use unverified remote-execution patterns (e.g., `curl | bash`, `eval` of remote content).** (substantively similar across Claude Opus, Gemini) — These are supply-chain vectors; pin versions and verify hashes instead.
 
-- **Cap SKILL.md length (target ~100–300 lines; hard ceiling ~500) and use progressive disclosure for reference material.** *(substantively similar across GPT-5, Claude Opus, Grok)* — Every loaded skill competes with task context for tokens.
-- **Reference external scripts, schemas, and long examples rather than embedding them inline.** *(substantively similar across GPT-5, Claude Opus, Grok)* — Lazy loading is the core performance lever.
-- **Do not duplicate content already in system prompts or tool descriptions.** *(raised by GPT-5, Claude Opus)* — Duplication wastes context and creates contradictions.
+### Error Handling & Dependencies
+
+- **Declare expected failure modes and recovery actions for any step that can fail externally.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — Without explicit guidance, the agent invents recovery behavior.
+
+- **Declare all external dependencies (tools, APIs, env vars, versions) in a Prerequisites section.** (substantively similar across GPT-5, Claude Opus, Claude Haiku, Gemini) — Undeclared dependencies surface as confusing runtime errors.
+
+- **Specify explicit timeouts and retry/backoff parameters for polling, waits, and retries.** (near-identical wording across GPT-5, Claude Haiku, Gemini) — Without limits, agents can hang indefinitely or retry-storm.
+
+### Versioning & Ownership
+
+- **Include an `owner` field and bump `version` (semver) on material changes.** (substantively similar across GPT-5, Claude Opus) — Unowned skills rot; version bumps are the cache-busting signal consumers rely on.
 
 ### Style
 
-- **Use clear, active, simple language with consistent terminology; avoid synonyms for key entities.** *(substantively similar across GPT-5, Claude Haiku, Grok, GPT-4o-mini)* — Stable terms reduce confusion for both audiences.
-- **Use code blocks for commands and configuration; don't embed code in prose.** *(raised by Claude Haiku, Gemini)* — Improves scannability and copy-paste fidelity.
+- **Use fenced code blocks with language tags for all commands and code.** (substantively similar across Claude Opus, Claude Haiku) — Aids both parser and model in distinguishing executable content.
 
----
+- **Keep lines under ~120 characters where practical.** (near-identical wording across GPT-5 and Claude Opus) — Improves diff readability; soft rule excluding code/URLs.
 
 ## 2. Strong Minority Rules
 
-- **Include 3–7 concrete trigger phrases in `when_to_use`, and re-test selection when the description changes.** *(Claude Opus)* — Models match on surface form more than intent; small wording shifts materially change routing behavior. Kept because it operationalizes the "specific triggers" consensus with a testable heuristic.
-- **List overlapping sibling skills by name and explain the boundary.** *(Claude Opus)* — Prevents silent mis-selection between near-neighbors. Closely related to GPT-5's "mutually exclusive relationships" point and worth including.
-- **Provide an offline/mocked test mode and gate release on passing routing tests.** *(GPT-5)* — Testing discipline is underdeveloped in most inputs but is essential for skill reliability at scale.
-- **Emit structured telemetry (start, step transitions, retries, exit) with a correlation ID.** *(GPT-5)* — Observability is largely absent from other responses but critical for debugging agent workflows in production.
-- **Isolate skill work in a temporary directory and clean up artifacts in the final step.** *(Gemini, GPT-4o-mini)* — State contamination between skills is a real and under-discussed failure mode.
-- **Prefer structured command outputs (JSON, exit codes, flags) over parsing stdout.** *(Gemini)* — Brittle screen-scraping is a top cause of skill decay; worth explicit callout.
-- **Sanitize parameter substitution to prevent command injection.** *(Gemini)* — Security concern that goes beyond generic "safety" rules.
-- **Delete or archive skills that haven't been invoked in ~90 days.** *(Claude Opus, GPT-5)* — Dead skills pollute selection; explicit pruning guidance is rare but valuable.
-- **Sanitize untrusted retrieved content before it enters prompts or tool calls.** *(GPT-5)* — Prompt injection via RAG content is a serious threat underrepresented in other responses.
-- **Do not make skills interactive mid-execution; gather all inputs up front.** *(Gemini)* — Important operational constraint that prevents common hang scenarios.
+- **Scope discipline: one skill per workflow; split rather than branch at the top level.** (Claude Opus, Claude Haiku) — Kitchen-sink skills degrade retrieval (too-broad description) and execution (wrong branch selection). This is an important maintainability lever and worth keeping even though it requires judgment.
 
----
+- **Don't have skills invoke other skills.** (Claude Opus, contested) — Cross-skill calls create hidden coupling and break the independent-capability mental model. Worth including as a default with explicit contestation noted.
+
+- **Include a "Do not use when" list alongside "Use when".** (GPT-5) — Negative triggers measurably improve dispatcher accuracy and prevent collisions. A small authoring cost for significant routing benefit.
+
+- **Include a final verification step that confirms the desired outcome was achieved.** (Gemini) — Transforms a skill from blind instructions into a self-validating procedure; directly addresses the silent-failure mode that multiple models flagged.
+
+- **Filter and reduce command output early in pipelines; return minimal data to the agent.** (Gemini) — Performance rule specific to agent context: verbose output pollutes the context window and degrades subsequent reasoning. Unique and practical.
+
+- **Use non-interactive flags (`-y`, `BatchMode=yes`, etc.) for commands that might prompt.** (Gemini) — Prevents agent execution from stalling on interactive prompts — a concrete, mechanically checkable rule worth preserving.
+
+- **Declare privilege level and required IAM/RBAC roles at the top.** (Claude Haiku) — For skills operating in production or with elevated access, making blast radius visible at the top of the file is a high-value safety gate.
+
+- **Log state-changing actions with timestamp, actor, reason, and old/new values.** (Claude Haiku) — Auditability is often overlooked in agent workflows; worth including for any skill that mutates state.
+
+- **Reference bundled files only by relative path from the skill directory.** (Claude Opus) — Critical for portability; absolute paths break the skill immediately on relocation.
 
 ## 3. Divergences
 
-### Divergence 1: Where should error handling and retry logic live?
+### Metadata richness: minimal vs. extensive frontmatter
 
-- **Skill-side** (Claude Haiku, Grok, GPT-4o-mini): Skills should include timeout, retry, and recovery logic for resilience.
-- **Agent-side** (Gemini, Claude Opus): Skills should fail fast and report specific errors; the agent's planner decides whether to retry, substitute, or escalate. Gemini explicitly argues skills are "hands," the agent is "brain."
-- **Hybrid** (GPT-5): Bounded retries with backoff per step, but fail closed on ambiguity and surface errors for agent escalation.
+- **GPT-5** prescribes an extensive required frontmatter set (~18 fields including `safety_tier`, `cost_budget_usd`, `llm_token_budget`, `retry_policy`, `data_access`, `idempotent`, etc.).
+- **Claude Opus** argues for minimal frontmatter (`name`, `description`, `version`, plus `owner`), with everything else expressed in prose sections.
+- **Gemini** uses H2 sections rather than frontmatter for all metadata.
+- **Claude Haiku, Grok** are in between.
 
-**Recommendation:** Adopt the hybrid position. Skills should declare *classification* of errors (transient vs. permanent), set *bounded* retry caps with backoff for clearly transient conditions (e.g., network blips), and otherwise fail fast with structured error output for the agent to handle. Embedding complex recovery logic inside skills reduces reusability and makes them harder to reason about, but zero retry guidance causes avoidable flakiness.
+**Recommendation:** Require a small, mandatory core (`name`, `description`, `version`, `owner`) and treat richer fields as optional-but-standardized. Rich frontmatter helps tooling but raises authoring friction; the core four are non-negotiable, the rest should be conventions a team opts into. GPT-5's schema is a reasonable reference for teams that need policy gating.
 
-### Divergence 2: Inline examples vs. external references
+### File length cap
 
-- **Minimal or zero inline** (Claude Opus, GPT-5, Grok): Examples bloat context and drift; keep one minimal example, move the rest out.
-- **Inline encouraged** (GPT-4o-mini, Claude Haiku, Gemini): Examples anchor intent and improve adoption.
+- **Claude Opus** says 300 lines; **GPT-5** says 400; **Grok** says 2000 words (~300 lines).
+- All three flag this as somewhat arbitrary.
 
-**Recommendation:** At most one minimal inline example demonstrating the happy path; longer/edge-case examples live in sibling files the skill instructs the agent to read on demand. This balances context economy against the real pedagogical value of examples.
+**Recommendation:** Use 300 lines as the default cap with 400 as a hard ceiling. The exact number matters less than having a bright line that triggers the "split this skill" conversation.
 
-### Divergence 3: Strict output schemas for all skills
+### Code blocks embedded in the skill vs. externalized scripts
 
-- **Pro** (GPT-5): Machine-checkable JSON schemas enable validation, composition, and testing.
-- **Con/contextual** (Claude Opus, Claude Haiku): Strict schemas for human-facing skills reduce readability; apply selectively.
+- **Claude Opus, Gemini** recommend externalizing complex scripts into sibling files referenced by relative path.
+- **GPT-5, Claude Haiku** allow inline code blocks without a strict ceiling.
 
-**Recommendation:** Require strict output schemas for programmatic skills whose output feeds other skills or tools. For human-facing skills, specify a concise output *style* rather than a rigid schema.
+**Recommendation:** Externalize any shell block over ~10 lines. Inline commands are fine for single-line invocations; longer logic belongs in a tested, versioned script file. This matches both portability and testability goals.
 
-### Divergence 4: Voice — imperative procedure vs. second-person to the model
+### How prescriptive to be about ambiguous language bans
 
-- **Neutral imperative** (Claude Opus, Gemini): "Run the migration" reads the same to humans and models; avoids anthropomorphic drift.
-- **Second-person to model** (GPT-5, Grok, implied by several others): "You will…" is acceptable or expected.
+- **GPT-5, Grok** list specific banned words ("etc.", "maybe", "somehow", "TBD", "???").
+- **Claude Opus** targets pronoun ambiguity rather than word lists.
+- **Others** gesture at clarity without a specific list.
 
-**Recommendation:** Default to neutral imperative for procedure steps; reserve second person ("You must confirm…") for safety warnings and confirmations where attention matters. This is genuinely contested; either is defensible if consistent within a team.
+**Recommendation:** Ban both — specific hedging words (mechanically checkable) and unqualified pronouns (requires review). The banned-word list is easy to enforce; the pronoun rule is a style principle for human reviewers.
 
-### Divergence 5: Skill length cap
+### Parameterized vs. single-purpose skills
 
-- Claude Opus: ~500 lines max, target 100–200.
-- GPT-5: under 300 lines.
-- Grok: under ~500 words.
-- Others: no explicit cap.
+- **Claude Opus, Claude Haiku** prefer single-purpose skills; branching indicates a split.
+- **Gemini** takes a middle ground: a skill is a "single logical workflow" that may include multiple steps.
+- **Grok** does not take a position.
 
-**Recommendation:** Target 100–300 lines; treat >500 lines or >2k tokens as a code smell warranting a split. The specific number matters less than the discipline of measuring and justifying size.
-
-### Divergence 6: Versioning requirements
-
-- **SemVer for shared skills, git history for repo-local** (Claude Opus): Context-dependent.
-- **Version every change with a changelog** (GPT-5): Universal.
-- Others: largely silent.
-
-**Recommendation:** Follow Claude Opus's graduated approach. Published/shared skills need SemVer and a changelog; repo-local skills can rely on git history plus a "last verified" date.
-
----
+**Recommendation:** Prefer single-purpose, but allow parameterization where the branches are shallow (e.g., `region` as a parameter) and the workflow is genuinely the same. If the top-level step sequence diverges, split.
 
 ## 4. Notable Omissions
 
-- **GPT-4o-mini omits nearly all skill-specific guidance.** Its rules read as generic code-style advice (line length, camelCase, lazy loading) and miss the defining features of skills: triggers, when-to-use, when-NOT-to-use, validation steps, selection precision, and progressive disclosure. This is the most conspicuous omission in the set and suggests the model didn't engage with the Agent Skills format specifically.
-- **Grok omits validation/verification as a required final step** — a point raised by every other model. Its treatment of correctness is abstract rather than operational.
-- **GPT-4o-mini and Grok omit any "when NOT to use" guidance**, despite its importance for selection precision (raised by Claude Opus, GPT-5).
-- **Claude Haiku omits explicit guidance on token budget / skill length**, though it emphasizes conciseness qualitatively.
-- **Gemini omits explicit telemetry/observability guidance.** Given its otherwise operational framing, the absence is notable.
-- **Only GPT-5 addresses prompt injection and untrusted content sanitization.** Given the security significance, this is a meaningful omission from the other four.
-- **Only GPT-5 and Claude Opus address reviewing skills on upstream API change cadence.** Maintenance discipline is underweighted elsewhere.
-- **Only Claude Opus explicitly forbids skills that modify other skills or the agent's system prompt.** A real governance concern absent elsewhere.
+- **GPT-4o-mini and Grok omit numbered-step instructions specifics and most structural requirements** that the other four models converge on (required section order, frontmatter fields, concrete trigger enumeration). These responses are notably shallower and less opinionated than the others; their omissions don't carry strong signal.
+
+- **Claude Opus omits explicit performance budgets (token budgets, cost budgets, timeout declarations as frontmatter).** Given Claude Opus's otherwise thorough treatment, this appears to be a deliberate stance that performance is a review-time concern, not a per-skill declared constraint. A defensible minority position.
+
+- **Gemini omits versioning and ownership entirely.** Conspicuous given four other models flagged it. Given Gemini's otherwise thoughtful treatment, this reads as an oversight worth correcting rather than a principled position.
+
+- **GPT-5 omits the "one skill per workflow / scope discipline" rule** that Claude Opus and Claude Haiku both emphasize. Worth noting because scope creep is a real maintainability failure mode.
+
+- **Claude Haiku omits explicit guidance on file length.** Given the other four models' convergence on a cap, this absence weakens the signal slightly but doesn't undermine the consensus.
+
+- **GPT-4o-mini omits almost all concrete guidance** (trigger enumeration, example inclusion, semver, secret handling, dependency declaration). This is not a disagreement — it's a shallower response. Its rules are too generic ("use consistent naming") to meaningfully contradict the others.
+
+## 5. Shared Deterministic Checks
+
+### Shared checks (raised by multiple models)
+
+- **Check** — Verify the skill file is named exactly `SKILL.md` (case-sensitive).
+  - **Signal** — Filename on disk.
+  - **Tool candidate** — ad-hoc (trivial filename comparison).
+  - **Raised by** — GPT-5, Gemini.
+  - **Variance** — None; models agreed on exact match.
+
+- **Check** — Parse YAML frontmatter and assert presence of required keys.
+  - **Signal** — First bytes of file; YAML block delimited by `---`.
+  - **Tool candidate** — any YAML parser (PyYAML, js-yaml) plus schema validator; could use `yamllint` for syntactic layer.
+  - **Raised by** — GPT-5, Claude Opus.
+  - **Variance** — Required key set differs: GPT-5 requires ~18 fields; Claude Opus requires 3–4. Resolve by making the core four (`name`, `description`, `version`, `owner`) mandatory and the rest configurable.
+
+- **Check** — Verify `name` / skill slug matches `^[a-z0-9]+(-[a-z0-9]+)*$` (lowercase kebab-case).
+  - **Signal** — Parsed frontmatter.
+  - **Tool candidate** — ad-hoc regex.
+  - **Raised by** — GPT-5, Claude Opus, Gemini.
+  - **Variance** — Claude Opus adds a 64-char cap and a uniqueness check across the collection; others only check format. Recommend both.
+
+- **Check** — Verify required H2 section headings are present (and optionally in a specified order).
+  - **Signal** — Parsed Markdown AST, H2 nodes in document order.
+  - **Tool candidate** — any Markdown AST library (remark, markdown-it, mistune); `markdownlint` does not enforce heading names natively.
+  - **Raised by** — GPT-5, Claude Opus, Gemini, Grok.
+  - **Variance** — Section names differ (GPT-5: Overview/When to use/Preconditions/Inputs/Outputs/Steps/Error handling/Safety/Tools/Examples; Claude Opus: When to use/Prerequisites/Steps/Failure modes/Examples; Gemini: Name/Description/When to Use/Instructions). Order-enforcement strictness varies. Recommend configurable section list with order enforcement on by default.
+
+- **Check** — Verify total line count is under the configured cap (default 300–400).
+  - **Signal** — Raw file line count.
+  - **Tool candidate** — `wc -l` or equivalent.
+  - **Raised by** — GPT-5 (400), Claude Opus (300), Grok (2000 words).
+  - **Variance** — Threshold differs. Recommend 300 warn / 400 fail as defaults with opt-out comment marker.
+
+- **Check** — Verify the Steps/Instructions section is an ordered list, starting at 1 with sequential numbering.
+  - **Signal** — Markdown AST nodes under the Steps heading.
+  - **Tool candidate** — any Markdown AST parser; `markdownlint` rules MD029/MD030 cover list numbering partially.
+  - **Raised by** — GPT-5, Claude Opus, Gemini, Grok.
+  - **Variance** — GPT-5 requires strict 1..N increment; Claude Opus requires just "first block is ordered list"; Gemini similar to Claude. Recommend Claude's check plus GPT-5's sequential-numbering check.
+
+- **Check** — Scan for embedded secrets (API keys, tokens, private keys, passwords).
+  - **Signal** — Raw text of SKILL.md and bundled files.
+  - **Tool candidate** — `gitleaks detect`, `trufflehog filesystem`, or `detect-secrets scan`.
+  - **Raised by** — Claude Opus, Claude Haiku.
+  - **Variance** — None on approach; models agreed on using off-the-shelf scanners. Both note false-positive handling via allowlists.
+
+- **Check** — Detect unverified remote-execution patterns (`curl | bash`, `eval $(curl ...)`, etc.).
+  - **Signal** — Text of fenced code blocks.
+  - **Tool candidate** — ad-hoc regex set; `shellcheck` does not flag this directly.
+  - **Raised by** — Claude Opus, Gemini.
+  - **Variance** — None substantive.
+
+- **Check** — Verify `version` field matches semver (`MAJOR.MINOR.PATCH`).
+  - **Signal** — Parsed frontmatter.
+  - **Tool candidate** — `semver` validator library or regex `^\d+\.\d+\.\d+$`.
+  - **Raised by** — GPT-5, Claude Opus.
+  - **Variance** — Claude Opus additionally requires version bump on material changes (requires git context); GPT-5 checks format only.
+
+- **Check** — Verify Examples section contains at least one fenced code block.
+  - **Signal** — Markdown AST under the Examples heading.
+  - **Tool candidate** — Markdown AST parser.
+  - **Raised by** — GPT-5, Claude Opus, Claude Haiku.
+  - **Variance** — GPT-5 requires one input JSON block and one output JSON block; Claude Opus requires any fenced block; Haiku requires inputs, outputs, and side effects all present. Recommend "at least one fenced block" as floor, with richer structural checks as opt-in.
+
+- **Check** — Detect destructive shell commands (`rm`, `mv`, `dd`, `drop`, `truncate`) lacking safety flags or prior approval gates.
+  - **Signal** — Text content of shell code blocks.
+  - **Tool candidate** — ad-hoc regex; no off-the-shelf linter covers this.
+  - **Raised by** — Claude Haiku, Gemini.
+  - **Variance** — Haiku pairs detection with an "approval gate" check (look for approval keywords in preceding steps); Gemini checks for dry-run/interactive flags. Recommend both checks combined.
+
+- **Check** — Detect polling/retry/wait language without explicit timeout and backoff parameters.
+  - **Signal** — Raw text or parsed steps.
+  - **Tool candidate** — ad-hoc keyword+regex matching.
+  - **Raised by** — GPT-5, Claude Haiku, Gemini.
+  - **Variance** — All three propose similar keyword lists (poll, wait, retry, loop). Fragile to phrasing.
+
+- **Check** — Scan for banned hedging/filler words (`etc.`, `maybe`, `probably`, `somehow`, `TBD`, `???`).
+  - **Signal** — Raw source text (case-insensitive whole-word match).
+  - **Tool candidate** — ad-hoc regex; `vale` with a custom style could work.
+  - **Raised by** — GPT-5, Grok.
+  - **Variance** — Minor list differences; GPT-5's is more comprehensive.
+
+- **Check** — Verify line length ≤ 120 characters (excluding fenced code blocks and URLs).
+  - **Signal** — Raw source text.
+  - **Tool candidate** — `markdownlint` MD013.
+  - **Raised by** — GPT-5, Claude Opus.
+  - **Variance** — None.
+
+- **Check** — Verify every fenced code block has a non-empty language tag.
+  - **Signal** — Markdown AST.
+  - **Tool candidate** — `markdownlint` MD040.
+  - **Raised by** — Claude Opus (and implicit in Claude Haiku).
+  - **Variance** — None.
+
+- **Check** — Placeholder token hygiene: every `{{inputs.X}}` / `{{env.Y}}` reference resolves to a declared input or env var.
+  - **Signal** — Raw source text + parsed frontmatter.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — GPT-5.
+  - **Variance** — Only GPT-5 defines this, but it's directly useful wherever placeholder syntax is used.
+
+### Singleton checks worth extracting
+
+- **Check** — Verify the parent directory basename equals the `name` field (after lowercasing).
+  - **Signal** — Filesystem + parsed frontmatter.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Compute pairwise `description` similarity across the skill collection and flag pairs above a threshold for human review.
+  - **Signal** — All `description` strings across the skill collection.
+  - **Tool candidate** — ad-hoc Jaccard or embedding-based similarity.
+  - **Raised by** — Claude Opus.
+
+- **Check** — Ensure inline backticked `tool.operation` references resolve to a declared tool and operation in the frontmatter.
+  - **Signal** — Markdown inline code spans + parsed frontmatter.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — GPT-5.
+
+- **Check** — If `requires_human_approval: true`, ensure a step contains an explicit `[HUMAN-APPROVAL]` marker.
+  - **Signal** — Frontmatter + raw text.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — GPT-5.
+
+- **Check** — If `idempotent: false`, ensure the Error handling section contains compensation/rollback language.
+  - **Signal** — Frontmatter + raw text.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — GPT-5.
+
+- **Check** — Detect common interactive-prompt commands (`apt-get install` without `-y`, `ssh` without `BatchMode=yes`, etc.).
+  - **Signal** — Shell code block contents.
+  - **Tool candidate** — ad-hoc; partially covered by `shellcheck` via SC2086-adjacent rules but not this class directly.
+  - **Raised by** — Gemini.
+
+- **Check** — Cap description length at ~500 characters.
+  - **Signal** — Parsed frontmatter.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — Claude Opus.
+
+- **Check** — If an input is an array type, require a `batch_size` declaration.
+  - **Signal** — Parsed frontmatter.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — GPT-5.
+
+- **Check** — Line-count shell code blocks in the Instructions section; flag any block over ~10 lines for externalization.
+  - **Signal** — Markdown AST code nodes.
+  - **Tool candidate** — ad-hoc.
+  - **Raised by** — Gemini.
 
 ---
 
-## 5. Final Rules File
+## 6. Final Rules File
 
-# Agent Skills — Rules and Conventions
+# Agent Skills: Authoring Rules
 
-**Scope.** Rules for authoring `SKILL.md` files and their supporting assets: model-invocable, on-demand capability definitions consumed by AI agents.
-**Audience.** Engineers authoring skills, reviewers approving them, and AI assistants generating or editing them.
-**Principle.** A skill is a privileged, model-readable procedure. Write it so both a junior engineer and a competent LLM execute it identically on the first try.
+**Scope:** Authoring and reviewing `SKILL.md` files and their bundled assets — reusable, model-invocable workflow definitions.
+**Audience:** Engineers, reviewers, and AI coding assistants producing or modifying skills.
 
----
+## Structure & Packaging
 
-## Structure & Metadata
+- **Name the file `SKILL.md` and place it in a dedicated directory named after the skill.** Standard layout is the unit of packaging; loaders depend on it.
+- **Name the parent directory to match the skill's `name` field (lowercased).** Directory and identifier should not drift.
+- **Begin the file with YAML frontmatter delimited by `---`.** Required keys: `name`, `description`, `version`, `owner`. Optional-but-recommended: `safety_tier`, `requires_human_approval`, `timeout_seconds`, `env_vars`, `inputs`, `outputs`, `last_updated`, `changelog`.
+- **Use a lowercase kebab-case `name` matching `^[a-z0-9]+(-[a-z0-9]+)*$`, ≤ 64 characters, unique across the skill collection.** Names are stable identifiers, not marketing.
+- **Use semantic versioning (`MAJOR.MINOR.PATCH`) in `version`.** Bump on any material change to steps, description, or bundled executables.
+- **Include an `owner` field identifying a resolvable person or team.** Unowned skills rot.
+- **Keep `SKILL.md` under 300 lines (hard cap 400).** Every line is paid for in context tokens on invocation; longer skills degrade both model focus and review quality. If you exceed the cap, split the skill or move reference detail to sibling files.
+- **Structure the body with these H2 sections, in order:** `## When to use`, `## Prerequisites`, `## Steps`, `## Failure modes`, `## Examples`. Additional H2 sections (`## Safety`, `## Outputs`) are permitted between them.
+- **Reference bundled files by relative path from the skill directory.** Absolute paths (`/home/...`, `~/...`, `C:\...`) break portability.
 
-- **Put `name`, `description`, and `when_to_use` in frontmatter at the top.** Metadata drives skill selection; if selection fails, nothing else matters.
-- **Keep the `description` to one or two sentences naming the task, trigger patterns, and output.** Vague descriptions cause mis-selection.
-- **Use a consistent section ordering across all skills: Name → Description → When to Use → When NOT to Use → Preconditions → Inputs → Steps → Validation → Rollback → Safety/Danger → Maintenance Notes.** Consistency reduces cognitive load for humans and parsers alike.
-- **Name skills as `verb-noun` in kebab-case; match the directory name to the `name` field.** Clear action orientation and predictable resolution.
-- **One skill = one workflow with one outcome.** Composite skills degrade selection accuracy and bloat context. Split multi-workflow skills.
+## Description & Triggers
 
-## Triggering & Selection
+- **Write the `description` to enumerate concrete invocation triggers, not capabilities.** Start with "Use when..." and name specific user phrases, file extensions, error strings, or event types. "Use when the user asks to convert .csv to .parquet" beats "Handles tabular conversion."
+- **Cap `description` at ~500 characters.** Longer descriptions dilute the retrieval signal.
+- **Provide an explicit `## When to use` section with both positive triggers and "Do not use when" conditions**, each with at least three concrete bullets. Negative triggers measurably reduce misrouting.
+- **Don't create skills whose descriptions substantially overlap with another skill's.** Overlap forces arbitrary selection.
 
-- **List 3–7 concrete trigger phrases or task patterns in `when_to_use`.** Models match on surface form more than intent.
-- **Include an explicit "When NOT to use" section with negative triggers.** Prevents over-firing on adjacent tasks.
-- **List overlapping sibling skills by name and explain the boundary.** Prevents silent mis-selection between near-neighbors.
-- **Never write a skill whose trigger is "any coding task" or similarly broad.** Such skills always misfire.
-- **Re-test skill selection whenever you edit the description.** Small wording changes materially change selection behavior.
+## Scope
 
-## Preconditions & Inputs
+- **Write one skill per workflow.** If the top-level logic branches ("if X do A, else B"), split into separate skills.
+- **Don't have skills invoke other skills.** *(contested)* Cross-skill calls create hidden coupling; prefer composition at the agent level.
 
-- **State every precondition, required tool, required permission, and environment assumption explicitly and upfront.** Missing preconditions are the top cause of silent failure.
-- **Define required inputs with types, formats, required/optional flags, and defaults.** Strong typing reduces parsing errors.
-- **Validate all prerequisites in the earliest possible step (fail fast).** Avoids wasted work and compute time.
-- **Gather all required inputs before execution; do not prompt for user input mid-skill.** Skills must be non-interactive.
+## Instructions
 
-## Steps & Instructions
-
-- **Write steps as numbered, atomic, imperative actions — one action per step.** "Run `pytest -q`." beats "run the unit tests." Atomic imperatives are executed; suggestions are ignored.
-- **Prefer exact commands, paths, and parameters over descriptions of commands.** Specificity prevents improvisation.
-- **Forbid hedging language: "maybe", "try to", "usually", "use best judgment".** Ambiguity compounds across steps.
-- **Prefer idempotent steps; flag any non-idempotent step explicitly.** Retries are common; non-idempotency causes duplication or wedged state.
-- **Prefer structured command outputs (JSON, exit codes, typed flags) over parsing stdout.** Screen-scraping is brittle and a top cause of skill decay.
-- **Isolate skill work in a temporary directory and clean up artifacts in the final step.** Prevents state contamination between skills.
-- **Document expected durations for steps known to exceed ~10 seconds.** Prevents premature timeouts and erroneous retries.
-
-## Validation & Correctness
-
-- **End every skill with an explicit, machine-checkable validation step with a pass/fail signal.** Without one, models over-report success on no-ops.
-- **State the expected postcondition (files changed, services running, exit codes, HTTP status).** Gives the agent an objective target to verify.
-- **Pin versions of tools, schemas, and external references where behavior depends on them.** Unpinned references rot silently.
-- **Require strict output schemas (JSON) for programmatic skills whose outputs feed other skills.** Schemas enable validation, composition, and testing.
-
-## Error Handling
-
-- **Every step that touches external systems must specify how failure is detected and what to do on failure.** Silent failures cause cascades.
-- **Fail loudly on ambiguous or invalid state rather than improvising recovery.** Improvised recovery masks real failures and corrupts state.
-- **Classify errors as transient (bounded retry with backoff) or permanent (abort and surface).** Correct classification saves time without hiding real bugs.
-- **On validation failure, request a specific clarification at most once, then abort.** Bounded clarification prevents loops.
-- **Log structured error details without secrets; include remediation hints on abort.** Aids triage without leakage.
+- **Write `## Steps` as a numbered ordered list, starting at 1, with sequential increments, one atomic action per step.** Numbered sequences are followed more reliably than bullets or prose.
+- **Write each step in imperative, active voice addressed to the agent.** "Run `foo`" — not "The agent should run foo" or "foo is run."
+- **Include the exact command or code to execute, not a description of it.** Models copy-paste better than they translate.
+- **State preconditions explicitly in `## Prerequisites` and verify them in step 1.** Assumed state is the top cause of silent skill failures. Fail fast with a clear error message.
+- **Don't use pronouns ("it", "this", "that") without an unambiguous nearby referent.** Pronoun ambiguity measurably degrades instruction-following.
+- **Include a final verification step that confirms the desired outcome was achieved.** Without explicit verification, skills silently "succeed" without doing the job.
+- **Don't nest conditional logic more than two levels deep.** Deeper branching belongs in separate skills.
+- **Externalize shell blocks over ~10 lines into sibling scripts.** Keeps `SKILL.md` focused on workflow; makes scripts independently testable.
 
 ## Safety
 
-- **Never embed secrets, tokens, or credentials in skill text or assets; reference them by environment variable or vault handle.** Skills are shared, mirrored, and logged.
-- **Enumerate destructive operations (file deletion, force-push, DB writes, production calls) in a dedicated Danger/Safety section.** Makes guardrails visible at review and selection time.
-- **Require an explicit confirmation step or dry-run before any irreversible action.** Marginal latency is cheap; a wrong `rm -rf` is not.
-- **State the minimum required permissions; never use `sudo` or escalate privileges.** Least privilege limits blast radius.
-- **Sanitize and parameterize any command containing variable substitution.** Prevents command injection from agent-generated or user inputs.
-- **Sanitize untrusted retrieved content before it enters prompts or tool calls.** Mitigates prompt injection via RAG.
-- **Forbid skills from modifying other skills or the agent's system prompt.** Self-modifying skills are unreviewable.
-- **For skills touching sensitive data or production, provide a dry-run/simulation mode.** Catches bugs before damage.
+- **Never embed secrets, API keys, tokens, or credentials in the skill or bundled files.** Reference environment variables or vault paths by name only.
+- **Require explicit user confirmation before any destructive or production-affecting operation** (file deletion, force push, database drop, production deploy, secret rotation). Agents execute what they read.
+- **Prefer dry-run or preview as the default step, with the destructive variant as a human-gated follow-up.** "Show the plan, then apply" is the safe-by-default pattern.
+- **Don't use destructive shell commands (`rm`, `mv`, `dd`, `drop`, `truncate`) without a safe flag** (`-i`, `--dry-run`) or a preceding approval gate.
+- **Don't include unverified remote-execution patterns** (`curl | bash`, `eval $(curl ...)`, `source <(curl ...)`). If a skill needs a remote tool, pin a version and verify a hash.
+- **Scope file operations to the working directory or paths the user has explicitly named.** Skills that touch `$HOME`, `/etc`, or parent directories without explicit user direction are bugs.
+- **Declare privilege level and required IAM/RBAC roles in `## Prerequisites`** for skills that access elevated systems. Blast radius must be visible.
+- **Log state-changing actions with timestamp, actor, reason, and old/new values** for any skill that mutates persistent state. Auditability is not optional.
 
-## Maintainability
+## Dependencies & Environment
 
-- **Store skills in version control alongside the code they operate on.** Drift between code and skill is the dominant decay mode.
-- **Assign an accountable owner and list contact info in Maintenance Notes.** Someone must be responsible for updates.
-- **Record a "last verified" date and the runtime/tool versions tested against.** Makes staleness legible.
-- **Version published/shared skills with SemVer and a changelog; repo-local skills may rely on git history.** Graduated stability matching consumer expectations.
-- **Review skills on the same cadence as the APIs they wrap; re-review at least quarterly.** Skill rot tracks dependency rot.
-- **Archive or delete skills not invoked in ~90 days.** Dead skills pollute selection.
-- **Document known limitations, edge cases, and incompatibilities.** Sets realistic expectations.
-- **Do not use SKILL.md files as incident runbooks; link to separate runbooks instead.** Keeps skills focused on happy-path automation.
+- **Declare all required tools, language versions, OS assumptions, and env vars in `## Prerequisites`.** Undeclared dependencies surface as confusing runtime errors.
+- **Check for tool availability in step 1 with a command that fails loudly** (e.g., `command -v foo >/dev/null || { echo "foo required"; exit 1; }`). Fail fast beats fail weird.
+- **Pin versions for anything where behavior has shifted across releases** (e.g., `ffmpeg >= 6`, `python >= 3.11`). Floating versions rot silently.
 
-## Performance & Brevity
+## Failure Handling
 
-- **Target 100–300 lines per SKILL.md; treat >500 lines or >2k tokens as a code smell.** Every loaded skill competes with task context for tokens.
-- **Use progressive disclosure: reference scripts, schemas, and long examples by path, and instruct the agent to read them only when needed.** Lazy loading is the core performance lever.
-- **Do not duplicate content already in the system prompt or tool descriptions.** Duplication wastes context and creates contradictions.
-- **Avoid embedding large JSON/YAML schemas inline; link to them.** Schemas compress poorly in attention and drift quickly.
-- **Minimize network round-trips; fetch data in bulk rather than in loops where possible.** Reduces latency and failure surface.
+- **Include a `## Failure modes` section listing at least the three most likely failures and their recovery actions.** Without this, the agent invents recovery behavior.
+- **For every step that can fail externally (network, filesystem, subprocess), specify what to do on failure.** "Retry once then surface the error" is a fine default.
+- **Declare explicit timeouts and retry/backoff parameters for polling, waits, and retries.** "Poll every 10s for up to 5 minutes, then return `status=timeout`" — not "poll until done."
+- **Don't swallow errors in bundled scripts.** Exit non-zero with a message naming the failing step.
+
+## Performance
+
+- **Set timeouts (and, where relevant, token or cost budgets) explicitly.** Caps runaway latency and cost.
+- **Filter and reduce command output early in pipelines; return minimal data to the agent.** Verbose output pollutes the context window and degrades subsequent reasoning.
+- **Use non-interactive flags for all commands that might prompt** (`apt-get install -y`, `ssh -o BatchMode=yes`, etc.). Prevents the agent from stalling on an unexpected prompt.
+- **Warn when a step is O(n) in some parameter** and call out scale expectations ("~1s per 10k rows"). Prevents unexpected long-running invocations.
+
+## Examples
+
+- **Provide at least one worked example with concrete inputs, expected outputs, and observable side effects.** Abstract rules alone do not anchor model behavior.
+- **Use fenced code blocks with explicit language tags** (` ```bash `, ` ```json `) for all commands, code, and structured examples.
 
 ## Style
 
-- **Use clear, active, simple language with short sentences.** Improves adherence for both humans and models.
-- **Use consistent terminology for key entities; avoid synonyms.** Stable terms reduce confusion.
-- **Write procedures in neutral imperative voice ("Run the migration"); reserve second person for safety warnings and confirmations.** Reads the same to humans and models; emphasis where it matters.
-- **Use code blocks for all commands and configuration; do not embed code in prose.** Improves scannability and copy-paste fidelity.
-- **Include at most one minimal inline example on the happy path; move additional examples to referenced files.** Balances pedagogy against context cost.
+- **Ban hedging and filler words**: `etc.`, `maybe`, `probably`, `somehow`, `generally`, `sometimes`, `TBD`, `???`. Ambiguity propagates directly into model behavior.
+- **Use ATX-style headings (`##`) consistently.** Mixed heading styles break some parsers.
+- **Keep lines under 120 characters where practical**, excluding code blocks and URLs. Improves diff readability.
+- **Write in plain English; define domain jargon on first use.** Don't assume the agent shares your team's shorthand.
+- **Use consistent terminology across skills.** If one skill uses `service_name`, don't call it `svc` or `service_id` elsewhere.
+- **Don't embed design rationale or commentary inside the step sequence.** Reasoning belongs in a separate section or a design doc.
 
-## Testing & Observability
+## Versioning & Maintenance
 
-- **Provide at least three executable test scenarios: happy path, edge case, and failure.** Coverage catches regressions.
-- **Provide an offline/mocked test mode for CI.** Enables fast iteration without hitting real systems.
-- **Validate triggers against a routing test set to detect overlaps with sibling skills.** Routing tests prevent collisions.
-- **Emit structured telemetry for start, step transitions, tool calls, retries, and exit, tagged with skill name and version.** Enables tracing and cohort analysis.
-- **Include a stable correlation ID per run.** Simplifies cross-system debugging.
-
-## Review Checklist (block merge if any fails)
-
-- The `description` alone makes selection decidable. If a reviewer can't tell when it fires, neither can the model.
-- A fresh agent can execute the skill end-to-end given only the stated preconditions.
-- Every step has a verifiable, pass/fail outcome.
-- No step requires the model to guess a command, path, or value.
-- Destructive actions are gated, reversible, or explicitly confirmed.
-- No secrets, credentials, or tokens appear anywhere in the skill or its assets.
-- The final validation step would catch a silent no-op.
+- **Update `last_updated` (ISO 8601 date) and append to `changelog` on every material change.** Preserves auditability and enables staleness detection.
+- **Bump `version` when `## Steps`, `description`, or bundled executables change.** Consumers and caches rely on version changes as cache-busting signals.
+- **Date-stamp or version-stamp references to external APIs in comments.** Makes staleness detectable during review.

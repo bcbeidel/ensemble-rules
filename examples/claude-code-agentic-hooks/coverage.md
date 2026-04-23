@@ -4,204 +4,143 @@ Rules are extracted by regex from each model's `rules_file` section (lines start
 
 | Rule | Theme | openai/gpt-5 | openai/gpt-4o-mini | anthropic/claude-opus-4-7 | anthropic/claude-haiku-4-5 | vertex_ai/gemini-2.5-pro | xai/grok-3-mini | Count |
 |---|---|---|---|---|---|---|---|---|
-| **(contested) Avoid transforming arguments; prefer to reject and let the user refine.** | Transformation (Rare) |  |  |  | ✓ |  |  | 1 |
-| **(contested) Do log the user and prompt context if available.** | Logging and Auditability |  |  |  | ✓ |  |  | 1 |
-| **(contested) Prefer Python 3 for new hooks.** | Structure |  |  |  |  | ✓ |  | 1 |
-| **Add a comment block at the top of the file explaining the hook's purpose, inputs, and outputs.** | Style and Maintainability |  |  |  |  | ✓ |  | 1 |
-| **Avoid dependencies on external packages or libraries.** | Performance |  |  |  |  | ✓ |  | 1 |
-| **Avoid heavy file I/O or calls to slow external processes.** | Performance |  |  |  |  | ✓ |  | 1 |
-| **Begin every bash hook with `set -euo pipefail`.** Without it, failures are silently swallowed and the hook appears to pass | Structure |  |  | ✓ |  |  |  | 1 |
-| **Cache results by input hash or file mtime when the hook is deterministic.** Re-running prettier on an unchanged file is waste multiplied by every turn | Performance |  |  | ✓ |  |  |  | 1 |
-| **Check in a `fixtures/` directory with a sample payload per event type your hooks handle.** Schema drift from Anthropic will break you; fixtures catch it immediately | Testing and Rollout |  |  | ✓ |  |  |  | 1 |
-| **Design hooks to be stateless.** | Structure |  |  |  |  | ✓ |  | 1 |
-| **Do assume the hook has no special privileges; if you need elevated permissions, request them explicitly and document why.** | Safety and Permissions |  |  |  | ✓ |  |  | 1 |
-| **Do avoid loops, recursion, or quadratic algorithms.** | Performance |  |  |  | ✓ |  |  | 1 |
-| **Do cache static policy data (e.g., list of protected tables) in memory; refresh it on a timer, not per-request.** | Performance |  |  |  | ✓ |  |  | 1 |
-| **Do catch exceptions in your hook; log and return a deny decision.** | Error Handling and Resilience |  |  |  | ✓ |  |  | 1 |
-| **Do check argument types (string, number, array, object).** | Argument Validation |  |  |  | ✓ |  |  | 1 |
-| **Do document the reasoning behind every deny decision in the log.** | Decision Logic |  |  |  | ✓ |  |  | 1 |
-| **Do fail closed: if the request is malformed, ambiguous, or risky and you can't clearly allow it, deny it.** | Decision Logic |  |  |  | ✓ |  |  | 1 |
-| **Do include a docstring at the top of each hook with purpose, trigger events, and key assumptions.** | Structure |  |  |  | ✓ |  |  | 1 |
-| **Do include fixtures with realistic tool calls and arguments.** | Testing |  |  |  | ✓ |  |  | 1 |
-| **Do include the full request context in logs: tool name, arguments, and the specific policy rule that fired.** | Logging and Auditability |  |  |  | ✓ |  |  | 1 |
-| **Do isolate external calls: if a hook calls a webhook, use a separate, low-privilege endpoint and timeout aggressively.** | Safety and Permissions |  |  |  | ✓ |  |  | 1 |
-| **Do keep hook code under 100 lines.** | Structure |  |  |  | ✓ |  |  | 1 |
-| **Do keep hook execution under 100ms for common paths.** | Performance |  |  |  | ✓ |  |  | 1 |
-| **Do log all transformations with the original and transformed arguments.** | Transformation (Rare) |  |  |  | ✓ |  |  | 1 |
-| **Do log every decision: allow, deny, transform.** | Logging and Auditability |  |  |  | ✓ |  |  | 1 |
-| **Do log the decision immediately in the hook; don't rely on downstream systems to log it.** | Logging and Auditability |  |  |  | ✓ |  |  | 1 |
-| **Do make decisions based on observable facts: tool name, arguments, resource identifiers.** | Decision Logic |  |  |  | ✓ |  |  | 1 |
-| **Do name hooks with a clear prefix and intent: `block_`, `log_`, `transform_`.** | Structure |  |  |  | ✓ |  |  | 1 |
-| **Do not invoke the network from PreToolUse or PostToolUse.** Network latency is non-deterministic and blocks the agent; use `SessionStart` for fetches | Performance |  |  | ✓ |  |  |  | 1 |
-| **Do not make network calls in a hook script.** | Performance |  |  |  |  | ✓ |  | 1 |
-| **Do not read secrets from the environment inside hooks that echo to stdout/stderr.** Hook output is shown to the agent and logged | Safety |  |  | ✓ |  |  |  | 1 |
-| **Do not use `Notification` hooks to trigger anything that modifies state.** They fire on idle/permission events and are not reliable control points | Specific Event Guidance |  |  | ✓ |  |  |  | 1 |
-| **Do not write to `stdout` if the script will exit with a non-zero code.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| **Do rotate credentials and API keys used by hooks; audit their usage.** | Safety and Permissions |  |  |  | ✓ |  |  | 1 |
-| **Do separate policy logic from plumbing.** | Structure |  |  |  | ✓ |  |  | 1 |
-| **Do set timeouts on any external I/O (HTTP, database); default to deny if timeout is exceeded.** | Error Handling and Resilience |  |  |  | ✓ |  |  | 1 |
-| **Do test error cases: malformed JSON, missing fields, external service timeouts.** | Testing |  |  |  | ✓ |  |  | 1 |
-| **Do use a schema validation library (e.g., `zod`, `joi`) for complex arguments; write simple `if` checks for simple cases.** | Argument Validation |  |  |  | ✓ |  |  | 1 |
-| **Do use allowlists, not blocklists, wherever possible.** | Decision Logic |  |  |  | ✓ |  |  | 1 |
-| **Do use structured logging: log as JSON with fields like `timestamp`, `hook_name`, `event_type`, `tool_name`, `decision`, `reason`.** | Error Handling and Resilience |  |  |  | ✓ |  |  | 1 |
-| **Do validate all argument fields before using them; fail closed if validation fails.** | Argument Validation |  |  |  | ✓ |  |  | 1 |
-| **Do write each hook as a single, focused policy.** | Structure |  |  |  | ✓ |  |  | 1 |
-| **Do write test cases for every hook covering: valid requests, invalid arguments, boundary cases, and the specific deny cases.** | Testing |  |  |  | ✓ |  |  | 1 |
-| **Document each hook's event, matcher, exit contract, and expected latency in a header comment.** Future-you reading `settings.json` will not remember | Style |  |  | ✓ |  |  |  | 1 |
-| **Don't allow hooks to modify their own code or configuration.** | Safety and Permissions |  |  |  | ✓ |  |  | 1 |
-| **Don't call external APIs in a tight loop.** | Performance |  |  |  | ✓ |  |  | 1 |
-| **Don't log sensitive data (passwords, API keys, PII) even in deny cases.** | Logging and Auditability |  |  |  | ✓ |  |  | 1 |
-| **Don't make decisions based on external state you can't verify synchronously.** | Decision Logic |  |  |  | ✓ |  |  | 1 |
-| **Don't silently swallow errors or return an ambiguous result.** | Error Handling and Resilience |  |  |  | ✓ |  |  | 1 |
-| **Don't use optional chaining (`?.`) as your only defense against missing fields.** | Argument Validation |  |  |  | ✓ |  |  | 1 |
-| **Emit a single structured line on block, not a wall of text.** The agent reads every byte; verbosity dilutes the signal | Style |  |  | ✓ |  |  |  | 1 |
-| **Ensure hooks are idempotent.** | Structure |  |  |  |  | ✓ |  | 1 |
-| **Exit 0 for allow/success, exit 2 to block and feed stderr back to the agent, other non-zero only for hook bugs.** This is the contract; ignoring it breaks agent feedback loops | Exit Codes and Output |  |  | ✓ |  |  |  | 1 |
-| **Exit silently on success — do not print "✅ hook passed".** Noise on every turn trains users to ignore hook output | Style |  |  | ✓ |  |  |  | 1 |
-| **Give the hook script a descriptive name that reflects its purpose (e.g., `block-force-push.py`).** | Style and Maintainability |  |  |  |  | ✓ |  | 1 |
-| **If you transform, do so only for spec-defined, reversible changes.** | Transformation (Rare) |  |  |  | ✓ |  |  | 1 |
-| **Keep PreToolUse hooks under 200ms and PostToolUse under 2s on the common path.** Hooks are synchronous; they tax every agent turn | Performance |  |  | ✓ |  |  |  | 1 |
-| **Keep each hook implementation in a single, self-contained script file.** | Structure |  |  |  |  | ✓ |  | 1 |
-| **Keep the logic within a hook simple and focused on a single responsibility.** | Style and Maintainability |  |  |  |  | ✓ |  | 1 |
-| **Log every blocking decision to `.claude/hooks.log` with timestamp, event, tool, and reason.** You will need this to debug why the agent is stuck | Safety |  |  | ✓ |  |  |  | 1 |
-| **Make every block `reason` tell the agent exactly what to do to unblock.** "Forbidden" causes retry loops; "Use `rg` instead of `grep`" causes correction | Exit Codes and Output |  |  | ✓ |  |  |  | 1 |
-| **Make hook scripts executable and start them with `#!/usr/bin/env bash` (or `python3`, `node`).** Relying on the parent shell's interpreter is non-portable | Structure |  |  | ✓ |  |  |  | 1 |
-| **Name hook scripts by event and purpose: `pretooluse-bash-guard.sh`, `posttooluse-format.sh`, `stop-run-tests.sh`.** Matches the mental model engineers bring to `.claude/settings.json` | Style |  |  | ✓ |  |  |  | 1 |
-| **Never `eval`, `bash -c`, or `sh -c` any field from the hook's stdin JSON.** Tool inputs can contain attacker-controlled strings from files, issues, or web content | Safety |  |  | ✓ |  |  |  | 1 |
-| **Never execute or evaluate strings from the input payload directly.** | Safety |  |  |  |  | ✓ |  | 1 |
-| **Never use `"decision": "approve"` in PreToolUse to auto-approve tool calls the user would normally confirm.** (contested) It bypasses the permission prompt and trains users to trust unseen actions | Exit Codes and Output |  |  | ✓ |  |  |  | 1 |
-| **One hook script per concern.** Compose multiple focused hooks rather than one mega-script with internal dispatch | Structure |  |  | ✓ |  |  |  | 1 |
-| **Parse stdin JSON with `jq` or a real parser — never interpolate it into a shell command.** Tool input is attacker-controlled via agent-ingested content; string interpolation is RCE | Structure |  |  | ✓ |  |  |  | 1 |
-| **Prefer structured JSON output (`{"decision": "block", "reason": "..."}`) over exit-code signaling for anything beyond a binary gate.** JSON gives you `reason`, `suppressOutput`, and `hookSpecificOutput`; exit codes don't | Exit Codes and Output |  |  | ✓ |  |  |  | 1 |
-| **Put hook logic in a script file, not inline in JSON.** The `command` field should be `.claude/hooks/<name>.sh` or similar; JSON-escaped shell is unreviewable | Structure |  |  | ✓ |  |  |  | 1 |
-| **Review `.claude/settings.json` hook changes with the same rigor as CI config changes.** A bad hook blocks every engineer's agent until reverted | Testing and Rollout |  |  | ✓ |  |  |  | 1 |
-| **Roll new blocking hooks out as non-blocking (exit 0, log only) for one week before flipping to exit 2.** Confirms false-positive rate against real agent behavior before you pay the friction cost | Testing and Rollout |  |  | ✓ |  |  |  | 1 |
-| **Run expensive checks (full typecheck, test suite, security scan) in `Stop`, not `PostToolUse`.** Per-edit heavy checks make the agent unusably slow and trigger retry storms | Performance |  |  | ✓ |  |  |  | 1 |
-| **Sanitize all data from the agent payload before including it in logging or error messages.** | Safety |  |  |  |  | ✓ |  | 1 |
-| **Scope destructive hooks (git commits, network calls, file deletion) to `.claude/settings.local.json`, not team settings.** Team-shared destructive automation is how repos get corrupted at scale | Safety |  |  | ✓ |  |  |  | 1 |
-| **Short-circuit hooks early when the event is irrelevant — check the tool name and file extension before doing any work.** A no-op hook should cost <10ms | Performance |  |  | ✓ |  |  |  | 1 |
-| **Store all hook scripts under `.claude/hooks/` in the repo.** Colocates behavior with code and makes hooks versioned and reviewable | Structure |  |  | ✓ |  |  |  | 1 |
-| **Target a total execution time under 100 milliseconds.** | Performance |  |  |  |  | ✓ |  | 1 |
-| **Test hooks by piping fixture JSON to the script: `cat fixtures/edit-event.json \| .claude/hooks/posttooluse-format.sh`.** Unit-testable hooks are debuggable hooks | Testing and Rollout |  |  | ✓ |  |  |  | 1 |
-| **Treat PreToolUse on `Bash` as a security boundary: maintain an explicit deny-list for `rm -rf`, `curl \| sh`, credential exfiltration patterns, and force-push.** The default permission system is not a substitute for hardened block rules | Safety |  |  | ✓ |  |  |  | 1 |
-| **Use `PostToolUse` for deterministic formatters (prettier, gofmt, ruff format) on the edited file only.** Fast, local, idempotent — the ideal PostToolUse workload | Specific Event Guidance |  |  | ✓ |  |  |  | 1 |
-| **Use `SessionStart` to warm caches, print environment summary, and surface recent CI failures.** It runs once; amortize expensive setup here | Specific Event Guidance |  |  | ✓ |  |  |  | 1 |
-| **Use `Stop` for semantic rewrites (import sorting, codemods, lint --fix).** (contested) Running these per-edit confuses the agent's mental model of file contents | Specific Event Guidance |  |  | ✓ |  |  |  | 1 |
-| **Use `UserPromptSubmit` to inject project context (current branch, open PR, style guide path), not to validate the prompt.** Prompt validation belongs in the user's head; context injection is the killer use case | Specific Event Guidance |  |  | ✓ |  |  |  | 1 |
-| **Use a non-zero exit code to signal a failure or to block an agent action.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| **Use exit code 0 to signal success and allow the agent to proceed.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| **Use hooks to explicitly block known dangerous patterns (e.g., `rm -rf`, credential exposure).** | Safety |  |  |  |  | ✓ |  | 1 |
-| **Validate file paths against `$CLAUDE_PROJECT_DIR` before acting on them.** Prevents hooks from touching files outside the workspace when the agent is tricked | Safety |  |  | ✓ |  |  |  | 1 |
-| **Validate the structure of the JSON input from `stdin` at the beginning of the script.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| **Write agent-facing messages to stderr when exiting 2; write user-facing status to stdout.** The channels have different audiences | Exit Codes and Output |  |  | ✓ |  |  |  | 1 |
-| **Write all logging, debugging, and diagnostic output to `stderr`.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| **Write hooks in bash for <30 lines of logic, Python/Node for anything longer.** Bash past 30 lines becomes a maintenance liability | Style |  |  | ✓ |  |  |  | 1 |
-| **Write matchers as exact tool names (`"Bash"`, `"Edit"`, `"Write"`, `"MultiEdit"`), not regex wildcards.** Broad matchers run on events you didn't intend and slow every turn | Structure |  |  | ✓ |  |  |  | 1 |
-| Assign stable rule IDs and reference them in code comments and outputs | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Assumptions: Arguments are valid JSON; table name is in args.table | Structure |  |  |  | ✓ |  |  | 1 |
-| Audience: Engineers and AI coding assistants implementing policy, safety, and telemetry in hooks that gate or instrument agent behavior | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Avoid complex shell one-liners; use a real language for non-trivial logic | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Avoid network calls in PreToolUse; if unavoidable, use sub-100ms budgets with circuit breaking | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Batch and defer non-critical telemetry to Stop | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Block network access to localhost, metadata endpoints, and RFC1918 by default unless explicitly allowed | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Cache compiled regexes and detectors across invocations when runtime allows | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Centralize shared policy data (allowlists, regexes, domains) in versioned config | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Default-deny destructive or high-risk tools in PreToolUse (e.g., shell_exec, file_delete, package_install, unrestricted network) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Default-deny high-risk tools and private-network egress | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Deny shell arguments that match known-destructive patterns (e.g., rm -rf, mkfs, dd to raw devices, chmod -R 777) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Do adhere to a consistent naming convention for hooks and associated functions | Style |  | ✓ |  |  |  |  | 1 |
-| Do implement robust error handling for all hooks | Error Handling |  | ✓ |  |  |  |  | 1 |
-| Do implement unit tests for each hook to catch edge cases early | Common Failure Modes |  | ✓ |  |  |  |  | 1 |
-| Do keep hook functions small and focused | Structure |  | ✓ |  |  |  |  | 1 |
-| Do log significant actions taken by hooks for audit purposes | Safety |  | ✓ |  |  |  |  | 1 |
-| Do not call LLMs from hooks except sampled and asynchronous in PostToolUse/Stop | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Do not fetch remote policy/config without signature verification and pinning | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Do not retry synchronously inside hooks | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Do not trigger tools from hooks | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Do profile hook execution to identify bottlenecks and optimize as necessary | Performance |  | ✓ |  |  |  |  | 1 |
-| Do validate input parameters vigorously before processing | Safety |  | ✓ |  |  |  |  | 1 |
-| Document and enforce a deterministic hook order with short-circuiting on terminal decisions | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Document supported environment variables, exit codes, and the I/O contract in a README adjacent to hooks | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Don’t allow hooks to execute actions that may lead to unsafe outcomes without explicit user confirmation | Safety |  | ✓ |  |  |  |  | 1 |
-| Don’t ignore the potential for environment-specific issues that may affect hook behavior | Common Failure Modes |  | ✓ |  |  |  |  | 1 |
-| Don’t include magic numbers or arbitrary constants in your code | Style |  | ✓ |  |  |  |  | 1 |
-| Don’t nest too many levels of hooks within each other | Structure |  | ✓ |  |  |  |  | 1 |
-| Don’t perform blocking operations in hooks that could degrade user experience | Performance |  | ✓ |  |  |  |  | 1 |
-| Don’t use silent failures that provide no feedback to the user or developer | Error Handling |  | ✓ |  |  |  |  | 1 |
-| Emit exactly one structured response per invocation as specified by the platform | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Emit metrics for decisions, denials by rule, and durations | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Enforce hard timeouts for all hooks and cap PreToolUse at 200ms default, 2s maximum | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Enforce tight PreToolUse time budgets (200ms default) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Fail closed on PreToolUse errors/timeouts and fail open on PostToolUse/Stop errors | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Guard all external calls with timeouts and circuit breakers | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Include a short justification or diff snippet when blocking code or shell actions | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Include a stable reason_code and human message in every deny/modify decision | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Keep each hook focused on one concern | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| **(contested) Decide upfront whether hooks are for *detection* (log and allow) or *prevention* (log and block).** Security-critical hooks should prevent; compliance hooks can be detective-only and allow the action while logging for audit | Observability & Audit |  |  |  | ✓ |  |  | 1 |
+| **(contested) Prefer minimal, dependency-free Python over shell for non-trivial logic.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
+| **Add a comment above any non-obvious conditional.** If a hook blocks a tool only on certain days, or only for users in a specific group, explain why in a comment | Style & Clarity |  |  |  | ✓ |  |  | 1 |
+| **Assume the agent is adversarial when writing security hooks.** Do not assume the agent will respect your intent or follow your logic | Safety |  |  |  | ✓ |  |  | 1 |
+| **Avoid complex algorithms or heavy computation.** | Performance |  |  |  |  | ✓ |  | 1 |
+| **Avoid object serialization or JSON stringification in the critical path.** If you need to log a decision, serialize only the fields you need (hook name, decision, reason), not the entire payload | Performance |  |  |  | ✓ |  |  | 1 |
+| **Block by default on ambiguity; never allow an action if the hook is unsure.** If a hook cannot parse tool arguments, or if tool metadata is missing, return block and log the anomaly | Safety |  |  |  | ✓ |  |  | 1 |
+| **Cache expensive computations (e.g., resolved `.gitignore`, parsed configs) in `/tmp` or a project-local cache keyed by mtime.** Re-parsing on every invocation is waste | Performance |  |  | ✓ |  |  |  | 1 |
+| **Check that required tools (`jq`, `rg`, linters) exist and exit with a clear stderr message if not.** A missing `jq` should say "install jq", not crash with "command not found" | Error Handling |  |  | ✓ |  |  |  | 1 |
+| **Commit `.claude/settings.json` for team-shared gates; keep personal hooks in `.claude/settings.local.json` and gitignore it.** Shared gates need review; personal workflow does not | Repository Hygiene |  |  | ✓ |  |  |  | 1 |
+| **Define all configuration and allowlist data as module-level constants at the top of the file.** Use `const BLOCKED_TOOLS = [...]`, `const MAX_PAYLOAD_BYTES = ...`, etc | Structure |  |  |  | ✓ |  |  | 1 |
+| **Distinguish between *block* (agent action is forbidden), *allow* (agent action is permitted), and *escalate* (agent action requires human review or external approval).** Log the decision code, not a prose description | Observability & Audit |  |  |  | ✓ |  |  | 1 |
+| **Do not invoke shell commands (exec, spawn, etc.) from within a hook function.** If you need to check file system state, use Node.js file system APIs (fs module) | Safety |  |  |  | ✓ |  |  | 1 |
+| **Do not log sensitive information (credentials, PII, full SQL queries on PII fields).** Log tool names, event types, and decisions | Safety |  |  |  | ✓ |  |  | 1 |
+| **Do not make a hook decision depend on the full agent memory or conversation history.** If you need historical context, accept a specific, bounded input (e.g., the last tool call, the current turn count) | Performance |  |  |  | ✓ |  |  | 1 |
+| **Do not make network calls from `PreToolUse` hooks on common tools.** Network latency multiplied across a session is unacceptable, and offline use becomes impossible | Safety |  |  | ✓ |  |  |  | 1 |
+| **Do not make network calls.** | Performance |  |  |  |  | ✓ |  | 1 |
+| **Do not make security or compliance decisions based on user-supplied input alone.** Security hooks must cross-reference user input against trusted lists (hardcoded allowlists, tool definitions, API-level permissions) | Safety |  |  |  | ✓ |  |  | 1 |
+| **Do not perform blocking file I/O on large files.** | Performance |  |  |  |  | ✓ |  | 1 |
+| **Do not use regular expressions for parsing structured data (JSON, shell commands, SQL, etc.).** Parse tool arguments as JSON if the tool returns JSON; use a real parser (e.g., sql-parser) for SQL queries | Safety |  |  |  | ✓ |  |  | 1 |
+| **Document every hook in a top-of-file comment stating: event, matcher, what it blocks/allows, and how to bypass.** Hooks are security-adjacent; undocumented hooks get disabled in frustration | Repository Hygiene |  |  | ✓ |  |  |  | 1 |
+| **Don't run full test suites or type-checkers from `PostToolUse` on single-file edits.** Scope checks to the file that changed | Performance |  |  | ✓ |  |  |  | 1 |
+| **Emit `{"decision": "block", "reason": "..."}` on stdout when you need the model to see structured feedback; otherwise prefer exit-code signaling.** JSON responses are for cases where the reason must reach the model verbatim | Protocol & I/O |  |  | ✓ |  |  |  | 1 |
+| **Ensure the script has a "fail-closed" default path.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
+| **Exit with a non-zero status code to block an agent action.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
+| **Fail closed for safety-critical gates (secret scanning, destructive-command blocks); fail open for advisory gates (lint, format).** A crashed secret scanner that allows the commit is worse than a noisy one | Safety |  |  | ✓ |  |  |  | 1 |
+| **Give every hook script a shebang and executable bit.** Relying on the shell to guess the interpreter is fragile across machines | Structure |  |  | ✓ |  |  |  | 1 |
+| **If shelling out, use fixed commands and pass agent data as arguments.** | Safety |  |  |  |  | ✓ |  | 1 |
+| **Include a JSDoc comment block for each hook function.** Document the event type, decision logic (allow/block/escalate/log), preconditions, and any limitations or known false positives | Structure |  |  |  | ✓ |  |  | 1 |
+| **Include a trace ID or request ID in logs, if available from the hook payload.** This enables correlation with agent logs and other system events | Observability & Audit |  |  |  | ✓ |  |  | 1 |
+| **Include at least one test per hook that pipes a representative JSON payload to stdin and asserts exit code and stdout.** Hooks without tests rot silently | Repository Hygiene |  |  | ✓ |  |  |  | 1 |
+| **Keep `settings.json` hook entries to a single `command:` field pointing at a script path; no inline pipelines.** Pipelines in JSON strings are unreviewable | Style |  |  | ✓ |  |  |  | 1 |
+| **Keep each hook single-purpose; compose multiple hooks rather than branching inside one.** Independent hooks are independently testable and disable-able | Structure |  |  | ✓ |  |  |  | 1 |
+| **Keep hook functions under 50 lines of code.** Complex logic should be refactored into pure utility functions (above the hook definition) or moved out of the hook entirely | Performance |  |  |  | ✓ |  |  | 1 |
+| **Keep hook scripts to a single file.** | Structure and Style |  |  |  |  | ✓ |  | 1 |
+| **Keep hooks under 50 lines of code (LOC).** | Structure and Style |  |  |  |  | ✓ |  | 1 |
+| **Log all diagnostic and error information to `stderr`.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
+| **Log decisions and anomalies in a structured format (JSON, if possible).** Include fields: timestamp, hook name, event type, decision, reason, and any relevant input digest | Observability & Audit |  |  |  | ✓ |  |  | 1 |
+| **Log every hook decision (allow, block, escalate, or inconclusive).** Include the hook name, event type, decision, and a one-line reason | Error Handling |  |  |  | ✓ |  |  | 1 |
+| **Name hook functions with a prefix matching the event type.** Use `preToolUse*`, `postToolUse*`, `userPromptSubmit*`, or `stop*` as appropriate (e.g., `preToolUseSQLInjectionCheck`, not `validateToolCall`) | Structure |  |  |  | ✓ |  |  | 1 |
+| **Name hook scripts by event and purpose, e.g | Structure |  |  | ✓ |  |  |  | 1 |
+| **Never `exit 2` without writing a human-readable reason to stderr (or a `reason` field).** Unexplained blocks destroy trust in the hook system | Error Handling |  |  | ✓ |  |  |  | 1 |
+| **Never execute or evaluate strings received from the agent.** | Safety |  |  |  |  | ✓ |  | 1 |
+| **Never pass tool-input fields directly into `bash -c`, `eval`, `sh -c`, or equivalent.** Tool inputs are LLM-generated and may contain injected shell metacharacters | Safety |  |  | ✓ |  |  |  | 1 |
+| **Never throw an unhandled exception from a hook function.** If the hook encounters an unexpected state (malformed payload, missing field), log an error and return a safe default (allow for security hooks; log for observability hooks) | Error Handling |  |  |  | ✓ |  |  | 1 |
+| **Parse hook input from stdin as JSON; do not rely on positional arguments or environment for tool payloads.** The stdin JSON is the contract; argv is not | Protocol & I/O |  |  | ✓ |  |  |  | 1 |
+| **Parse structured data (JSON) with a dedicated library.** | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
+| **Pin hook dependencies (linters, formatters) to versions via the project's existing dep manager.** Divergent versions across teammates produce phantom failures | Style |  |  | ✓ |  |  |  | 1 |
+| **Place a comment block at the top of the file explaining the hook's purpose.** | Structure and Style |  |  |  |  | ✓ |  | 1 |
+| **Prefer `rg` over `grep -r`, `jq` over `python -c 'json.load'`, and avoid spinning up interpreters for trivial checks.** Startup time dominates for short hooks | Performance |  |  | ✓ |  |  |  | 1 |
+| **Quote every variable expansion (`"$var"`) in bash hooks.** Unquoted expansion is the largest single source of shell bugs | Style |  |  | ✓ |  |  |  | 1 |
+| **Reserve stdout exclusively for the hook protocol (JSON or nothing).** Any stray `echo` corrupts the agent's view of the hook's decision | Protocol & I/O |  |  | ✓ |  |  |  | 1 |
+| **Resolve and canonicalize paths (`realpath`) before comparing them to allowlists.** Otherwise `../../../etc/passwd` slips through a naive prefix check | Safety |  |  | ✓ |  |  |  | 1 |
+| **Send all logs, debug output, and human-readable messages to stderr.** Claude Code surfaces stderr on non-zero exits and ignores it otherwise, which is what you want | Protocol & I/O |  |  | ✓ |  |  |  | 1 |
+| **Set `set -euo pipefail` at the top of every bash hook.** Silent failures in hooks produce silently-broken gates | Error Handling |  |  | ✓ |  |  |  | 1 |
+| **Set a timeout for any external I/O operation; abort if the timeout is exceeded.** Use a timeout of no more than 5 seconds for a security/compliance check, 10 seconds for an observability hook | Error Handling |  |  |  | ✓ |  |  | 1 |
+| **Store hook logic in versioned scripts under `.claude/hooks/`, not inline in `settings.json`.** Inline commands escape review, defeat `shellcheck`, and become unreadable past one line | Structure |  |  | ✓ |  |  |  | 1 |
+| **Target under 100 ms for hooks that match on every tool call; under 1 s for narrow matchers.** Hooks are synchronous and compound across a session | Performance |  |  | ✓ |  |  |  | 1 |
+| **Test hooks with realistic tool arguments and payloads.** If a hook that claims to run in < 1ms takes 50ms in production, there is likely a hidden loop or I/O | Performance |  |  |  | ✓ |  |  | 1 |
+| **Trap and log unexpected errors to a known file (e.g., `.claude/hooks/hook.log`) before exiting.** Debugging a hook that "sometimes blocks" is impossible without logs | Error Handling |  |  | ✓ |  |  |  | 1 |
+| **Treat `UserPromptSubmit` injected context as untrusted when it originates from fetched content.** Prompt injection via injected context is a real attack surface | Safety |  |  | ✓ |  |  |  | 1 |
+| **Treat all input from the agent event payload as untrusted.** | Safety |  |  |  |  | ✓ |  | 1 |
+| **Use a standard linter and formatter for the chosen language.** | Structure and Style |  |  |  |  | ✓ |  | 1 |
+| **Use camelCase for function and variable names; use UPPER_SNAKE_CASE for constants.** This makes configuration data visually distinct from logic | Style & Clarity |  |  |  | ✓ |  |  | 1 |
+| **Use constant-time or O(log n) data structures for lookups.** Define blocked tools, allowed patterns, etc., as Sets or Maps, not arrays | Performance |  |  |  | ✓ |  |  | 1 |
+| **Use early returns to flatten control flow.** Instead of `if (condition) { | Style & Clarity |  |  |  | ✓ |  |  | 1 |
+| **Use exit code `2` to block with feedback, `0` to allow, and non-zero-non-2 only for hook bugs.** Mixing these up either silently allows unsafe actions or spams the user with "hook failed" noise | Protocol & I/O |  |  | ✓ |  |  |  | 1 |
+| **Use explicit control flow (if/else, switch, early returns).** Avoid nested ternary operators, reduce/filter chains, or boolean algebra that requires mental parsing | Structure |  |  |  | ✓ |  |  | 1 |
+| **Use narrow `matcher` patterns, not `.*` or empty matchers, unless the hook truly applies to every tool.** Broad matchers add latency to every tool call | Structure |  |  | ✓ |  |  |  | 1 |
+| **Validate file paths against an allowlist of project-relative prefixes before acting on them.** A hook that trusts `$file_path` will happily `rm` `/etc/passwd` when the model hallucinates | Safety |  |  | ✓ |  |  |  | 1 |
+| **Wrap all external I/O (API calls, file system reads, subprocess invocations) in try-catch blocks with explicit error handling.** Log the error with context (hook name, input, exception message), then return a safe default (e.g., log and allow, never silently block) | Error Handling |  |  |  | ✓ |  |  | 1 |
+| **Write bash for hooks under ~20 lines; switch to Python or Node beyond that.** Bash branching and data-structure handling degrades fast | Style |  |  | ✓ |  |  |  | 1 |
+| **Write clear, specific variable names.** Use `blockedToolNames`, not `blocked` | Style & Clarity |  |  |  | ✓ |  |  | 1 |
+| **Write each hook as a single, self-contained JavaScript function exported as a named export.** Each hook event (PreToolUse, PostToolUse, UserPromptSubmit, Stop) should have its own clearly-named function with a signature matching the documented hook payload schema | Structure |  |  |  | ✓ |  |  | 1 |
+| Add an integration test that loads settings.json and executes each registered hook with sample payloads | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Audience: Engineers and AI coding assistants authoring, reviewing, and operating hook scripts to enforce quality gates, block unsafe actions, and instrument behavior | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Avoid network I/O in PreToolUse; if unavoidable, cache results within-session | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Bound and capture subprocess stdout/stderr; treat truncated output as nonfatal with a safe decision | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Cap input/output size processed by hooks (e.g., 1 MB) and skip with observe if exceeded | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Declare a shebang and make scripts executable | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Disallow outbound network access in PreToolUse | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Do enforce type checks where applicable (contested) | Safety |  | ✓ |  |  |  |  | 1 |
+| Do follow a consistent coding style throughout hooks | Style |  | ✓ |  |  |  |  | 1 |
+| Do include error handling logic | Error Handling |  | ✓ |  |  |  |  | 1 |
+| Do keep hooks small and focused | Structure |  | ✓ |  |  |  |  | 1 |
+| Do not download or generate hook scripts at runtime; check them into source control | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Do not register a hook you do not need | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Do not write logs to stdout; write all human-readable logs to stderr | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Do profile hooks to monitor their execution time | Performance |  | ✓ |  |  |  |  | 1 |
+| Do validate user input explicitly | Safety |  | ✓ |  |  |  |  | 1 |
+| Don’t allow execution of untrusted code | Safety |  | ✓ |  |  |  |  | 1 |
+| Don’t ignore exceptions | Error Handling |  | ✓ |  |  |  |  | 1 |
+| Don’t introduce complex logic that may degrade performance | Performance |  | ✓ |  |  |  |  | 1 |
+| Don’t use global variables within hooks | Structure |  | ✓ |  |  |  |  | 1 |
+| Don’t use magic numbers or hard-coded strings | Style |  | ✓ |  |  |  |  | 1 |
+| Emit one structured JSON log line to stderr per invocation with hook, event, requestId, decision, durationMs, version, and sha | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Enforce a per-hook timeout (default 2s, max 5s) and abort on timeout with a clear decision | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Enforce formatting and linting (black, ruff for Python; shellcheck for Bash) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Enforce linters in CI (ruff, black --check, shellcheck) and fail the build on violations | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Exit 0 on protocol success (allow/deny/modify/observe) and non-zero only for internal hook errors | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Fail closed on parse, validation, or internal errors in PreToolUse | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Forbid dangerous patterns: rm -rf, curl\|sh, sudo, dd to block devices, and unquoted variable expansion in shells | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| In Bash, set: set -euo pipefail; IFS=$'\n\t' | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| In Python, use sys.stdin.read(), json.loads, and explicit sys.exit codes in an if __name__ == "__main__" guard | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| In settings.json, declare hooks only under the hooks key with the standard event names | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Keep PreToolUse p95 under 2s and typical checks under 50ms | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Keep hook files under 200 LOC and functions under 50 LOC | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
 | Keep hooks stateless and idempotent | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Keep rules declarative and data-driven; treat code as an engine over policy data | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Link to policy docs and rule IDs in user-facing messages | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Log structured JSON with correlation IDs (session_id, tool_name, rule_id, decision, policy_version) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Make decisions purely from input + configuration and keep side-effects separate | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Minimize dependencies and load lazily | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Name hooks by event and intent (e.g., pretool_allowlist, posttool_redact) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Neutralize prompt instructions that attempt to disable safeguards or exfiltrate tokens | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Never modify repository files or agent memory from hooks unless it is the explicit, documented purpose | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Order hooks explicitly and document the chain | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Pin and verify dependencies with checksums or lockfiles | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Prefer allowlists over blocklists for high-risk actions | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Prefer fail-closed for PreToolUse and fail-open for PostToolUse/Stop | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Provide a controlled fail-open kill switch guarded by access controls and logging | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Provide clear remediation steps in deny messages | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Purpose: Block SQL mutations to production tables | Structure |  |  |  | ✓ |  |  | 1 |
-| Rationale: Avoids race conditions, side effects, and reliance on external systems that make behavior unpredictable | Structure |  |  |  |  | ✓ |  | 1 |
-| Rationale: Complex business logic should reside in dedicated, testable services, not in a synchronous, blocking script | Style and Maintainability |  |  |  |  | ✓ |  | 1 |
-| Rationale: Disk and process overhead introduce unacceptable delays into the agent's synchronous execution path | Performance |  |  |  |  | ✓ |  | 1 |
-| Rationale: Ensures a responsive and fluid user experience by minimizing the delay in the agent's action loop | Performance |  |  |  |  | ✓ |  | 1 |
-| Rationale: Guarantees that running the same hook on the same input multiple times produces the exact same result | Structure |  |  |  |  | ✓ |  | 1 |
-| Rationale: Improves discoverability and immediate understanding of the hook's function within the project | Style and Maintainability |  |  |  |  | ✓ |  | 1 |
-| Rationale: Indicates a successful pass of the quality gate or instrumentation step | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| Rationale: Minimizes script startup time, reduces the security surface area, and dramatically simplifies deployment | Performance |  |  |  |  | ✓ |  | 1 |
-| Rationale: Network latency is unpredictable and will severely degrade the agent's responsiveness for the user | Performance |  |  |  |  | ✓ |  | 1 |
-| Rationale: Offers an ideal balance of readability, a rich standard library, and widespread familiarity for most teams | Structure |  |  |  |  | ✓ |  | 1 |
-| Rationale: Prevents arbitrary code execution vulnerabilities introduced by malicious or malformed tool inputs | Safety |  |  |  |  | ✓ |  | 1 |
-| Rationale: Prevents log injection attacks and the accidental exfiltration of sensitive information into log files | Safety |  |  |  |  | ✓ |  | 1 |
-| Rationale: Prevents processing errors on unexpected or malformed agent event data, ensuring the hook fails gracefully | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| Rationale: Provides essential context for future maintainers and AI assistants who need to understand or modify the script | Style and Maintainability |  |  |  |  | ✓ |  | 1 |
-| Rationale: Simplifies configuration, deployment, and understanding of the hook's scope | Structure |  |  |  |  | ✓ |  | 1 |
-| Rationale: The agent runner ignores `stdout` on failure, so writing to it is pointless and can be misleading during debugging | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| Rationale: This is a primary use case for hooks, serving as a critical safety layer for the agent | Safety |  |  |  |  | ✓ |  | 1 |
-| Rationale: This is the primary contract for signaling to the agent runner that the current action should be halted | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| Rationale: `stdout` is exclusively reserved for the JSON response payload to the agent; any other text will break the contract | Correctness and Error Handling |  |  |  |  | ✓ |  | 1 |
-| Read the event payload only from the official input channel and write only machine-readable output to the official output channel | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Record the active policy version in every decision | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Redact secrets in logs and outputs by default with targeted allowlisting for diagnostics | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Require an allowlist for external domains/APIs with purpose tags | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Require code owners and reviews for policy changes | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Require explicit user confirmation for escalated actions (e.g., deleting directories, force pushes) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Restrict file operations to the workspace and require realpath canonicalization | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Restrict telemetry egress to allowlisted domains and TLS pin where feasible | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Return exit 0 to allow and a non-zero exit to block unless the platform specifies otherwise | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Return user-actionable messages on deny and hide internal details | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Roll out with canaries and monitor deny/error rates; auto-rollback on regressions | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Run hooks in CI against recorded real-world traces | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Run hooks with least-privilege OS users and sandboxing where available | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Sample heavy telemetry (1–5%) and make the rate configurable via environment | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Scan user prompts and tool args for secrets/PII and redact or block on match | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Scope: Operational rules for writing, reviewing, and running Claude Code Agentic Hooks configured under the hooks: key for events PreToolUse, PostToolUse, UserPromptSubmit, and Stop | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Share read-only policy state; avoid shared mutable state across hooks | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Ship a local test harness with fixtures for each event type | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Short-circuit cheap, high-signal checks first | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Standardize on one implementation language and a shared helper library | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Standardize on one language/runtime for hooks | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Track and alert on hook latency percentiles by event type | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Treat Stop as best-effort and design telemetry to tolerate missing finalization | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Triggers: PreToolUse on tool_name="sql_query" | Structure |  |  |  | ✓ |  |  | 1 |
-| Unit-test each rule with good/bad/golden cases | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Use distinct exit codes for policy_violation vs infrastructure_error | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Validate and normalize the event payload before making decisions | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Verify hook artifacts at startup (signatures/checksums) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Version policy configs and hook code; bump versions on any behavioral change | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
-| Write human-readable logs to stderr or a separate sink, never to stdout | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Maintain an explicit allowlist of tools and subcommands; deny by default | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Make decisions deterministic given inputs; do not use randomness without a fixed seed | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Make each hook a single small entrypoint; compose multiple hooks by registering multiple scripts, not by branching internally | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Never construct shells from untrusted strings; pass argv arrays to subprocess without shell=True | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Normalize and validate all filesystem paths via realpath and enforce a workspace root prefix; reject symlinks escaping the workspace | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Pin Python dependencies in requirements.txt or a lockfile; vendor single-file utilities when feasible | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Pin interpreter/binary paths explicitly (e.g., /usr/bin/python3, /usr/bin/env bash) and avoid bare names | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Prefer ./relative paths rooted at the repo for scripts; do not rely on changing CWD at runtime | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Prefer Python for nontrivial hooks; use Bash only for trivial glue | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Prefer sandboxed execution (container, seccomp, or no_new_privs) for high-risk hooks | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Produce exactly one JSON object on stdout containing decision, reason, and optionally patch or metadata | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Provide fixtures under tests/fixtures/{Event}/ covering allow, deny, and malformed cases | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Put all hook scripts under hooks/ with filenames {Event}__{purpose}.{sh\|py} | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Read the hook payload from stdin as strict JSON; reject on parse error | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Redact or drop secrets from logs and outputs; never print env dumps | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Register only supported events: PreToolUse, PostToolUse, UserPromptSubmit, Stop | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Retry only idempotent, transient operations with capped exponential backoff (max 2 retries) | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Return stable reason codes from a fixed enum; avoid free-text only | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Run hooks with least privilege and without sudo | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Sample heavy PostToolUse instrumentation to ≤10% unless mandated by compliance | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Scope: Opinionated best practices for Claude Code Agentic Hooks configured under the hooks: key in settings.json for events PreToolUse, PostToolUse, UserPromptSubmit, and Stop | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Spawn at most one subprocess per hook invocation; batch checks when needed | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Tag logs with a stable hook name matching the filename | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Unit test each hook’s stdin→stdout/exit behavior; assert no stdout noise and correct exit codes | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Use absolute or ./-prefixed command paths in settings.json; never rely on PATH | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Use argv-array command form when supported by the platform; avoid shell-string commands | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Use comments to document each allow/deny rule with rationale and examples | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Use monotonic timing for duration; include timeout flag when applicable | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
+| Validate required fields (at least event, requestId, timestamp) and normalize inputs before use | Section 2: Rules File | ✓ |  |  |  |  |  | 1 |
 
 ## Wording variance
 

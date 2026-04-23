@@ -32,12 +32,13 @@ async def elicit_one(model: str, prompt: str) -> ModelResponse:
         return _errored(model, started, "empty response content", elapsed=elapsed)
 
     try:
-        reasoning, rules_file = split_sections(content)
+        reasoning, rules_file, deterministic_checks = split_sections(content)
     except MalformedResponseError as exc:
         return ModelResponse(
             model=model,
             reasoning=content.strip(),
             rules_file="",
+            deterministic_checks="",
             error=f"MalformedResponseError: {exc}",
             usage=extract_usage(response),
             elapsed_seconds=elapsed,
@@ -47,6 +48,7 @@ async def elicit_one(model: str, prompt: str) -> ModelResponse:
         model=model,
         reasoning=reasoning,
         rules_file=rules_file,
+        deterministic_checks=deterministic_checks,
         error=None,
         usage=extract_usage(response),
         elapsed_seconds=elapsed,
@@ -72,6 +74,7 @@ def _errored(model: str, started: float, message: str, elapsed: float | None = N
         model=model,
         reasoning="",
         rules_file="",
+        deterministic_checks="",
         error=message,
         usage=Usage(),
         elapsed_seconds=elapsed if elapsed is not None else time.monotonic() - started,

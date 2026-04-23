@@ -7,71 +7,70 @@
 
 | Rule | Theme | openai/gpt-5 | openai/gpt-4o-mini | anthropic/claude-opus-4-7 | anthropic/claude-haiku-4-5 | vertex_ai/gemini-2.5-pro | xai/grok-3-mini | Count |
 |---|---|---|---|---|---|---|---|---|
-| Grant only the minimum tools required (principle of least privilege). | Safety | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
-| Include concrete examples of expected input/output when format matters. | Correctness | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Keep each subagent single-responsibility / one agent per file. | Structure | ✓ |  | ✓ | ✓ | ✓ | ✓ | 5 |
-| Keep the system prompt concise with a token/word cap. | Performance | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
-| State explicit success criteria / output contract. | Correctness | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
-| Use a consistent section ordering/structure across definitions. | Structure | ✓ | ✓ |  | ✓ | ✓ |  | 4 |
-| Write descriptions/prompts in clear imperative, active language. | Style | ✓ | ✓ |  | ✓ | ✓ | ✓ | 4 |
-| Define explicit stop conditions / failure-mode handling. | Error Handling | ✓ |  |  | ✓ | ✓ | ✓ | 4 |
-| Avoid scope overlap between subagents to prevent routing conflicts. | Maintainability |  |  | ✓ | ✓ | ✓ |  | 3 |
-| Constrain or scope shell/bash tool access narrowly (no unconstrained Bash). | Safety | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Explicitly forbid dangerous/destructive actions in the system prompt. | Safety | ✓ |  | ✓ |  | ✓ |  | 3 |
-| Keep scope anchored to specific files/paths/globs. | Scope | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Write the description as a precise, action-oriented trigger for delegation. | Structure |  |  | ✓ | ✓ | ✓ |  | 3 |
-| Require human approval/confirmation for high-impact or state-changing operations. | Safety | ✓ |  |  |  | ✓ | ✓ | 3 |
-| Version subagent definitions and track changes (changelog/history). | Maintainability | ✓ |  |  | ✓ |  | ✓ | 3 |
-| Treat tool additions as reviewed, deliberate changes (avoid tool creep). | Maintainability | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Use a standardized naming convention for subagent files. | Structure | ✓ |  | ✓ |  | ✓ | ✓ | 4 |
-| Do not contradict the tool allowlist within the system prompt. | Correctness |  |  |  | ✓ |  |  | 1 |
-| Remove/archive unused or orphaned subagents. | Maintainability |  |  | ✓ | ✓ |  |  | 2 |
-| Define and document input/preconditions explicitly. | Correctness | ✓ |  |  |  | ✓ |  | 2 |
-| Require a plan-first / dry-run step before writes. | Safety | ✓ |  |  |  |  |  | 1 |
-| Treat repository content as untrusted (guard against prompt injection). | Safety | ✓ |  |  |  |  | ✓ | 2 |
-| Disable network access by default; allowlist specific hosts. | Safety | ✓ |  | ✓ |  |  |  | 2 |
-| Set explicit runtime/tool-call budgets. | Performance | ✓ |  |  |  |  |  | 1 |
-| Prefer targeted searches/scopes over whole-repo scans. | Performance | ✓ |  |  |  |  |  | 1 |
-| Redact secrets/PII and never handle credentials directly. | Safety | ✓ |  |  |  |  |  | 1 |
-| Assign an owner/team for each subagent. | Maintainability | ✓ |  |  |  |  |  | 1 |
-| Commit team subagents to the repo; keep personal ones in user dir. | Governance |  |  | ✓ |  |  |  | 1 |
-| Assume zero shared context with the caller in the system prompt. | Correctness |  |  | ✓ |  |  |  | 1 |
-| Write descriptions in third person (not first person). | Style |  |  | ✓ |  |  |  | 1 |
-| Use trigger phrases like "PROACTIVELY"/"MUST BE USED" when auto-routing is needed. | Style |  |  | ✓ |  |  |  | 1 |
-| Return structured, concise output rather than full logs. | Performance |  |  | ✓ |  |  |  | 1 |
-| Prefer running formatters/linters over describing style in prose. | Style | ✓ |  |  |  |  |  | 1 |
-| Test subagents with smoke scenarios / CI against repo snapshots. | Testing | ✓ |  |  |  |  | ✓ | 2 |
-| Enforce idempotence for repeatable runs. | Correctness | ✓ |  |  |  |  |  | 1 |
-| Review subagent definitions periodically (e.g., quarterly). | Maintainability |  |  |  | ✓ |  |  | 1 |
-| Include a "Last Updated" or version marker in the file. | Maintainability |  |  |  | ✓ |  |  | 1 |
-| Don't leave TODO/placeholder comments in definitions. | Style |  |  |  | ✓ |  |  | 1 |
-| Forbid self-modifying subagents (agents editing their own/other definitions). | Safety |  |  |  | ✓ |  |  | 1 |
-| Document known limitations/assumptions explicitly. | Documentation | ✓ |  |  | ✓ |  |  | 2 |
-| Prefer fewer broader domain agents over many hyper-specialized ones. | Maintainability |  |  | ✓ |  | ✓ |  | 2 |
-| Set tools allowlist explicitly rather than inheriting defaults. | Safety |  |  | ✓ | ✓ | ✓ |  | 3 |
-| Do not use wildcards in tool allowlists. | Safety |  |  |  |  | ✓ |  | 1 |
-| Include robust error-handling / retry guidance. | Error Handling |  | ✓ |  |  |  | ✓ | 2 |
-| Guard against prompt injection from user inputs. | Safety |  |  |  |  |  | ✓ | 1 |
-| Define non-goals / explicit "will not" boundaries. | Scope | ✓ |  | ✓ | ✓ |  |  | 3 |
-| Use consistent terminology throughout a definition. | Style |  | ✓ |  | ✓ |  |  | 2 |
-| Keep description brief and free of marketing/vague language. | Style |  |  | ✓ | ✓ |  |  | 2 |
-| Avoid duplicating policy text shared across agents (DRY). | Maintainability | ✓ |  | ✓ |  |  |  | 2 |
-| Provide a handoff/escalation rubric with required context. | Error Handling | ✓ |  |  |  |  |  | 1 |
-| Maintain up-to-date documentation alongside code changes. | Documentation |  | ✓ |  |  |  |  | 1 |
+| Grant only the minimum tools required (least privilege). | Safety | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | 6 |
+| Declare tool allowlist explicitly; no wildcards or "all". | Tooling | ✓ | ✓ | ✓ | ✓ |  | ✓ | 5 |
+| Cap the system prompt length for efficiency/determinism. | Performance | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
+| Mandate an explicit, structured/machine-parsable output format. | Error Handling | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
+| Keep each subagent to a single, well-defined responsibility. | Structure |  | ✓ | ✓ | ✓ | ✓ |  | 4 |
+| Require YAML frontmatter with required metadata keys. | Structure | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
+| Write a concise, routing-oriented description. | Description |  | ✓ | ✓ | ✓ | ✓ |  | 4 |
+| Constrain/scope shell (Bash) use or restrict dangerous tools. | Safety | ✓ |  | ✓ | ✓ |  | ✓ | 4 |
+| Place subagent files in `.claude/agents/` with `.md` extension. | Structure | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
+| Use an agreed filename convention (kebab-case / descriptive). | Naming | ✓ |  | ✓ | ✓ | ✓ |  | 4 |
+| Include at least one concrete input/output example. | Testing |  | ✓ | ✓ | ✓ |  |  | 3 |
+| Provide explicit refusal/failure/escalation behavior. | Error Handling | ✓ |  |  | ✓ | ✓ |  | 3 |
+| Do not embed secrets or credentials in the definition. | Safety | ✓ | ✓ |  | ✓ |  |  | 3 |
+| Version subagents and document changes in a changelog. | Versioning | ✓ |  |  | ✓ |  | ✓ | 3 |
+| Constrain filesystem scope via path allowlist/denylist. | Safety | ✓ |  |  | ✓ |  |  | 2 |
+| Use consistent section headings / standard template. | Structure | ✓ |  |  |  | ✓ |  | 2 |
+| Require an explicit owner / stewardship for each subagent. | Ownership | ✓ |  |  |  |  |  | 1 |
+| Set bounded timeouts for execution. | Performance | ✓ |  |  |  |  |  | 1 |
+| Cap max_output_tokens. | Performance | ✓ |  |  |  |  |  | 1 |
+| Require dry-run / commit-preview before writes. | Safety | ✓ |  |  |  |  |  | 1 |
+| Default network access off; require allowed_domains when on. | Safety | ✓ |  |  |  |  |  | 1 |
+| Validate tool allowlist against a central approved list in CI. | Testing | ✓ |  |  |  |  |  | 1 |
+| Define an explicit escalate_to target (handoff). | Error Handling | ✓ |  |  |  |  |  | 1 |
+| Stop after N failed attempts and escalate. | Error Handling | ✓ |  |  |  |  |  | 1 |
+| Use kebab-case id matching filename stem. | Naming | ✓ |  | ✓ |  |  |  | 2 |
+| Regularly review and iterate on definitions. | Maintainability |  | ✓ |  |  |  |  | 1 |
+| Include trigger phrases (e.g., PROACTIVELY / MUST BE USED) in description. | Description |  |  | ✓ |  |  |  | 1 |
+| Avoid duplicated/overlapping trigger vocabulary across agents. | Description |  |  | ✓ |  |  | ✓ | 2 |
+| Open the system prompt with a one-line role statement / primary goal. | Prompt |  |  | ✓ | ✓ |  |  | 2 |
+| Structure the system prompt with markdown headings. | Prompt |  |  | ✓ |  |  |  | 1 |
+| Do not reference prior conversation state in the system prompt. | Prompt |  |  | ✓ |  |  |  | 1 |
+| End system prompt with a self-check / success criteria. | Prompt |  |  | ✓ |  |  |  | 1 |
+| Choose the model tier intentionally (haiku/sonnet/opus). | Model Selection |  |  | ✓ |  |  |  | 1 |
+| Write prompt instructions in imperative mood. | Style |  |  | ✓ |  | ✓ |  | 2 |
+| Avoid hedging/apology language in the system prompt. | Style |  |  | ✓ |  |  |  | 1 |
+| Commit project subagents to version control. | Repo Hygiene |  |  | ✓ |  |  |  | 1 |
+| Don't commit personal subagents to project repo. | Repo Hygiene |  |  | ✓ |  |  |  | 1 |
+| Document non-obvious subagents in the README. | Repo Hygiene |  |  | ✓ |  |  |  | 1 |
+| Include a Scope & Constraints / out-of-scope section. | Structure | ✓ |  |  | ✓ |  |  | 2 |
+| Do not interpolate untrusted user input into the prompt (injection). | Safety |  |  |  | ✓ |  | ✓ | 2 |
+| Do not include instructions that contradict the tool allowlist. | Correctness |  |  |  | ✓ |  |  | 1 |
+| Use consistent terminology/tone across agents. | Style |  |  |  | ✓ |  | ✓ | 2 |
+| Document project/runtime assumptions explicitly. | Documentation |  |  |  | ✓ |  |  | 1 |
+| Require review/confirmation step for sensitive-file edits. | Safety |  |  |  | ✓ |  |  | 1 |
+| Explicitly forbid destructive operations in the prompt. | Safety |  |  |  | ✓ |  |  | 1 |
+| Mark subagents deprecated rather than deleting them. | Versioning |  |  |  | ✓ |  |  | 1 |
+| Include a "Related Subagents" section when applicable. | Documentation |  |  |  | ✓ |  |  | 1 |
+| Use CamelCase/PascalCase for the `name` field. | Naming |  |  |  | ✓ |  |  | 1 |
+| Enclose dynamic placeholders in `<context>` tags. | Prompt |  |  |  |  | ✓ |  | 1 |
+| Keep the section order Description → Tools → System prompt. | Structure |  |  |  |  | ✓ |  | 1 |
+| Don't exceed three levels of headings in the file. | Style |  |  |  |  |  | ✓ | 1 |
+| Don't leave placeholder/TODO text in final definitions. | Style |  |  |  |  |  | ✓ | 1 |
 
 ## Notes on clustering decisions
 
-- **"Least privilege / minimal tools"** absorbs several phrasings ranging from Opus's "minimum tools needed" to Grok's "principle of least privilege" and Gemini's "minimum set of tools" — all clearly the same norm despite different vocabularies.
-- **"Avoid scope overlap"** and **"Ensure mutually exclusive descriptions"** were merged; they address the same routing failure mode even though Opus frames it as deletion and Gemini as design.
-- **"Explicit tools allowlist rather than inheriting"** (Opus, Haiku, Gemini) was kept separate from the broader "least privilege" rule because it's a distinct mechanical requirement (don't omit the field) vs. a sizing principle.
-- **"Constrain Bash / no unconstrained shell"** was kept distinct from the general least-privilege rule because multiple models call it out specifically as a shell-safety pattern (gpt-5's `set -euo pipefail`, Opus's `Bash(npm test:*)`, Haiku's forbid-`rm`).
-- **"Keep system prompt concise with token/word cap"** merges different numeric caps (gpt-5: <1000 words; Opus: <1500 tokens; Haiku: <1000 tokens; Grok: <500 tokens). A stricter matcher might split these by threshold.
-- **"Use consistent section ordering"** merges gpt-5's specific ordering, gpt-4o-mini's "consistent format," Haiku's explicit section order, and Gemini's "all three sections present" — arguably different granularities.
-- **"Define non-goals / will-not boundaries"** merges gpt-5's "state non-goals," Opus's "forbid scope expansion," and Haiku's explicit "Will Not" list; Gemini's "define boundaries" is close but placed under examples/limitations.
-- **"Concrete examples in prompts"** merges Opus ("one example beats three paragraphs"), Haiku ("concrete examples"), Gemini ("concrete examples of inputs/outputs"), Grok ("Don't include unnecessary examples" — note: Grok actually argues *against* verbose examples, so Grok was **not** counted here; only gpt-5's minimal-examples rule was counted as supportive).
-- **"Write in imperative/active voice"** groups gpt-5's "imperative instructions," gpt-4o-mini's "plain concise language," Haiku's "plain imperative language," Gemini's "begin with a verb," and Grok's "active voice." These are all style guidance but span description-writing vs. prompt-writing; lumped together.
-- **"Stop conditions / failure handling"** merges gpt-5's explicit `stop_conditions`, Haiku's "document failure modes," Gemini's "define boundaries/limitations," and Grok's "error-handling instructions." Gemini's inclusion here is a judgment call.
-- **Grok's "version history section"** and Haiku's "Last Updated date" and gpt-5's `version` front-matter field were merged into a single versioning cluster despite different mechanisms.
-- **gpt-4o-mini** contributed mostly high-level/abstract rules; many of its rules map weakly to multiple clusters (e.g., "robust error handling" is generic). I credited it only where the correspondence was clear.
-- **"Prefer fewer broader agents"** (Opus, Gemini) is explicitly flagged contested by both; kept as one cluster.
-- **"Test subagents"** merges gpt-5's CI-snapshot rule and Grok's latency-testing rule, which target different qualities (correctness vs. performance) but share the imperative to test definitions.
+- **"Grant only the minimum tools (least privilege)"** merges gpt-5's "Grant the minimum tools needed", gpt-4o-mini's "limit scope of actions to the allowlist", opus's "grant only tools actually used", haiku's "include only tools necessary", gemini's "grant the minimum set of tools", and grok's justification-per-tool rule. These are phrased quite differently but all express least privilege; a regex matcher would likely miss some.
+- **"Declare tool allowlist explicitly; no wildcards"** groups "never use `*`/`all`" (gpt-5, opus, grok-implicit via enumeration), gpt-4o-mini's "no ambiguous entries", and haiku's "no wildcards unless fallback". Grok's "explicit list with bullet points" was treated as the same rule as "enumerate explicitly".
+- **"Cap system prompt length"** merges specific numeric thresholds that differ across models (gpt-5: 3000 chars; opus: ~1500 tokens; haiku: 2 KB; grok: 500 tokens). A fuzzy matcher would likely separate these by number; I clustered on intent.
+- **"Mandate structured output format"** merges gpt-5's "Output contract", opus's "specify output format explicitly", haiku's output-format requirements, and gemini's "machine-parsable output". gpt-4o-mini has no clear analog.
+- **"Single responsibility"** clusters gpt-4o-mini's "don't overload a subagent", opus's "single responsibility", haiku's "single-purpose", and gemini's "one primary verb". Arguably distinct from "don't duplicate trigger vocabulary" (kept separate).
+- **"Constrain/scope dangerous tools (Bash)"** merges gpt-5's write-capable-tool guards (dry-run/preview), opus's Bash-specific caution, haiku's shell caution, and grok's sensitive-tool caveat. I debated splitting Bash-specific from general destructive-tool rules; I kept them together because all are about extra scrutiny for high-risk tools. gpt-5's specific `dry_run_required`/`commit_preview_required` rules were split out as their own more-specific mechanisms.
+- **Naming rules** are fragmented across models (kebab-case filename, kebab-case id, CamelCase `name`, PascalCase `name`, descriptive filename). I clustered "filename convention" loosely but kept "kebab-case id matches filename stem" and "CamelCase/PascalCase name field" separate because they make mutually incompatible claims about the `name` field.
+- **"Open with role/primary goal statement"** merges opus's "one-line role statement" with haiku's "state single primary goal at top". Could arguably be two rules; I merged on shared intent.
+- **"Use consistent terminology/tone"** merges haiku's two style rules (neutral tone; consistent terminology) with grok's "consistent professional language". Split finely these are 2–3 rules.
+- **gpt-5 safety sub-rules** (dry-run, commit-preview, network default off, allowed_domains, deny wildcard domains, files_denylist) are unique to gpt-5 and kept as separate rows rather than collapsed into one "safety hardening" megarule, because they're mechanically distinct checks.
+- **"Include examples"** merges gpt-4o-mini's "documentation on usage and examples", opus's "at least one concrete example", and haiku's "one minimal example". gemini gestures at few-shot examples in reasoning but doesn't state a rule, so not counted.
+- **"Versioning/changelog"** merges gpt-5's Changelog section, haiku's version-bump rule, and grok's "version in filenames". The deprecation rule (haiku) is kept separate since it's a distinct mechanism.

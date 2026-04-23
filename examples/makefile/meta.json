@@ -1,0 +1,65 @@
+{
+  "topic": "Makefile",
+  "started_at": "2026-04-23T01:21:56.739687+00:00",
+  "finished_at": "2026-04-23T01:26:47.160590+00:00",
+  "elapsed_seconds": 290.420903,
+  "panel": [
+    "openai/gpt-5",
+    "openai/gpt-4o-mini",
+    "anthropic/claude-opus-4-7",
+    "anthropic/claude-haiku-4-5",
+    "vertex_ai/gemini-2.5-pro",
+    "xai/grok-3-mini"
+  ],
+  "synthesizer": "anthropic/claude-opus-4-7",
+  "usage_by_model": {
+    "openai/gpt-5": {
+      "prompt_tokens": 729,
+      "completion_tokens": 10612,
+      "total_tokens": 11341,
+      "cost_usd": 0.10703125000000001
+    },
+    "openai/gpt-4o-mini": {
+      "prompt_tokens": 730,
+      "completion_tokens": 1162,
+      "total_tokens": 1892,
+      "cost_usd": 0.0008066999999999999
+    },
+    "anthropic/claude-opus-4-7": {
+      "prompt_tokens": 1102,
+      "completion_tokens": 8000,
+      "total_tokens": 9102,
+      "cost_usd": 0.20551
+    },
+    "anthropic/claude-haiku-4-5": {
+      "prompt_tokens": 811,
+      "completion_tokens": 5555,
+      "total_tokens": 6366,
+      "cost_usd": 0.028586
+    },
+    "vertex_ai/gemini-2.5-pro": {
+      "prompt_tokens": 758,
+      "completion_tokens": 5636,
+      "total_tokens": 6394,
+      "cost_usd": 0.057307500000000004
+    },
+    "xai/grok-3-mini": {
+      "prompt_tokens": 714,
+      "completion_tokens": 2191,
+      "total_tokens": 3639,
+      "cost_usd": 0.001670175
+    }
+  },
+  "synthesis_usage": {
+    "prompt_tokens": 35396,
+    "completion_tokens": 10556,
+    "total_tokens": 45952,
+    "cost_usd": 0.44088000000000005
+  },
+  "coverage_llm_usage": {
+    "prompt_tokens": 34936,
+    "completion_tokens": 3923,
+    "total_tokens": 38859,
+    "cost_usd": 0.272755
+  }
+}

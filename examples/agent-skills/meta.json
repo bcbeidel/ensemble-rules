@@ -1,0 +1,65 @@
+{
+  "topic": "Agent Skills",
+  "started_at": "2026-04-22T23:54:56.615152+00:00",
+  "finished_at": "2026-04-22T23:59:40.241607+00:00",
+  "elapsed_seconds": 283.626455,
+  "panel": [
+    "openai/gpt-5",
+    "openai/gpt-4o-mini",
+    "anthropic/claude-opus-4-7",
+    "anthropic/claude-haiku-4-5",
+    "vertex_ai/gemini-2.5-pro",
+    "xai/grok-3-mini"
+  ],
+  "synthesizer": "anthropic/claude-opus-4-7",
+  "usage_by_model": {
+    "openai/gpt-5": {
+      "prompt_tokens": 726,
+      "completion_tokens": 9160,
+      "total_tokens": 9886,
+      "cost_usd": 0.09250750000000002
+    },
+    "openai/gpt-4o-mini": {
+      "prompt_tokens": 727,
+      "completion_tokens": 1170,
+      "total_tokens": 1897,
+      "cost_usd": 0.0008110499999999999
+    },
+    "anthropic/claude-opus-4-7": {
+      "prompt_tokens": 1108,
+      "completion_tokens": 6856,
+      "total_tokens": 7964,
+      "cost_usd": 0.17694
+    },
+    "anthropic/claude-haiku-4-5": {
+      "prompt_tokens": 811,
+      "completion_tokens": 7311,
+      "total_tokens": 8122,
+      "cost_usd": 0.037366
+    },
+    "vertex_ai/gemini-2.5-pro": {
+      "prompt_tokens": 764,
+      "completion_tokens": 5719,
+      "total_tokens": 6483,
+      "cost_usd": 0.058145
+    },
+    "xai/grok-3-mini": {
+      "prompt_tokens": 715,
+      "completion_tokens": 1947,
+      "total_tokens": 3505,
+      "cost_usd": 0.00160275
+    }
+  },
+  "synthesis_usage": {
+    "prompt_tokens": 36703,
+    "completion_tokens": 11173,
+    "total_tokens": 47876,
+    "cost_usd": 0.46284000000000003
+  },
+  "coverage_llm_usage": {
+    "prompt_tokens": 36241,
+    "completion_tokens": 4515,
+    "total_tokens": 40756,
+    "cost_usd": 0.29408
+  }
+}
